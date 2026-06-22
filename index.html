@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stockholm Cup of Nations 2026</title>
+<link rel="icon" href="img/logo.jpg" />
+<meta name="description" content="Stockholm Cup of Nations 2026 — a grassroots international football tournament, 25–26 July 2026 at Östermalms IP, Stockholm. 32 nations, five continents." />
+<meta property="og:title" content="Stockholm Cup of Nations 2026" />
+<meta property="og:description" content="Where the world meets in the heart of Stockholm. 25–26 July 2026, Östermalms IP." />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    --blue:#0b46c4;        /* royal crest blue */
+    --blue-2:#0a3aa0;
+    --navy:#08236b;        /* deep header blue */
+    --navy-deep:#061a4f;
+    --gold:#f4c20d;
+    --gold-2:#ffd84a;
+    --gold-deep:#b8860b;
+    --paper:#f4f7fc;
+    --ink:#0c1a3a;
+    --muted:#62708f;
+    --line:rgba(255,255,255,.14);
+    --radius:18px;
+    --max:1180px;
+    /* subtle paper grain */
+    --tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-color:var(--paper);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1800' width='1000' height='1800' fill='none' stroke='%230b46c4' stroke-width='3' opacity='0.08'%3E%3Crect x='60' y='60' width='880' height='1680'/%3E%3Cline x1='60' y1='900' x2='940' y2='900'/%3E%3Ccircle cx='500' cy='900' r='130'/%3E%3Ccircle cx='500' cy='900' r='6' fill='%230b46c4' stroke='none'/%3E%3Crect x='270' y='60' width='460' height='230'/%3E%3Crect x='380' y='60' width='240' height='90'/%3E%3Ccircle cx='500' cy='230' r='6' fill='%230b46c4' stroke='none'/%3E%3Cpath d='M385 290 A130 130 0 0 1 615 290'/%3E%3Crect x='270' y='1510' width='460' height='230'/%3E%3Crect x='380' y='1650' width='240' height='90'/%3E%3Ccircle cx='500' cy='1570' r='6' fill='%230b46c4' stroke='none'/%3E%3Cpath d='M385 1510 A130 130 0 0 0 615 1510'/%3E%3C/svg%3E"),
+      var(--tex),
+      radial-gradient(1100px 720px at 82% 0%, rgba(11,70,196,.05), transparent 60%),
+      radial-gradient(900px 600px at 0% 100%, rgba(244,194,13,.06), transparent 55%);
+    background-repeat:repeat-y, repeat, no-repeat, no-repeat;
+    background-size:100% auto, 180px 180px, auto, auto;
+    background-position:center top, 0 0, 82% 0, 0% 100%;
+    background-attachment:scroll, fixed, fixed, fixed;
+  }
+  h1,h2,h3{line-height:1.05;letter-spacing:-.02em}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  .eyebrow{text-transform:uppercase;letter-spacing:.22em;font-size:12px;font-weight:800;color:var(--gold-deep)}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:999px;font-weight:800;font-size:15px;cursor:pointer;border:2px solid transparent;transition:.18s transform,.18s box-shadow}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-gold{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:#3a2c00;box-shadow:0 10px 26px rgba(244,194,13,.4)}
+  .btn-ghost{background:rgba(255,255,255,.7);border-color:var(--blue);color:var(--blue)}
+  .btn-blue{background:var(--blue);color:#fff}
+
+  /* NAV */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(8,35,107,.94);backdrop-filter:blur(10px);border-bottom:2px solid var(--gold)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px;color:#fff;gap:16px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.01em}
+  .brand img{height:46px;width:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4))}
+  .brand small{display:block;font-size:10px;letter-spacing:.2em;color:var(--gold);font-weight:800}
+  nav.links{display:flex;gap:26px;font-weight:600;font-size:14.5px;align-items:center;margin-left:auto}
+  nav.links a{opacity:.88}
+  nav.links a:hover{opacity:1;color:var(--gold)}
+  .lang{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--gold);border-radius:999px;padding:3px;background:transparent;cursor:pointer;font-family:inherit}
+  .lang .lng{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:800;color:#fff;opacity:.55;white-space:nowrap;transition:.15s}
+  .lang .lng:hover{opacity:.9}
+  .lang .lng.active{background:var(--gold);color:#3a2c00;opacity:1}
+  .nav-cta{padding:9px 18px;font-size:13.5px}
+  .burger{display:none;font-size:24px;cursor:pointer;color:#fff}
+
+  /* HERO */
+  .hero{position:relative;color:var(--ink);overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(233,241,255,.5));}
+  .hero-inner{position:relative;z-index:2;padding:64px 0 70px;display:grid;grid-template-columns:1.1fr .9fr;gap:46px;align-items:center}
+  .hero h1{font-size:clamp(40px,6vw,72px);font-weight:900;margin:14px 0 14px;color:var(--navy)}
+  .hero h1 .hl{color:var(--blue)}
+  .hero p.lede{font-size:18px;max-width:520px;color:var(--muted)}
+  .meta-row{display:flex;gap:26px;flex-wrap:wrap;margin:26px 0 30px}
+  .meta-row .m b{font-size:19px;font-weight:800;display:block;color:var(--navy)}
+  .meta-row .m span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep)}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .motto{margin-top:26px;font-style:italic;color:var(--muted);font-size:14px;border-left:3px solid var(--gold);padding-left:14px}
+  .hero-art{position:relative}
+  .hero-art img{width:100%;border-radius:var(--radius);border:3px solid rgba(244,194,13,.55);box-shadow:0 30px 70px rgba(0,0,0,.45)}
+
+  .count-card{margin-top:22px;background:linear-gradient(160deg,var(--navy),var(--blue-2));border:1px solid rgba(244,194,13,.45);border-radius:16px;padding:18px;box-shadow:0 18px 40px rgba(8,35,107,.25)}
+  .count-card h3{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+  .count{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .count .u{background:rgba(0,0,0,.28);border-radius:11px;padding:10px 4px}
+  .count .u b{display:block;font-size:26px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums}
+  .count .u span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#a9b8da}
+  .draw{margin-top:12px;font-size:12.5px;color:#cdd8f0}
+
+  /* flag strip */
+  .flagstrip{position:relative;z-index:2;display:flex;gap:8px;justify-content:center;padding:0 0 26px;flex-wrap:wrap}
+  .flagstrip span{font-size:22px}
+
+  section{padding:78px 0}
+  section[id]{scroll-margin-top:88px}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 46px}
+  .sec-head h2{font-size:clamp(28px,4vw,42px);font-weight:900;margin:10px 0}
+  .sec-head p{color:var(--muted);font-size:16px}
+
+  /* stats */
+  .stats{border-top:1px solid #e2e8f4;border-bottom:1px solid #e2e8f4}
+  .stats .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+  .stat b{font-size:clamp(34px,5vw,52px);font-weight:900;color:var(--blue);display:block}
+  .stat span{color:var(--muted);font-size:14px}
+
+  /* register */
+  .reg{background:linear-gradient(180deg,rgba(11,70,196,.07),rgba(11,70,196,.02))}
+  .reg-card{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .reg ul{list-style:none;display:grid;gap:14px;margin:22px 0 28px}
+  .reg li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px;color:var(--ink)}
+  .reg li .tick{flex:0 0 24px;height:24px;border-radius:7px;background:var(--gold);color:#3a2c00;display:grid;place-items:center;font-weight:900;font-size:13px}
+  .reg-form{background:#fff;color:var(--ink);border-radius:var(--radius);padding:28px;box-shadow:0 30px 60px rgba(0,0,0,.3)}
+  .reg-form h3{font-size:22px;margin-bottom:4px}
+  .reg-form p.sub{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+  .reg-form label{display:block;font-size:12.5px;font-weight:700;margin:14px 0 6px}
+  .reg-form input{width:100%;padding:12px 14px;border:1.5px solid #dde3ee;border-radius:11px;font-size:14.5px;background:var(--paper)}
+  .reg-form input:focus{outline:none;border-color:var(--blue)}
+  .reg-form .btn{width:100%;justify-content:center;margin-top:20px}
+  .pricetag{display:inline-flex;gap:8px;align-items:baseline;background:var(--gold);color:#3a2c00;padding:6px 14px;border-radius:999px;font-weight:900;font-size:14px;margin-bottom:8px}
+
+  /* about / om oss */
+  .about .about-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}
+  .about p.story{font-size:16.5px;color:var(--ink);margin-bottom:16px}
+  .about p.story.lead{font-size:19px;font-weight:600;color:var(--navy)}
+  .video-wrap{position:relative;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;border:3px solid rgba(244,194,13,.55);box-shadow:0 26px 60px rgba(8,35,107,.25);background:#000}
+  .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  .about-highlights{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
+  .hl-card{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #e6ebf5;border-radius:14px;padding:16px 18px}
+  .hl-card img.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:top center;flex:0 0 58px;border:2px solid var(--gold);box-shadow:0 6px 16px rgba(8,35,107,.15)}
+  .hl-card h4{font-size:15px;margin:0 0 4px;color:var(--navy)}
+  .hl-card p{font-size:13px;color:var(--muted);margin:0}
+  .sthlm{display:inline-flex;align-items:center;gap:14px;margin-top:26px;background:#fff;border:1px solid #e6ebf5;border-radius:14px;padding:12px 18px;box-shadow:0 10px 26px rgba(8,35,107,.08)}
+  .sthlm img{height:38px;width:auto}
+  .sthlm span{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+  /* champions */
+  .champs .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .champ{background:#fff;border:1px solid #e6ebf5;border-radius:var(--radius);padding:24px;position:relative;overflow:hidden}
+  .champ::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--blue),var(--gold))}
+  .champ .yr{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em}
+  .champ .flag{font-size:40px;margin:8px 0}
+  .champ .win{font-size:21px;font-weight:900}
+  .champ .venue{font-size:13px;color:var(--muted);margin-top:4px}
+  .champ .cup{position:absolute;right:-8px;bottom:-10px;font-size:64px;opacity:.07}
+
+  /* gallery */
+  .gallery{background:transparent}
+  .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .gal-grid figure{border-radius:var(--radius);overflow:hidden;position:relative;border:2px solid #e6ebf5;box-shadow:0 14px 34px rgba(8,35,107,.1)}
+  .gal-grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:3/4;transition:.4s transform}
+  .gal-grid figure:hover img{transform:scale(1.05)}
+  .gal-grid figcaption{position:absolute;left:0;right:0;bottom:0;padding:16px;color:#fff;font-weight:700;font-size:14px;background:linear-gradient(0deg,rgba(6,26,79,.85),transparent)}
+
+  /* live results */
+  .live{background:transparent}
+  .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .table-card{background:#fff;border:1px solid #e6ebf5;border-radius:var(--radius);overflow:hidden}
+  .table-card .top{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:var(--navy);color:#fff}
+  .table-card .top .pill{background:var(--gold);color:#3a2c00;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.08em}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:11px 14px;text-align:center}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid #eee}
+  td:first-child,th:first-child{text-align:left}
+  tbody tr:nth-child(-n+2){background:rgba(11,70,196,.07)}
+  tbody tr td:first-child{font-weight:700}
+  tbody tr td:last-child{font-weight:900;color:var(--blue)}
+  .qualify-note{font-size:12px;color:var(--muted);padding:12px 20px;border-top:1px solid #eee}
+  .bracket-mini{display:grid;gap:10px}
+  .bm-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e6ebf5;border-radius:12px;padding:12px 16px;font-size:14px}
+  .bm-row .stage{font-size:11px;font-weight:800;color:var(--gold-deep);text-transform:uppercase;letter-spacing:.08em;width:54px}
+  .bm-row .teams{font-weight:700}
+  .bm-row .vs{color:var(--muted);font-weight:400;margin:0 6px}
+  /* sample tournament */
+  .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .gcard{background:#fff;border:1px solid #e6ebf5;border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(8,35,107,.06)}
+  .gcard .gtop{padding:10px 14px;background:var(--navy);color:#fff;font-weight:800;font-size:14px}
+  .gcard table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .gcard th,.gcard td{padding:7px 6px;text-align:center}
+  .gcard th:first-child,.gcard td:first-child{text-align:left}
+  .gcard th{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);border-bottom:1px solid #eee;font-weight:700}
+  .gcard tbody tr:nth-child(-n+2){background:rgba(11,70,196,.08)}
+  .gcard td:first-child{font-weight:700;white-space:nowrap}
+  .gcard td:last-child{font-weight:900;color:var(--blue)}
+  .legend{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}
+  .bracket{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px;align-items:start}
+  .round{display:flex;flex-direction:column;gap:10px}
+  .round h4{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-deep);margin-bottom:2px;text-align:center}
+  .match{background:#fff;border:1px solid #e6ebf5;border-radius:10px;padding:8px 11px;font-size:13px;box-shadow:0 6px 16px rgba(8,35,107,.05)}
+  .match .t{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+  .match .t .sc{font-weight:800;color:var(--ink)}
+  .match .t.win{color:var(--ink);font-weight:800}
+  .match .t.win .sc{color:var(--blue)}
+  .champ-banner{margin-top:6px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;font-weight:900;border-radius:10px;padding:12px;text-align:center;font-size:14px}
+  .bronze{margin-top:8px;font-size:12px;color:var(--muted);text-align:center}
+  .match .pens{margin-top:5px;padding-top:5px;border-top:1px dashed #e6ebf5;font-size:11px;color:var(--muted);text-align:center}
+  .year-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+  .year-tab{border:1px solid #c9d4ea;background:#fff;color:var(--navy);font-weight:800;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.15s}
+  .year-tab:hover{border-color:var(--blue)}
+  .year-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .champ-top{max-width:540px;margin:0 auto 28px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;font-weight:900;border-radius:14px;padding:14px 18px;text-align:center;font-size:16px;box-shadow:0 12px 30px rgba(244,194,13,.3)}
+  @media(max-width:1000px){.groups-grid{grid-template-columns:repeat(2,1fr)}.bracket{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.groups-grid{grid-template-columns:1fr}.bracket{grid-template-columns:1fr}}
+
+  /* food */
+  .food{background:transparent}
+  .food .card{display:grid;grid-template-columns:.85fr 1.15fr;gap:0;background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid #e6ebf5;box-shadow:0 18px 44px rgba(8,35,107,.1)}
+  .food .img{background:radial-gradient(circle at 50% 40%,#eaf2ff,#dbe7ff);display:grid;place-items:center;padding:34px}
+  .food .img img{width:230px;height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.18))}
+  .food .copy{padding:38px}
+  .food .copy h3{font-size:26px;margin-bottom:8px}
+  .food .copy p{color:var(--muted)}
+
+  /* sponsors */
+  .sponsors{background:transparent;text-align:center;border-top:1px solid #e2e8f4}
+  .logo-row{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+  .logo-slot{width:170px;height:78px;border:1px dashed #c4cfe4;border-radius:12px;display:grid;place-items:center;color:#94a1c0;font-size:13px;font-weight:600;background:rgba(255,255,255,.6)}
+
+  .band{background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;text-align:center}
+  .band h2{font-size:clamp(28px,4vw,44px);font-weight:900}
+  .band p{font-size:17px;margin:10px 0 26px;font-weight:600}
+
+  footer{background:var(--navy-deep);color:#aebbd9;padding:54px 0 30px;font-size:14px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px;margin-bottom:34px}
+  footer h4{color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
+  footer a{display:block;opacity:.82;margin-bottom:8px}
+  footer a:hover{opacity:1;color:var(--gold)}
+  .foot-bottom{border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12.5px;color:#8b99bd}
+  .foot-brand img{height:54px;margin-bottom:12px}
+
+  .wa{position:fixed;right:20px;bottom:20px;z-index:60;background:#25d366;color:#fff;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:26px;box-shadow:0 10px 26px rgba(37,211,102,.45)}
+
+  @media(max-width:860px){
+    .burger{display:block}
+    nav.links{
+      display:none;position:absolute;top:100%;left:0;right:0;
+      flex-direction:column;align-items:stretch;gap:0;margin-left:0;
+      background:var(--navy);border-top:1px solid var(--line);
+      padding:8px 22px 18px;box-shadow:0 20px 34px rgba(0,0,0,.35)
+    }
+    nav.links.open{display:flex}
+    nav.links a{padding:13px 2px;width:100%;font-size:16px;opacity:.95;border-bottom:1px solid rgba(255,255,255,.08)}
+    nav.links a.nav-cta{margin-top:14px;width:auto;align-self:flex-start;padding:12px 22px;border-bottom:none}
+    .nav-inner{gap:10px}
+    .brand{font-size:13px}
+    .brand img{height:38px}
+    .hero-inner{grid-template-columns:1fr;gap:30px;padding:42px 0 56px}
+    .stats .grid,.champs .grid,.gal-grid{grid-template-columns:repeat(2,1fr)}
+    .reg-card,.food .card,.results-grid,.foot-grid,.about .about-grid,.about-highlights{grid-template-columns:1fr}
+    section{padding:56px 0}
+    th,td{padding:9px 7px;font-size:13px}
+  }
+  @media(max-width:380px){
+    .stats .grid{grid-template-columns:1fr 1fr}
+    .brand span{font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#">
+      <img src="img/logo.jpg" alt="Stockholm Cup of Nations crest" />
+      <span>STOCKHOLM CUP<small>OF NATIONS · 2026</small></span>
+    </a>
+    <nav class="links">
+      <a href="#about" data-en="About" data-sv="Om oss">About</a>
+      <a href="#register" data-en="Register" data-sv="Anmälan">Register</a>
+      <a href="#results" data-en="Results" data-sv="Resultat">Results</a>
+      <a href="#info" data-en="Info" data-sv="Info">Info</a>
+      <a href="#sponsors" data-en="Partners" data-sv="Partner">Partners</a>
+      <a href="#register" class="btn btn-gold nav-cta" data-en="Register a team" data-sv="Anmäl lag">Register a team</a>
+    </nav>
+    <div class="lang" id="langBtn" role="group" aria-label="Language / Språk" title="Switch language / Byt språk">
+      <span class="lng" data-set="en">🇬🇧 EN</span>
+      <span class="lng" data-set="sv">🇸🇪 SV</span>
+    </div>
+    <span class="burger" role="button" tabindex="0" aria-label="Menu" aria-expanded="false">☰</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="padding:0">
+  <div class="wrap hero-inner">
+    <div>
+      <span class="eyebrow" data-en="The Original · 5th Edition" data-sv="Originalet · 5:e upplagan">The Original · 5th Edition</span>
+      <h1 data-en="Where the world<br>meets in the<br><span class='hl'>heart of Stockholm.</span>" data-sv="Där världen<br>möts mitt i<br><span class='hl'>hjärtat av Stockholm.</span>">Where the world<br>meets in the<br><span class="hl">heart of Stockholm.</span></h1>
+      <p class="lede" data-en="A grassroots international football tournament uniting the city's cultures on the pitch — 32 nations, five continents, two days of football." data-sv="En internationell gräsrotsturnering i fotboll som förenar stadens kulturer på planen — 32 nationer, fem kontinenter, två dagar av fotboll.">A grassroots international football tournament uniting the city's cultures on the pitch — 32 nations, five continents, two days of football.</p>
+
+      <div class="meta-row">
+        <div class="m"><b data-en="25–26 July 2026" data-sv="25–26 juli 2026">25–26 July 2026</b><span>Östermalms IP</span></div>
+        <div class="m"><b data-en="7 v 7" data-sv="7 mot 7">7 v 7</b><span data-en="Format" data-sv="Format">Format</span></div>
+        <div class="m"><b>32</b><span data-en="Nations" data-sv="Nationer">Nations</span></div>
+      </div>
+
+      <div class="hero-cta">
+        <a href="#register" class="btn btn-gold" data-en="Register your team →" data-sv="Anmäl ditt lag →">Register your team →</a>
+        <a href="#results" class="btn btn-ghost" data-en="View results" data-sv="Se resultat">View results</a>
+      </div>
+
+      <p class="motto">"Only Football. No Politics. Respect the Game."</p>
+    </div>
+
+    <div class="hero-art">
+      <img src="img/hero.jpg" alt="Välkommen till Stockholm Cup of Nations 2026" />
+      <div class="count-card">
+        <h3 data-en="⏱ Kick-off countdown" data-sv="⏱ Nedräkning till avspark">⏱ Kick-off countdown</h3>
+        <div class="count" id="count">
+          <div class="u"><b id="d">—</b><span data-en="Days" data-sv="Dagar">Days</span></div>
+          <div class="u"><b id="h">—</b><span data-en="Hrs" data-sv="Tim">Hrs</span></div>
+          <div class="u"><b id="m">—</b><span data-en="Min" data-sv="Min">Min</span></div>
+          <div class="u"><b id="s">—</b><span data-en="Sec" data-sv="Sek">Sec</span></div>
+        </div>
+        <div class="draw" data-en="🎲 Official group draw — 18 July 2026" data-sv="🎲 Officiell gruppdragning — 18 juli 2026">🎲 Official group draw — 18 July 2026</div>
+      </div>
+    </div>
+  </div>
+  <div class="flagstrip">
+    <span>🇸🇪</span><span>🇧🇷</span><span>🇳🇬</span><span>🇰🇿</span><span>🇰🇬</span><span>🇺🇾</span><span>🇦🇱</span><span>🇺🇦</span><span>🇹🇿</span><span>🇦🇿</span><span>🇫🇷</span><span>🇪🇸</span><span>🇵🇹</span><span>🇲🇦</span><span>🇨🇴</span><span>🇯🇵</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat"><b>5</b><span data-en="Continents represented" data-sv="Kontinenter representerade">Continents represented</span></div>
+      <div class="stat"><b>4</b><span data-en="Editions since 2022" data-sv="Upplagor sedan 2022">Editions since 2022</span></div>
+      <div class="stat"><b>32</b><span data-en="Nations in 2026" data-sv="Nationer 2026">Nations in 2026</span></div>
+      <div class="stat"><b>1</b><span data-en="Talent to a pro academy*" data-sv="Talang till en proffsakademi*">Talent to a pro academy*</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section class="reg" id="register">
+  <div class="wrap reg-card">
+    <div>
+      <span class="eyebrow" data-en="Registration 2026" data-sv="Anmälan 2026">Registration 2026</span>
+      <h2 style="font-size:clamp(28px,4vw,40px);font-weight:900;margin:10px 0 6px;color:var(--navy)" data-en="Register your nation" data-sv="Anmäl din nation">Register your nation</h2>
+      <p style="max-width:440px;color:var(--muted)" data-en="Gather your crew, represent your flag, and play for the cup. Limited spots — the first 32 confirmed teams are in." data-sv="Samla ditt gäng, representera din flagga och spela om bucklan. Begränsat antal platser — de 32 första bekräftade lagen är med.">Gather your crew, represent your flag, and play for the cup. Limited spots — the first 32 confirmed teams are in.</p>
+      <ul>
+        <li><span class="tick">✓</span><div data-en="<b>7 v 7 format</b> — max 16 players per squad" data-sv="<b>7 mot 7</b> — max 16 spelare per lag"><b>7 v 7 format</b> — max 16 players per squad</div></li>
+        <li><span class="tick">✓</span><div data-en="<b>Group stage + knockout</b> — 8 groups of 4, then Round of 16 to the Final" data-sv="<b>Gruppspel + slutspel</b> — 8 grupper om 4, sedan åttondelsfinal till final"><b>Group stage + knockout</b> — 8 groups of 4, then Round of 16 to the Final</div></li>
+        <li><span class="tick">✓</span><div data-en="<b>Confirmation by email</b> with fee &amp; line-up instructions" data-sv="<b>Bekräftelse via e-post</b> med avgift &amp; laguppställning"><b>Confirmation by email</b> with fee &amp; line-up instructions</div></li>
+        <li><span class="tick">✓</span><div data-en="<b>Trophies, medals &amp; bragging rights</b> for the champion nation" data-sv="<b>Pokaler, medaljer &amp; ära</b> till vinnarnationen"><b>Trophies, medals &amp; bragging rights</b> for the champion nation</div></li>
+      </ul>
+      <a href="https://api.whatsapp.com/send?phone=46722012733" class="btn btn-gold" data-en="💬 Questions? WhatsApp us" data-sv="💬 Frågor? Skriv på WhatsApp">💬 Questions? WhatsApp us</a>
+    </div>
+
+    <form class="reg-form" id="regForm">
+      <span class="pricetag" data-en="Entry fee · TBC <span style='font-weight:600'>/ confirmed by email</span>" data-sv="Anmälningsavgift · TBC <span style='font-weight:600'>/ bekräftas via e-post</span>">Entry fee · TBC <span style="font-weight:600">/ confirmed by email</span></span>
+      <h3 data-en="Team registration" data-sv="Laganmälan">Team registration</h3>
+      <p class="sub" data-en="Deadline: 11 July 2026 (or until full)" data-sv="Sista anmälan: 11 juli 2026 (eller tills fullt)">Deadline: 11 July 2026 (or until full)</p>
+      <label data-en="Team / Nation" data-sv="Lag / Nation">Team / Nation</label>
+      <input type="text" name="team" data-en-ph="e.g. Team Brazil" data-sv-ph="t.ex. Lag Brasilien" placeholder="e.g. Team Brazil" required />
+      <label data-en="Contact person" data-sv="Kontaktperson">Contact person</label>
+      <input type="text" name="contact" data-en-ph="Full name" data-sv-ph="Fullständigt namn" placeholder="Full name" required />
+      <label data-en="Email" data-sv="E-post">Email</label>
+      <input type="email" name="email" data-en-ph="you@email.com" data-sv-ph="du@epost.se" placeholder="you@email.com" required />
+      <label data-en="Phone" data-sv="Telefon">Phone</label>
+      <input type="tel" name="phone" data-en-ph="+46 ..." data-sv-ph="+46 ..." placeholder="+46 ..." required />
+      <button class="btn btn-gold" type="submit" data-en="Submit registration →" data-sv="Skicka anmälan →">Submit registration →</button>
+    </form>
+  </div>
+</section>
+
+<!-- ABOUT / OM OSS -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="About us" data-sv="Om oss">About us</span>
+      <h2 data-en="More than a tournament" data-sv="Mer än en turnering">More than a tournament</h2>
+    </div>
+    <div class="about-grid">
+      <div>
+        <p class="story lead" data-en="Welcome to a tournament where community, diversity and the joy of football take centre stage. Stockholm Cup of Nations is more than a football tournament — it's a tribute to Stockholm's unique multicultural spirit." data-sv="Välkommen till en turnering där gemenskap, mångfald och fotbollsglädje står i fokus. Stockholm Cup of Nations är mer än bara en fotbollsturnering – det är en hyllning till Stockholms unika mångkulturella anda.">Welcome to a tournament where community, diversity and the joy of football take centre stage. Stockholm Cup of Nations is more than a football tournament — it's a tribute to Stockholm's unique multicultural spirit.</p>
+        <p class="story" data-en="Created by Stockholm United Sport Academy and founded in October 2022, our vision is to unite cultures and nations through the universal language of football — a prestigious annual cup where players with roots from all over the world compete under their national flags." data-sv="Skapat av Stockholm United Sport Academy och grundat i oktober 2022 är vår vision att förena kulturer och nationer genom fotbollens universella språk – en prestigefylld årlig cup där spelare med rötter från hela världen tävlar under sina nationsflaggor.">Created by Stockholm United Sport Academy and founded in October 2022, our vision is to unite cultures and nations through the universal language of football — a prestigious annual cup where players with roots from all over the world compete under their national flags.</p>
+        <div class="about-highlights">
+          <div class="hl-card"><img class="avatar" loading="lazy" src="img/maria-makar.jpg" alt="Maria Makar" /><div><h4>Maria Makar</h4><p data-en="Our Swedish referee has officiated the finals since 2023 with great experience and professionalism." data-sv="Vår svenska domare har dömt finalerna sedan 2023 med stor erfarenhet och professionalism.">Our Swedish referee has officiated the finals since 2023 with great experience and professionalism.</p></div></div>
+          <div class="hl-card"><img class="avatar" loading="lazy" src="img/nijat-narimanov.jpg" alt="Nijat Narimanov" /><div><h4>Nijat Narimanov</h4><p data-en="Discovered by the academy in 2022 (age 14) — today he plays for IF Brommapojkarna and Azerbaijan's U19 national team." data-sv="Upptäcktes av akademin 2022 (14 år) — idag spelar han för IF Brommapojkarna och Azerbajdzjans U19-landslag.">Discovered by the academy in 2022 (age 14) — today he plays for IF Brommapojkarna and Azerbaijan's U19 national team.</p></div></div>
+        </div>
+        <div class="sthlm">
+          <img loading="lazy" src="img/stockholm-logo.jpg" alt="Stockholm — The Capital of Scandinavia" />
+          <span data-en="In the heart of Stockholm" data-sv="I hjärtat av Stockholm">In the heart of Stockholm</span>
+        </div>
+      </div>
+      <div class="video-wrap" id="video">
+        <iframe src="https://www.youtube.com/embed/MbopngPpax4?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=MbopngPpax4&amp;controls=1&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" title="Stockholm Cup of Nations 2026" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAMPIONS -->
+<section class="champs" id="champions">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="Hall of champions" data-sv="Mästargalleri">Hall of champions</span>
+      <h2 data-en="Four years. Four nations lifted the cup." data-sv="Fyra år. Fyra nationer har lyft bucklan.">Four years. Four nations lifted the cup.</h2>
+      <p data-en="Born in 2022, the Stockholm Cup of Nations has grown from 16 to 32 nations — a tribute to the city's multicultural spirit." data-sv="Stockholm Cup of Nations startade 2022 och har vuxit från 16 till 32 nationer — en hyllning till stadens mångkulturella själ.">Born in 2022, the Stockholm Cup of Nations has grown from 16 to 32 nations — a tribute to the city's multicultural spirit.</p>
+    </div>
+    <div class="grid">
+      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag">🇦🇱</div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag">🇺🇦</div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag">🇹🇿</div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2025 · Östermalms IP</div><div class="flag">🇺🇾</div><div class="win">Uruguay</div><div class="venue" data-en="32 nations" data-sv="32 nationer">32 nations</div><div class="cup">🏆</div></div>
+    </div>
+    <p style="text-align:center;margin-top:26px;color:var(--muted);font-size:14px" data-en="Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan" data-sv="Med sedan start: 🇸🇪 Sverige · 🇧🇷 Brasilien · 🇳🇬 Nigeria · 🇰🇿 Kazakstan · 🇰🇬 Kirgizistan">Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan</p>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="The atmosphere" data-sv="Stämningen">The atmosphere</span>
+      <h2 data-en="Built on honor and integrity" data-sv="Byggt på heder och integritet">Built on honor and integrity</h2>
+      <p data-en="Where the world meets in the heart of Stockholm — flags, fans, food and football." data-sv="Där världen möts i hjärtat av Stockholm — flaggor, fans, mat och fotboll.">Where the world meets in the heart of Stockholm — flags, fans, food and football.</p>
+    </div>
+    <div class="gal-grid">
+      <figure><img loading="lazy" src="img/gallery-original.jpg" alt="The Original Stockholm Cup of Nations 2026" /><figcaption data-en="The Original — 2026" data-sv="Originalet — 2026">The Original — 2026</figcaption></figure>
+      <figure><img loading="lazy" src="img/gallery-champions.jpg" alt="Champions celebrating with the trophy" /><figcaption data-en="One goal — all united" data-sv="Ett mål — alla förenade">One goal — all united</figcaption></figure>
+      <figure><img loading="lazy" src="img/gallery-players.jpg" alt="Players at Östermalms IP" /><figcaption data-en="25–26 July · Östermalms IP" data-sv="25–26 juli · Östermalms IP">25–26 July · Östermalms IP</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE RESULTS -->
+<section class="live" id="results">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="Results archive" data-sv="Resultatarkiv">Results archive</span>
+      <h2 data-en="Past editions" data-sv="Tidigare upplagor">Past editions</h2>
+      <p data-en="Every group and the full knockout stage, 2022–2025. Pick a year." data-sv="Alla grupper och hela slutspelet, 2022–2025. Välj ett år.">Every group and the full knockout stage, 2022–2025. Pick a year.</p>
+    </div>
+    <div class="year-tabs" id="yearTabs">
+      <button class="year-tab" type="button" data-year="2025">2025</button>
+      <button class="year-tab" type="button" data-year="2024">2024</button>
+      <button class="year-tab" type="button" data-year="2023">2023</button>
+      <button class="year-tab" type="button" data-year="2022">2022</button>
+    </div>
+    <div id="champTop" class="champ-top"></div>
+    <div id="groupsGrid" class="groups-grid"></div>
+    <p class="legend" id="archiveNote"></p>
+    <div id="bracket" class="bracket"></div>
+  </div>
+</section>
+
+<!-- FOOD -->
+<section class="food" id="info">
+  <div class="wrap">
+    <div class="card">
+      <div class="img"><img loading="lazy" src="img/food.png" alt="El Rinconcito Azul" /></div>
+      <div class="copy">
+        <span class="eyebrow" data-en="Food &amp; festival" data-sv="Mat &amp; fest">Food &amp; festival</span>
+        <h3 data-en="More than a tournament — a celebration" data-sv="Mer än en turnering — en fest">More than a tournament — a celebration</h3>
+        <p data-en="Both days, <b>El Rinconcito Azul</b> serves authentic Salvadoran food made with love. Bring the family, taste the world, and soak up the atmosphere at Östermalms IP." data-sv="Båda dagarna serverar <b>El Rinconcito Azul</b> äkta salvadoransk mat lagad med kärlek. Ta med familjen, smaka på världen och njut av stämningen på Östermalms IP.">Both days, <b>El Rinconcito Azul</b> serves authentic Salvadoran food made with love. Bring the family, taste the world, and soak up the atmosphere at Östermalms IP.</p>
+        <p style="margin-top:14px;color:var(--ink)" data-en="<b>📍 Östermalms IP, Stockholm</b> · Free entry for spectators" data-sv="<b>📍 Östermalms IP, Stockholm</b> · Fri entré för publik"><b>📍 Östermalms IP, Stockholm</b> · Free entry for spectators</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPONSORS -->
+<section class="sponsors" id="sponsors">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="Partners &amp; sponsors" data-sv="Partner &amp; sponsorer">Partners &amp; sponsors</span>
+      <h2 style="color:var(--navy)" data-en="Back the beautiful game" data-sv="Stötta den vackra sporten">Back the beautiful game</h2>
+      <p style="color:var(--muted)" data-en="Put your brand in front of thousands of players and fans from across the world. Sponsorship packages available." data-sv="Visa ditt varumärke för tusentals spelare och fans från hela världen. Sponsorpaket finns.">Put your brand in front of thousands of players and fans from across the world. Sponsorship packages available.</p>
+    </div>
+    <div class="logo-row">
+      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
+      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
+      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
+      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
+    </div>
+    <a href="mailto:info@stockholmcupofnations.eu" class="btn btn-gold" style="margin-top:30px" data-en="Become a partner" data-sv="Bli partner">Become a partner</a>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="band">
+  <div class="wrap">
+    <h2 data-en="Your nation belongs on the pitch." data-sv="Din nation hör hemma på planen.">Your nation belongs on the pitch.</h2>
+    <p data-en="Registration for Stockholm Cup of Nations 2026 is open." data-sv="Anmälan till Stockholm Cup of Nations 2026 är öppen.">Registration for Stockholm Cup of Nations 2026 is open.</p>
+    <a href="#register" class="btn btn-blue" data-en="Register your team →" data-sv="Anmäl ditt lag →">Register your team →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <img src="img/logo.jpg" alt="Stockholm Cup of Nations crest" />
+        <p style="max-width:280px" data-en="Organised by <b style='color:#fff'>Stockholm United Sport Academy</b> — a non-profit founded in 2022 to unite cultures through football." data-sv="Arrangeras av <b style='color:#fff'>Stockholm United Sport Academy</b> — en ideell förening grundad 2022 för att förena kulturer genom fotboll.">Organised by <b style="color:#fff">Stockholm United Sport Academy</b> — a non-profit founded in 2022 to unite cultures through football.</p>
+        <p style="margin-top:12px;font-style:italic;color:var(--gold)">"Only Football. No Politics. Respect the Game."</p>
+      </div>
+      <div>
+        <h4 data-en="Explore" data-sv="Utforska">Explore</h4>
+        <a href="#about" data-en="About us" data-sv="Om oss">About us</a>
+        <a href="#register" data-en="Register 2026" data-sv="Anmälan 2026">Register 2026</a>
+        <a href="#results" data-en="Results" data-sv="Resultat">Results</a>
+        <a href="#info" data-en="Info &amp; venue" data-sv="Info &amp; arena">Info &amp; venue</a>
+      </div>
+      <div>
+        <h4 data-en="Contact" data-sv="Kontakt">Contact</h4>
+        <a href="mailto:info@stockholmcupofnations.eu">info@stockholmcupofnations.eu</a>
+        <a href="https://api.whatsapp.com/send?phone=46722012733">WhatsApp: +46 72 201 27 33</a>
+        <a href="https://vm.tiktok.com/ZNRGywWNF/">TikTok</a>
+      </div>
+      <div>
+        <h4 data-en="Venue" data-sv="Arena">Venue</h4>
+        <a>Östermalms IP</a>
+        <a data-en="Stockholm, Sweden" data-sv="Stockholm, Sverige">Stockholm, Sweden</a>
+        <a data-en="25–26 July 2026" data-sv="25–26 juli 2026">25–26 July 2026</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Stockholm Cup of Nations · Stockholm United Sport Academy</span>
+      <span data-en="Mockup design · concept only" data-sv="Mockup-design · endast koncept">Mockup design · concept only</span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://api.whatsapp.com/send?phone=46722012733" title="WhatsApp" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank','noopener');return false;">💬</a>
+
+<script>
+  /* ---- Countdown ---- */
+  const target = new Date("2026-07-25T09:00:00+02:00").getTime();
+  function tick(){
+    let diff = Math.max(0, target - Date.now());
+    const d=Math.floor(diff/86400000);diff-=d*86400000;
+    const h=Math.floor(diff/3600000);diff-=h*3600000;
+    const m=Math.floor(diff/60000);diff-=m*60000;
+    const s=Math.floor(diff/1000);
+    document.getElementById('d').textContent=d;
+    document.getElementById('h').textContent=String(h).padStart(2,'0');
+    document.getElementById('m').textContent=String(m).padStart(2,'0');
+    document.getElementById('s').textContent=String(s).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
+
+  /* ---- Language toggle (EN / SV) ---- */
+  function applyLang(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-en]').forEach(el=>{
+      const v = el.getAttribute('data-'+lang);
+      if(v!=null) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-en-ph]').forEach(el=>{
+      const v = el.getAttribute('data-'+lang+'-ph');
+      if(v!=null) el.placeholder = v;
+    });
+    document.querySelectorAll('#langBtn .lng').forEach(el=>{
+      el.classList.toggle('active', el.getAttribute('data-set')===lang);
+    });
+    renderResults(curYear, lang);
+    try{ localStorage.setItem('scon_lang', lang); }catch(e){}
+  }
+
+  /* ---- Results archive (2022–2025) ---- */
+  const NATIONS = {
+    ALB:['🇦🇱','Albania','Albanien'], AZE:['🇦🇿','Azerbaijan','Azerbajdzjan'], TUN:['🇹🇳','Tunisia','Tunisien'],
+    KAZ:['🇰🇿','Kazakhstan','Kazakstan'], ITA:['🇮🇹','Italy','Italien'], GRE:['🇬🇷','Greece','Grekland'],
+    NIG:['🇳🇬','Nigeria','Nigeria'], FRA:['🇫🇷','France','Frankrike'], URU:['🇺🇾','Uruguay','Uruguay'],
+    BRA:['🇧🇷','Brazil','Brasilien'], COL:['🇨🇴','Colombia','Colombia'], KYR:['🇰🇬','Kyrgyzstan','Kirgizistan'],
+    KGZ:['🇰🇬','Kyrgyzstan','Kirgizistan'], SWE:['🇸🇪','Sweden','Sverige'], CRO:['🇭🇷','Croatia','Kroatien'],
+    ARG:['🇦🇷','Argentina','Argentina'], EGY:['🇪🇬','Egypt','Egypten'], LAT:['🇱🇻','Latvia','Lettland'],
+    UZB:['🇺🇿','Uzbekistan','Uzbekistan'], EST:['🇪🇪','Estonia','Estland'], ECU:['🇪🇨','Ecuador','Ecuador'],
+    BOS:['🇧🇦','Bosnia & H.','Bosnien'], GEO:['🇬🇪','Georgia','Georgien'], POL:['🇵🇱','Poland','Polen'],
+    UKR:['🇺🇦','Ukraine','Ukraina'], NIC:['🇳🇮','Nicaragua','Nicaragua'], TUR:['🇹🇷','Turkey','Turkiet'],
+    TAN:['🇹🇿','Tanzania','Tanzania'], ERI:['🇪🇷','Eritrea','Eritrea'], MEX:['🇲🇽','Mexico','Mexiko'],
+    SEN:['🇸🇳','Senegal','Senegal'], AFG:['🇦🇫','Afghanistan','Afghanistan'], SYD:['🇸🇸','South Sudan','Sydsudan'],
+    MAL:['🇲🇾','Malaysia','Malaysia'], GHA:['🇬🇭','Ghana','Ghana'], MOL:['🇲🇩','Moldova','Moldavien'],
+    ETI:['🇪🇹','Ethiopia','Etiopien'], SYR:['🇸🇾','Syria','Syrien'], GAM:['🇬🇲','Gambia','Gambia'],
+    ROM:['🇷🇴','Romania','Rumänien'], DRC:['🇨🇩','DR Congo','DR Kongo'], PAK:['🇵🇰','Pakistan','Pakistan'],
+    IRQ:['🇮🇶','Iraq','Irak'], BNG:['🇧🇩','Bangladesh','Bangladesh'], SUD:['🇸🇩','Sudan','Sudan'],
+    IND:['🇮🇩','Indonesia','Indonesien'], CBV:['🇨🇻','Cape Verde','Kap Verde'], SER:['🇷🇸','Serbia','Serbien']
+  };
+  const RT = { R16:['Round of 16','Åttondelsfinal'], QF:['Quarter-finals','Kvartsfinaler'], SF:['Semi-finals','Semifinaler'], F:['Final','Final'] };
+  const YEARS = {
+    '2025':{ champ:'URU', groups:[
+        ['A',[['TAN','9-4',6],['AFG','4-4',6],['SWE','6-8',3],['BRA','6-9',3]]],
+        ['B',[['SYD','12-3',6],['UZB','10-3',6],['UKR','6-1',6],['MAL','0-21',0]]],
+        ['C',[['GHA','15-2',9],['MOL','9-4',6],['ETI','3-7',3],['GEO','2-16',0]]],
+        ['D',[['MEX','13-1',9],['SYR','6-4',6],['GAM','6-9',3],['ROM','5-16',0]]],
+        ['E',[['FRA','23-5',9],['DRC','9-8',6],['PAK','7-7',3],['IRQ','3-22',0]]],
+        ['F',[['BNG','8-1',9],['ALB','10-1',6],['SUD','3-5',3],['KYR','0-14',0]]],
+        ['G',[['IND','7-3',7],['KAZ','6-3',5],['CBV','5-5',4],['CRO','3-10',0]]],
+        ['H',[['NIG','4-2',7],['URU','5-0',5],['SER','10-7',4],['TUR','6-16',0]]]
+      ], ko:[
+        ['R16',[['TAN',2,1,'UZB'],['SYD',1,1,'AFG','3-2'],['GHA',4,0,'SYR'],['MEX',5,2,'MOL'],['FRA',1,5,'ALB'],['BNG',5,0,'DRC'],['IND',0,3,'URU'],['NIG',0,0,'KAZ','3-2']]],
+        ['QF',[['TAN',0,0,'MEX','5-6'],['SYD',1,2,'GHA'],['ALB',1,1,'NIG','2-3'],['BNG',0,1,'URU']]],
+        ['SF',[['MEX',0,0,'NIG','3-2'],['GHA',0,2,'URU']]],
+        ['F',[['URU',3,0,'MEX']]]
+      ]},
+    '2024':{ champ:'TAN', note:true, groups:[
+        ['A',[['NIC','—',9],['POL','—',7],['TUR','—',3],['KGZ','—',0]]],
+        ['B',[['UZB','—',7],['TAN','—',6],['UKR','—',4],['ERI','—',0]]],
+        ['C',[['MEX','—',9],['KAZ','—',6],['GEO','—',3],['SEN','—',0]]],
+        ['D',[['BRA','—',9],['SWE','—',6],['NIG','—',3],['AZE','—',0]]]
+      ], ko:[
+        ['QF',[['MEX',2,2,'SWE','4-3'],['BRA',3,1,'KAZ'],['NIC',0,3,'TAN'],['UZB',4,3,'POL']]],
+        ['SF',[['BRA',1,2,'TAN'],['MEX',0,5,'UZB']]],
+        ['F',[['TAN',1,0,'UZB']]]
+      ]},
+    '2023':{ champ:'UKR', groups:[
+        ['A',[['LAT','6-2',7],['COL','5-4',4],['BRA','2-3',2],['UZB','1-5',2]]],
+        ['B',[['EST','9-1',9],['SWE','7-5',6],['ECU','8-8',3],['ALB','2-12',0]]],
+        ['C',[['BOS','12-5',7],['GEO','10-8',7],['KAZ','5-10',3],['POL','5-9',0]]],
+        ['D',[['NIG','6-3',9],['UKR','5-1',6],['KGZ','5-8',3],['CRO','0-4',0]]]
+      ], ko:[
+        ['QF',[['EST',2,1,'COL'],['SWE',4,1,'LAT'],['BOS',1,1,'UKR','3-4'],['GEO',3,4,'NIG']]],
+        ['SF',[['SWE',0,1,'UKR'],['EST',1,2,'NIG']]],
+        ['F',[['UKR',2,1,'NIG']]]
+      ]},
+    '2022':{ champ:'ALB', groups:[
+        ['A',[['ALB','17-4',7],['AZE','15-3',7],['TUN','3-6',3],['KAZ','1-23',0]]],
+        ['B',[['ITA','8-1',7],['GRE','11-8',6],['NIG','6-5',4],['FRA','2-13',0]]],
+        ['C',[['URU','14-4',9],['BRA','12-3',6],['COL','6-14',3],['KYR','4-15',0]]],
+        ['D',[['SWE','12-7',9],['CRO','4-5',6],['ARG','6-7',3],['EGY','2-5',0]]]
+      ], ko:[
+        ['QF',[['ITA',1,2,'AZE'],['GRE',4,5,'ALB'],['URU',2,0,'CRO'],['BRA',2,1,'SWE']]],
+        ['SF',[['ALB',3,2,'URU'],['AZE',0,2,'BRA']]],
+        ['F',[['ALB',2,1,'BRA']]]
+      ]}
+  };
+  function nm(code,l){ const t=NATIONS[code]; return t ? t[0]+' '+t[l==='sv'?2:1] : code; }
+  function renderMatch(m,l){
+    const h=m[0],sh=m[1],sa=m[2],a=m[3],pens=m[4];
+    let hw=sh>sa, aw=sa>sh, pline='';
+    if(pens){ const p=pens.split('-').map(Number); if(p[0]>p[1])hw=true; else aw=true; pline='<div class="pens">'+(l==='sv'?'straffar ':'pens ')+p[0]+':'+p[1]+'</div>'; }
+    return '<div class="match"><div class="t'+(hw?' win':'')+'"><span>'+nm(h,l)+'</span><span class="sc">'+sh+'</span></div>'+
+           '<div class="t'+(aw?' win':'')+'"><span>'+nm(a,l)+'</span><span class="sc">'+sa+'</span></div>'+pline+'</div>';
+  }
+  function renderResults(year,l){
+    const data=YEARS[year], grid=document.getElementById('groupsGrid'), brk=document.getElementById('bracket');
+    if(!data||!grid||!brk) return;
+    const ct=document.getElementById('champTop');
+    if(ct) ct.innerHTML='🏆 '+year+' · '+(l==='sv'?'Mästare':'Champion')+': '+nm(data.champ,l);
+    const hdr=(l==='sv')?['#','Lag','Mål','P']:['#','Team','Goals','Pts'];
+    grid.innerHTML=data.groups.map(([g,rows])=>
+      '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
+      '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
+      rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+nm(r[0],l)+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+
+      '</tbody></table></div>'
+    ).join('');
+    const note=document.getElementById('archiveNote');
+    if(note){
+      note.innerHTML = data.note
+        ? (l==='sv'?'🔵 Topp 2 gick vidare · ⚠️ De officiella grupptabellerna för 2024 hade felaktiga målsiffror (kopierade från 2022); placeringar, slutspel och mästare stämmer.':'🔵 Top 2 advanced · ⚠️ The official 2024 group tables had incorrect goal figures (duplicated from 2022); positions, knockout and champion are correct.')
+        : (l==='sv'?'🔵 Topp 2 gick vidare till slutspel':'🔵 Top 2 advanced to the knockout stage');
+    }
+    brk.innerHTML=data.ko.map(([key,matches])=>
+      '<div class="round"><h4>'+RT[key][l==='sv'?1:0]+'</h4>'+matches.map(m=>renderMatch(m,l)).join('')+
+      (key==='F' ? '<div class="champ-banner">🏆 '+(l==='sv'?'Mästare':'Champion')+': '+nm(data.champ,l)+'</div>' : '')+
+      '</div>'
+    ).join('');
+  }
+  let curLang = 'en', curYear = '2025';
+  try{ curLang = localStorage.getItem('scon_lang') || 'en'; }catch(e){}
+  function setYear(y){
+    curYear = y;
+    document.querySelectorAll('#yearTabs .year-tab').forEach(b=>b.classList.toggle('active', b.getAttribute('data-year')===y));
+    renderResults(curYear, curLang);
+  }
+  document.querySelectorAll('#langBtn .lng').forEach(el=>{
+    el.addEventListener('click', ()=>{ curLang = el.getAttribute('data-set'); applyLang(curLang); });
+  });
+  document.querySelectorAll('#yearTabs .year-tab').forEach(b=>{
+    b.addEventListener('click', ()=> setYear(b.getAttribute('data-year')) );
+  });
+  applyLang(curLang);
+  setYear(curYear);
+
+  /* ---- Registration form -> opens an email to the organiser ---- */
+  const regForm = document.getElementById('regForm');
+  if(regForm){
+    regForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const d = new FormData(regForm);
+      const sv = document.documentElement.lang==='sv';
+      const subject = encodeURIComponent('Stockholm Cup of Nations 2026 — '+(sv?'Laganmälan':'Team registration'));
+      const body = encodeURIComponent(
+        (sv?'Lag / Nation: ':'Team / Nation: ')+(d.get('team')||'')+'\n'+
+        (sv?'Kontaktperson: ':'Contact person: ')+(d.get('contact')||'')+'\n'+
+        (sv?'E-post: ':'Email: ')+(d.get('email')||'')+'\n'+
+        (sv?'Telefon: ':'Phone: ')+(d.get('phone')||'')
+      );
+      window.location.href='mailto:info@stockholmcupofnations.eu?subject='+subject+'&body='+body;
+    });
+  }
+
+  /* ---- Mobile menu ---- */
+  const burger = document.querySelector('.burger');
+  const navLinks = document.querySelector('nav.links');
+  if(burger && navLinks){
+    const toggleMenu = ()=>{
+      const open = navLinks.classList.toggle('open');
+      burger.textContent = open ? '✕' : '☰';
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    burger.addEventListener('click', toggleMenu);
+    burger.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleMenu(); } });
+    navLinks.querySelectorAll('a').forEach(a=>{
+      a.addEventListener('click', ()=>{ navLinks.classList.remove('open'); burger.textContent='☰'; burger.setAttribute('aria-expanded','false'); });
+    });
+  }
+</script>
+</body>
+</html>
