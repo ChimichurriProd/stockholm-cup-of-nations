@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Stockholm Cup of Nations 2026</title>
-<link rel="icon" href="img/logo.jpg" />
+<link rel="icon" href="img/cup-of-nations-logo.png" />
 <meta name="description" content="Stockholm Cup of Nations 2026 — a grassroots international football tournament, 25–26 July 2026 at Östermalms IP, Stockholm. 32 nations, five continents." />
 <meta property="og:title" content="Stockholm Cup of Nations 2026" />
 <meta property="og:description" content="Where the world meets in the heart of Stockholm. 25–26 July 2026, Östermalms IP." />
@@ -138,6 +138,10 @@
   .sthlm{display:inline-flex;align-items:center;gap:14px;margin-top:26px;background:#fff;border:1px solid #e6ebf5;border-radius:14px;padding:12px 18px;box-shadow:0 10px 26px rgba(8,35,107,.08)}
   .sthlm img{height:38px;width:auto}
   .sthlm span{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .org-badge{display:inline-flex;align-items:center;gap:14px;margin-bottom:20px}
+  .org-badge img{width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);box-shadow:0 8px 22px rgba(8,35,107,.18)}
+  .org-badge span{font-size:12px;font-weight:800;color:var(--gold-deep);text-transform:uppercase;letter-spacing:.1em}
+  .org-badge b{display:block;font-size:15px;color:var(--navy);letter-spacing:-.01em;margin-top:2px}
 
   /* champions */
   .champs .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
@@ -206,6 +210,25 @@
   .champ-top{max-width:540px;margin:0 auto 28px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;font-weight:900;border-radius:14px;padding:14px 18px;text-align:center;font-size:16px;box-shadow:0 12px 30px rgba(244,194,13,.3)}
   @media(max-width:1000px){.groups-grid{grid-template-columns:repeat(2,1fr)}.bracket{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:560px){.groups-grid{grid-template-columns:1fr}.bracket{grid-template-columns:1fr}}
+  /* all-time nations */
+  .nations{background:transparent}
+  .nations .big46{font-size:clamp(52px,10vw,96px);font-weight:900;line-height:1;color:var(--blue);text-align:center;letter-spacing:-.03em}
+  .nations .big46 small{display:block;font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-top:8px}
+  .nations-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+  .nat-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e6ebf5;border-radius:12px;padding:12px 14px;box-shadow:0 6px 16px rgba(8,35,107,.05)}
+  .nat-card .fl{font-size:26px;line-height:1;flex:0 0 auto}
+  .nat-card .info{min-width:0}
+  .nat-card .nm{font-weight:800;color:var(--navy);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nat-card .yrs{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .nat-card .cnt{margin-left:auto;flex:0 0 auto;background:var(--navy);color:#fff;font-weight:900;font-size:12px;min-width:24px;height:24px;padding:0 6px;border-radius:999px;display:grid;place-items:center}
+  .nat-card.multi .cnt{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:#3a2c00}
+  @media(max-width:1000px){.nations-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:680px){.nations-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:430px){.nations-grid{grid-template-columns:1fr}}
+  /* featured partner */
+  .partner-featured{max-width:520px;margin:0 auto 24px;background:#fff;border:2px solid var(--gold);border-radius:16px;padding:22px 26px;text-align:center;box-shadow:0 16px 40px rgba(8,35,107,.12)}
+  .partner-featured .tag{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:12px}
+  .partner-featured img{max-height:74px;width:auto;margin:0 auto}
 
   /* food */
   .food{background:transparent}
@@ -232,6 +255,9 @@
   footer a:hover{opacity:1;color:var(--gold)}
   .foot-bottom{border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12.5px;color:#8b99bd}
   .foot-brand img{height:54px;margin-bottom:12px}
+  .foot-logos{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .foot-logos .crest{height:56px;margin:0}
+  .foot-logos .acad{height:48px;width:48px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin:0}
 
   .wa{position:fixed;right:20px;bottom:20px;z-index:60;background:#25d366;color:#fff;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:26px;box-shadow:0 10px 26px rgba(37,211,102,.45)}
 
@@ -267,13 +293,14 @@
 <header class="nav">
   <div class="wrap nav-inner">
     <a class="brand" href="#">
-      <img src="img/logo.jpg" alt="Stockholm Cup of Nations crest" />
+      <img src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations crest" />
       <span>STOCKHOLM CUP<small>OF NATIONS · 2026</small></span>
     </a>
     <nav class="links">
       <a href="#about" data-en="About" data-sv="Om oss">About</a>
       <a href="#register" data-en="Register" data-sv="Anmälan">Register</a>
       <a href="#results" data-en="Results" data-sv="Resultat">Results</a>
+      <a href="#nations" data-en="Nations" data-sv="Nationer">Nations</a>
       <a href="#info" data-en="Info" data-sv="Info">Info</a>
       <a href="#sponsors" data-en="Partners" data-sv="Partner">Partners</a>
       <a href="#register" class="btn btn-gold nav-cta" data-en="Register a team" data-sv="Anmäl lag">Register a team</a>
@@ -381,6 +408,13 @@
     </div>
     <div class="about-grid">
       <div>
+        <div class="org-badge">
+          <img loading="lazy" src="img/academy-logo.png" alt="Stockholm United Sport Academy" />
+          <div>
+            <span data-en="Organiser" data-sv="Arrangör">Organiser</span>
+            <b>Stockholm United Sport Academy</b>
+          </div>
+        </div>
         <p class="story lead" data-en="Welcome to a tournament where community, diversity and the joy of football take centre stage. Stockholm Cup of Nations is more than a football tournament — it's a tribute to Stockholm's unique multicultural spirit." data-sv="Välkommen till en turnering där gemenskap, mångfald och fotbollsglädje står i fokus. Stockholm Cup of Nations är mer än bara en fotbollsturnering – det är en hyllning till Stockholms unika mångkulturella anda.">Welcome to a tournament where community, diversity and the joy of football take centre stage. Stockholm Cup of Nations is more than a football tournament — it's a tribute to Stockholm's unique multicultural spirit.</p>
         <p class="story" data-en="Created by Stockholm United Sport Academy and founded in October 2022, our vision is to unite cultures and nations through the universal language of football — a prestigious annual cup where players with roots from all over the world compete under their national flags." data-sv="Skapat av Stockholm United Sport Academy och grundat i oktober 2022 är vår vision att förena kulturer och nationer genom fotbollens universella språk – en prestigefylld årlig cup där spelare med rötter från hela världen tävlar under sina nationsflaggor.">Created by Stockholm United Sport Academy and founded in October 2022, our vision is to unite cultures and nations through the universal language of football — a prestigious annual cup where players with roots from all over the world compete under their national flags.</p>
         <div class="about-highlights">
@@ -454,6 +488,19 @@
   </div>
 </section>
 
+<!-- NATIONS -->
+<section class="nations" id="nations">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="A global celebration" data-sv="En global fotbollsfest">A global celebration</span>
+      <h2 data-en="46 nations. One city." data-sv="46 nationer. En stad.">46 nations. One city.</h2>
+      <p data-en="Since its inception, the Stockholm Cup of Nations has grown into a celebration of football, diversity and cultural integration. A grand total of 46 unique nations have stepped onto our pitches — here they all are, with their number of appearances and the years they played." data-sv="Sedan starten har Stockholm Cup of Nations vuxit till en fest för fotboll, mångfald och integration. Totalt 46 unika nationer har spelat på våra planer — här är alla, med antal deltaganden och åren de var med.">Since its inception, the Stockholm Cup of Nations has grown into a celebration of football, diversity and cultural integration. A grand total of 46 unique nations have stepped onto our pitches — here they all are, with their number of appearances and the years they played.</p>
+    </div>
+    <div class="big46">46<small data-en="Nations all-time" data-sv="Nationer genom åren">Nations all-time</small></div>
+    <div id="nationsGrid" class="nations-grid"></div>
+  </div>
+</section>
+
 <!-- FOOD -->
 <section class="food" id="info">
   <div class="wrap">
@@ -477,8 +524,11 @@
       <h2 style="color:var(--navy)" data-en="Back the beautiful game" data-sv="Stötta den vackra sporten">Back the beautiful game</h2>
       <p style="color:var(--muted)" data-en="Put your brand in front of thousands of players and fans from across the world. Sponsorship packages available." data-sv="Visa ditt varumärke för tusentals spelare och fans från hela världen. Sponsorpaket finns.">Put your brand in front of thousands of players and fans from across the world. Sponsorship packages available.</p>
     </div>
+    <div class="partner-featured">
+      <div class="tag" data-en="Official partner" data-sv="Officiell partner">Official partner</div>
+      <img loading="lazy" src="img/korpen.png" alt="Korpen" />
+    </div>
     <div class="logo-row">
-      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
       <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
       <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
       <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
@@ -501,7 +551,10 @@
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <img src="img/logo.jpg" alt="Stockholm Cup of Nations crest" />
+        <div class="foot-logos">
+          <img class="crest" src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations crest" />
+          <img class="acad" loading="lazy" src="img/academy-logo.png" alt="Stockholm United Sport Academy" />
+        </div>
         <p style="max-width:280px" data-en="Organised by <b style='color:#fff'>Stockholm United Sport Academy</b> — a non-profit founded in 2022 to unite cultures through football." data-sv="Arrangeras av <b style='color:#fff'>Stockholm United Sport Academy</b> — en ideell förening grundad 2022 för att förena kulturer genom fotboll.">Organised by <b style="color:#fff">Stockholm United Sport Academy</b> — a non-profit founded in 2022 to unite cultures through football.</p>
         <p style="margin-top:12px;font-style:italic;color:var(--gold)">"Only Football. No Politics. Respect the Game."</p>
       </div>
@@ -510,6 +563,7 @@
         <a href="#about" data-en="About us" data-sv="Om oss">About us</a>
         <a href="#register" data-en="Register 2026" data-sv="Anmälan 2026">Register 2026</a>
         <a href="#results" data-en="Results" data-sv="Resultat">Results</a>
+        <a href="#nations" data-en="Nations" data-sv="Nationer">Nations</a>
         <a href="#info" data-en="Info &amp; venue" data-sv="Info &amp; arena">Info &amp; venue</a>
       </div>
       <div>
@@ -565,6 +619,7 @@
       el.classList.toggle('active', el.getAttribute('data-set')===lang);
     });
     renderResults(curYear, lang);
+    renderNations(lang);
     try{ localStorage.setItem('scon_lang', lang); }catch(e){}
   }
 
@@ -666,6 +721,32 @@
       (key==='F' ? '<div class="champ-banner">🏆 '+(l==='sv'?'Mästare':'Champion')+': '+nm(data.champ,l)+'</div>' : '')+
       '</div>'
     ).join('');
+  }
+
+  /* ---- All-time nations (46) ---- */
+  const ALL_NATIONS = [
+    ['AFG',1,'2025'],['ALB',3,'2022, 2023, 2025'],['ARG',1,'2022'],['AZE',2,'2022, 2024'],
+    ['BNG',1,'2025'],['BOS',1,'2023'],['BRA',4,'2022, 2023, 2024, 2025'],['CBV',1,'2025'],
+    ['COL',2,'2022, 2023'],['CRO',3,'2022, 2023, 2025'],['DRC',1,'2025'],['ECU',2,'2023, 2024'],
+    ['EGY',1,'2022'],['EST',1,'2023'],['ETI',1,'2025'],['FRA',2,'2022, 2025'],
+    ['GAM',1,'2025'],['GEO',3,'2023, 2024, 2025'],['GHA',1,'2025'],['GRE',1,'2022'],
+    ['IND',1,'2025'],['IRQ',1,'2025'],['ITA',1,'2022'],['KAZ',4,'2022, 2023, 2024, 2025'],
+    ['KYR',4,'2022, 2023, 2024, 2025'],['LAT',1,'2023'],['MAL',1,'2025'],['MEX',2,'2024, 2025'],
+    ['MOL',1,'2025'],['NIC',1,'2024'],['NIG',4,'2022, 2023, 2024, 2025'],['PAK',1,'2025'],
+    ['POL',2,'2023, 2024'],['ROM',1,'2025'],['SEN',1,'2024'],['SER',1,'2025'],
+    ['SYD',1,'2025'],['SUD',1,'2025'],['SWE',4,'2022, 2023, 2024, 2025'],['SYR',1,'2025'],
+    ['TAN',2,'2024, 2025'],['TUN',1,'2022'],['TUR',2,'2024, 2025'],['UKR',3,'2023, 2024, 2025'],
+    ['URU',2,'2022, 2025'],['UZB',3,'2023, 2024, 2025']
+  ];
+  function renderNations(l){
+    const grid=document.getElementById('nationsGrid'); if(!grid) return;
+    grid.innerHTML = ALL_NATIONS.map(([code,cnt,yrs])=>{
+      const t=NATIONS[code]||['🏳️',code,code];
+      return '<div class="nat-card'+(cnt>1?' multi':'')+'">'+
+        '<span class="fl">'+t[0]+'</span>'+
+        '<div class="info"><div class="nm">'+t[l==='sv'?2:1]+'</div><div class="yrs">'+yrs+'</div></div>'+
+        '<span class="cnt" title="'+(l==='sv'?'deltaganden':'appearances')+'">'+cnt+'</span></div>';
+    }).join('');
   }
   let curLang = 'en', curYear = '2025';
   try{ curLang = localStorage.getItem('scon_lang') || 'en'; }catch(e){}
