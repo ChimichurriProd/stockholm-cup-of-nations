@@ -1,14 +1,13 @@
 /* Stockholm Cup of Nations — Supabase-inställningar
  *
- * Fyll i värdena nedan EN gång (från Supabase → Project Settings → API):
- *   url     = "Project URL"
- *   anonKey = "anon public"-nyckeln (den publika, säker att lägga i koden)
+ * url     = projektets "Project URL"
+ * anonKey = den publika nyckeln (Publishable key, sb_publishable_…) — säker att ha i koden
+ *           eftersom Row Level Security skyddar skrivning (endast inloggade arrangörer).
  *
- * Så länge url innehåller "DIN-PROJEKT" är portalen och live-läget avstängda,
- * och publika sidan visar bara det historiska arkivet (2022–2025).
+ * Vill du någon gång byta till ett annat Supabase-projekt: byt bara de två värdena nedan.
  */
 window.SCON_SUPABASE = {
-  url:     "https://DIN-PROJEKT.supabase.co",
-  anonKey: "DIN-ANON-NYCKEL",
+  url:     "https://mwempjsaylynnyzqdtno.supabase.co",
+  anonKey: "sb_publishable_D9RvjAByxZUld9C4WwfqVA_zTQzx4Kc",
   year:    2026
 };
