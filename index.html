@@ -217,6 +217,18 @@
   @keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(225,59,59,.55)}70%{box-shadow:0 0 0 7px rgba(225,59,59,0)}100%{box-shadow:0 0 0 0 rgba(225,59,59,0)}}
   .gcard tbody tr.q td{background:rgba(11,70,196,.09)}
   .empty-live{text-align:center;color:var(--muted);grid-column:1/-1;padding:20px}
+  /* public schedule */
+  .sched-sec .day-block{margin-bottom:26px}
+  .sched-sec .day-block h3{font-size:18px;color:var(--navy);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:inline-block;text-transform:capitalize}
+  .sched-sec table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 8px 22px rgba(8,35,107,.06)}
+  .sched-sec th,.sched-sec td{border:1px solid #e6ebf5;padding:9px 11px;text-align:left;vertical-align:top}
+  .sched-sec th{background:var(--navy);color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:800}
+  .sched-sec td.time{white-space:nowrap;font-weight:800;color:var(--navy);width:92px}
+  .sched-sec .pm .tag{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:6px;background:#eef2fb;color:var(--navy);margin-bottom:3px}
+  .sched-sec .pm .tag.ko{background:#fde8e6;color:#c0392b}
+  .sched-sec .pm .vs{color:var(--muted);margin:0 4px}
+  .sched-sec .brk td{background:#fff7e0;color:#7a5c00;font-weight:800;text-align:center}
+  @media(max-width:640px){ .sched-sec{overflow-x:auto} .sched-sec table{min-width:520px} }
   .champ-top .livedot{width:11px;height:11px}
   .champ-top:has(.livedot){background:linear-gradient(120deg,#c0392b,#e35d5d);color:#fff;box-shadow:0 12px 30px rgba(192,57,43,.3)}
   .champ-top{max-width:540px;margin:0 auto 28px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;font-weight:900;border-radius:14px;padding:14px 18px;text-align:center;font-size:16px;box-shadow:0 12px 30px rgba(244,194,13,.3)}
@@ -502,6 +514,18 @@
   </div>
 </section>
 
+<!-- SCHEDULE (from Supabase, shown only when a schedule exists) -->
+<section class="sched-sec" id="schedule" style="display:none">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="Match schedule" data-sv="Spelschema">Match schedule</span>
+      <h2 data-en="Fixtures &amp; kick-off times" data-sv="Matcher &amp; avsparkstider">Fixtures &amp; kick-off times</h2>
+      <p data-en="Dates, times and pitches for every match. Check when your nation plays." data-sv="Datum, tider och planer för varje match. Se när din nation spelar.">Dates, times and pitches for every match. Check when your nation plays.</p>
+    </div>
+    <div id="pubSchedule"></div>
+  </div>
+</section>
+
 <!-- NATIONS -->
 <section class="nations" id="nations">
   <div class="wrap">
@@ -636,6 +660,7 @@
     });
     renderCurrent(lang);
     renderNations(lang);
+    if(typeof renderPublicSchedule==='function') renderPublicSchedule(lang);
     try{ localStorage.setItem('scon_lang', lang); }catch(e){}
   }
   function renderCurrent(lang){
@@ -770,6 +795,10 @@
   }
   let curLang = 'en', curYear = '2025';
   try{ curLang = localStorage.getItem('scon_lang') || 'en'; }catch(e){}
+  /* live state declared early so applyLang() can safely call renderPublicSchedule() at init */
+  const SB = window.SCON_SUPABASE || {};
+  const LIVE_YEAR = SB.year || 2026;
+  let LIVE = { teams:[], matches:[], loaded:false, settings:{} };
   function setYear(y){
     curYear = y;
     document.querySelectorAll('#yearTabs .year-tab').forEach(b=>b.classList.toggle('active', b.getAttribute('data-year')===y));
@@ -785,9 +814,6 @@
   setYear(curYear);
 
   /* ---- Live tournament (from Supabase) ---- */
-  const SB = window.SCON_SUPABASE || {};
-  const LIVE_YEAR = SB.year || 2026;
-  let LIVE = { teams:[], matches:[], loaded:false };
   const liveTeam = id => LIVE.teams.find(t=>t.id===id);
   function liveLabel(t){ return t ? ((t.flag?t.flag+' ':'')+esc(t.name)) : '—'; }
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -840,12 +866,15 @@
     if(!SB.url || SB.url.indexOf('DIN-PROJEKT')>-1 || !window.supabase) return;
     try{
       const sb=window.supabase.createClient(SB.url, SB.anonKey);
-      const [t,m]=await Promise.all([
+      const [t,m,st]=await Promise.all([
         sb.from('teams').select('*').eq('year',LIVE_YEAR).order('sort_order').order('name'),
-        sb.from('matches').select('*').eq('year',LIVE_YEAR).order('sort_order').order('created_at')
+        sb.from('matches').select('*').eq('year',LIVE_YEAR).order('sort_order').order('created_at'),
+        sb.from('settings').select('data').eq('year',LIVE_YEAR).maybeSingle()
       ]);
       if(t.error||m.error) return;
       LIVE.teams=t.data||[]; LIVE.matches=m.data||[]; LIVE.loaded=true;
+      LIVE.settings=(st&&!st.error&&st.data&&st.data.data)?st.data.data:{};
+      renderPublicSchedule(curLang);              // schedule section (shows itself if data exists)
       if(!LIVE.teams.length) return;              // nothing published yet → keep archive only
       const tabs=document.getElementById('yearTabs');
       if(tabs && !tabs.querySelector('[data-year="live"]')){
@@ -857,6 +886,37 @@
       }
       setYear('live');                            // default to the live edition
     }catch(e){ /* stay on archive */ }
+  }
+  const KO_SHORT = { R16:['R16','Åttondel'], QF:['QF','Kvart'], SF:['SF','Semi'], F:['Final','Final'] };
+  function pubFmtDate(d,l){ try{ return new Date(d+'T12:00:00').toLocaleDateString(l==='sv'?'sv-SE':'en-GB',{weekday:'long',day:'numeric',month:'long'}); }catch(e){ return d; } }
+  function renderPublicSchedule(l){
+    const sec=document.getElementById('schedule'), host=document.getElementById('pubSchedule');
+    if(!sec||!host) return;
+    const sched=(LIVE.matches||[]).filter(m=>m.sched_date&&m.sched_time);
+    if(!sched.length){ sec.style.display='none'; return; }
+    sec.style.display='';
+    const S=LIVE.settings||{};
+    const maxP=Math.max(1, (S.pitches|0), ...sched.map(m=>m.pitch||1));
+    const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
+    const lbl=t=> t ? ((t.flag?t.flag+' ':'')+esc(t.name)) : '?';
+    host.innerHTML = dates.map(date=>{
+      const dm=sched.filter(m=>m.sched_date===date);
+      const times=[...new Set(dm.map(m=>m.sched_time))];
+      const brks=(S.breaks||[]).filter(b=>b.date===date&&b.start);
+      const rows=times.map(t=>({t,kind:'w'})).concat(brks.map(b=>({t:b.start,kind:'b',b})))
+        .sort((a,b)=>a.t.localeCompare(b.t)).map(en=>{
+          if(en.kind==='b') return '<tr class="brk"><td class="time">'+en.b.start+'</td><td colspan="'+maxP+'">☕ '+esc(en.b.label||(l==='sv'?'Paus':'Break'))+'</td></tr>';
+          const wave=dm.filter(m=>m.sched_time===en.t); let cells='';
+          for(let p=1;p<=maxP;p++){ const m=wave.find(x=>(x.pitch||1)===p);
+            if(m){ const h=liveTeam(m.home_id),a=liveTeam(m.away_id);
+              const tag=m.stage==='group'?'<span class="tag">'+(l==='sv'?'Grupp ':'Group ')+(m.group_name||'')+'</span>':'<span class="tag ko">'+KO_SHORT[m.stage][l==='sv'?1:0]+'</span>';
+              cells+='<td class="pm">'+tag+'<br>'+lbl(h)+'<span class="vs">–</span>'+lbl(a)+'</td>'; }
+            else cells+='<td></td>'; }
+          return '<tr><td class="time">'+en.t+'</td>'+cells+'</tr>';
+        }).join('');
+      let head='<th>'+(l==='sv'?'Tid':'Time')+'</th>'; for(let p=1;p<=maxP;p++) head+='<th>'+(l==='sv'?'Plan ':'Pitch ')+p+'</th>';
+      return '<div class="day-block"><h3>'+pubFmtDate(date,l)+'</h3><table><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    }).join('');
   }
   loadLive();
 
