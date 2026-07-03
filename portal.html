@@ -106,6 +106,28 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
   .toast.err{background:var(--danger)}
   .hint{font-size:.8rem;color:var(--muted);margin-top:6px}
+  /* searchable nation combobox */
+  .combo{position:relative;max-width:440px}
+  .combo input{padding-left:38px}
+  .combo .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:1rem;opacity:.6;pointer-events:none}
+  .combo-list{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(8,35,107,.16);max-height:320px;overflow-y:auto;z-index:30;display:none}
+  .combo-list.open{display:block}
+  .combo-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-size:.92rem;border-bottom:1px solid #f0f3fa}
+  .combo-opt:last-child{border-bottom:0}
+  .combo-opt .fl{font-size:1.3rem;line-height:1}
+  .combo-opt.active,.combo-opt:hover{background:rgba(11,70,196,.08)}
+  .combo-opt .iso{margin-left:auto;font-size:.72rem;color:var(--muted);letter-spacing:.05em}
+  .combo-none{padding:12px 14px;color:var(--muted);font-size:.88rem}
+  /* selected teams as chips grid */
+  .teamgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+  .teamchip{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+  .teamchip .fl{font-size:1.5rem;line-height:1}
+  .teamchip .nm{font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .teamchip .gsel{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .teamchip select{padding:5px 6px;font-size:.8rem;border-radius:8px;width:auto}
+  .teamchip .rm{cursor:pointer;border:0;background:#fdecea;color:var(--danger);border-radius:7px;width:26px;height:26px;font-weight:800;font-size:.85rem;flex:none}
+  .teamchip .rm:hover{background:#f9d7d3}
+  .step{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-family:"Sora",sans-serif;font-weight:800;font-size:.85rem;margin-right:9px;vertical-align:2px}
   .notice{background:#fff7e0;border:1px solid #f4e3a8;color:#7a5c00;border-radius:12px;padding:14px 16px;font-size:.88rem;margin-bottom:18px}
   .notice code{background:#fbeec0;padding:1px 6px;border-radius:5px}
   @media(max-width:560px){
@@ -158,22 +180,30 @@
     <!-- ---- TEAMS ---- -->
     <section class="panel active" id="panel-teams">
       <div class="card">
-        <h2>Lägg till lag</h2>
-        <div class="sub">Nation/lag som deltar i turneringen. Flagga är valfri (klistra in en emoji, t.ex. 🇺🇾).</div>
-        <form id="teamForm" class="row">
-          <div class="field grow"><label>Lag / Nation</label><input id="tName" placeholder="Uruguay" required /></div>
-          <div class="field w70"><label>Flagga</label><input id="tFlag" placeholder="🇺🇾" /></div>
-          <div class="field w90"><label>Grupp</label>
-            <select id="tGroup"><option value="">—</option></select>
-          </div>
-          <button class="btn btn-blue" type="submit">Lägg till</button>
-        </form>
-        <div class="hint">Tips: skapa alla lag först, tilldela grupp här eller i listan nedan, och generera sedan gruppmatcherna under fliken “Gruppmatcher”.</div>
+        <h2><span class="step">1</span>Välj deltagande lag</h2>
+        <div class="sub">Sök på land och klicka för att lägga till. Flaggan hämtas automatiskt.</div>
+        <div class="combo" id="natCombo">
+          <span class="ico">🔎</span>
+          <input id="natSearch" type="text" placeholder="Sök land… (t.ex. Argentina)" autocomplete="off" />
+          <div class="combo-list" id="natList"></div>
+        </div>
       </div>
       <div class="card">
-        <h2>Lag <span class="pill" id="teamCount">0</span></h2>
-        <div class="sub">Ändra grupp direkt i listan. Att ta bort ett lag tar även bort dess matcher.</div>
+        <h2>Deltagande lag <span class="pill" id="teamCount">0</span></h2>
+        <div class="sub">Klicka ✕ för att ta bort. Grupp tilldelas i steg 2 (lottas eller väljs här i rullgardinen).</div>
         <div id="teamsTable"></div>
+      </div>
+      <div class="card">
+        <h2><span class="step">2</span>Dela in i grupper</h2>
+        <div class="sub">Lotta grupperna automatiskt — eller välj grupp manuellt i listan ovan.</div>
+        <div class="row" style="align-items:flex-end">
+          <div class="field w90"><label>Antal grupper</label>
+            <input id="numGroups" type="number" min="1" max="8" value="8" />
+          </div>
+          <button class="btn btn-gold" id="drawBtn">🎲 Lotta grupperna</button>
+          <button class="btn btn-danger btn-sm" id="clearGroupsBtn">Rensa gruppindelning</button>
+        </div>
+        <div class="hint">Lottningen fördelar alla deltagande lag jämnt och slumpmässigt över grupperna, och skriver över nuvarande indelning.</div>
       </div>
     </section>
 
@@ -241,9 +271,6 @@
   const $ = s => document.querySelector(s);
 
   document.getElementById('yearLabel').textContent = YEAR;
-  // fill group dropdown
-  const tGroupSel = $('#tGroup');
-  GROUPS.forEach(g => { const o=document.createElement('option'); o.value=g; o.textContent='Grupp '+g; tGroupSel.appendChild(o); });
 
   function toast(msg, isErr){
     const t=$('#toast'); t.textContent=msg; t.className='toast show'+(isErr?' err':'');
@@ -298,34 +325,136 @@
   const teamById = id => TEAMS.find(t=>t.id===id);
   const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
 
-  // ---------- TEAMS ----------
-  $('#teamForm').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const name=$('#tName').value.trim(); if(!name) return;
-    const rec={ year:YEAR, name, flag:$('#tFlag').value.trim()||null, group_name:$('#tGroup').value||null };
-    const { error } = await sb.from('teams').insert(rec);
+  // ---------- NATIONS (name + ISO2 for auto flag) ----------
+  function flagEmoji(iso2){
+    if(!iso2 || iso2.length!==2) return '';
+    const A=0x1F1E6, u=iso2.toUpperCase();
+    return String.fromCodePoint(A + u.charCodeAt(0)-65, A + u.charCodeAt(1)-65);
+  }
+  // [iso2, svensk namn, engelskt namn/alias för sökning]
+  const NATIONS_DB = [
+    ['AF','Afghanistan','Afghanistan'],['AL','Albanien','Albania'],['DZ','Algeriet','Algeria'],
+    ['AD','Andorra','Andorra'],['AO','Angola','Angola'],['AG','Antigua och Barbuda','Antigua'],
+    ['AR','Argentina','Argentina'],['AM','Armenien','Armenia'],['AU','Australien','Australia'],
+    ['AT','Österrike','Austria'],['AZ','Azerbajdzjan','Azerbaijan'],['BS','Bahamas','Bahamas'],
+    ['BH','Bahrain','Bahrain'],['BD','Bangladesh','Bangladesh'],['BB','Barbados','Barbados'],
+    ['BY','Vitryssland','Belarus'],['BE','Belgien','Belgium'],['BZ','Belize','Belize'],
+    ['BJ','Benin','Benin'],['BT','Bhutan','Bhutan'],['BO','Bolivia','Bolivia'],
+    ['BA','Bosnien och Hercegovina','Bosnia'],['BW','Botswana','Botswana'],['BR','Brasilien','Brazil'],
+    ['BN','Brunei','Brunei'],['BG','Bulgarien','Bulgaria'],['BF','Burkina Faso','Burkina Faso'],
+    ['BI','Burundi','Burundi'],['KH','Kambodja','Cambodia'],['CM','Kamerun','Cameroon'],
+    ['CA','Kanada','Canada'],['CV','Kap Verde','Cape Verde'],['CF','Centralafrikanska rep.','Central African Republic'],
+    ['TD','Tchad','Chad'],['CL','Chile','Chile'],['CN','Kina','China'],
+    ['CO','Colombia','Colombia'],['KM','Komorerna','Comoros'],['CG','Kongo-Brazzaville','Congo'],
+    ['CD','DR Kongo','DR Congo Congo'],['CR','Costa Rica','Costa Rica'],['CI','Elfenbenskusten','Ivory Coast Cote'],
+    ['HR','Kroatien','Croatia'],['CU','Kuba','Cuba'],['CY','Cypern','Cyprus'],
+    ['CZ','Tjeckien','Czechia Czech'],['DK','Danmark','Denmark'],['DJ','Djibouti','Djibouti'],
+    ['DM','Dominica','Dominica'],['DO','Dominikanska rep.','Dominican Republic'],['EC','Ecuador','Ecuador'],
+    ['EG','Egypten','Egypt'],['SV','El Salvador','El Salvador'],['GQ','Ekvatorialguinea','Equatorial Guinea'],
+    ['ER','Eritrea','Eritrea'],['EE','Estland','Estonia'],['SZ','Eswatini','Eswatini Swaziland'],
+    ['ET','Etiopien','Ethiopia'],['FJ','Fiji','Fiji'],['FI','Finland','Finland'],
+    ['FR','Frankrike','France'],['GA','Gabon','Gabon'],['GM','Gambia','Gambia'],
+    ['GE','Georgien','Georgia'],['DE','Tyskland','Germany'],['GH','Ghana','Ghana'],
+    ['GR','Grekland','Greece'],['GD','Grenada','Grenada'],['GT','Guatemala','Guatemala'],
+    ['GN','Guinea','Guinea'],['GW','Guinea-Bissau','Guinea-Bissau'],['GY','Guyana','Guyana'],
+    ['HT','Haiti','Haiti'],['HN','Honduras','Honduras'],['HU','Ungern','Hungary'],
+    ['IS','Island','Iceland'],['IN','Indien','India'],['ID','Indonesien','Indonesia'],
+    ['IR','Iran','Iran'],['IQ','Irak','Iraq'],['IE','Irland','Ireland'],
+    ['IL','Israel','Israel'],['IT','Italien','Italy'],['JM','Jamaica','Jamaica'],
+    ['JP','Japan','Japan'],['JO','Jordanien','Jordan'],['KZ','Kazakstan','Kazakhstan'],
+    ['KE','Kenya','Kenya'],['XK','Kosovo','Kosovo'],['KW','Kuwait','Kuwait'],
+    ['KG','Kirgizistan','Kyrgyzstan'],['LA','Laos','Laos'],['LV','Lettland','Latvia'],
+    ['LB','Libanon','Lebanon'],['LS','Lesotho','Lesotho'],['LR','Liberia','Liberia'],
+    ['LY','Libyen','Libya'],['LT','Litauen','Lithuania'],['LU','Luxemburg','Luxembourg'],
+    ['MG','Madagaskar','Madagascar'],['MW','Malawi','Malawi'],['MY','Malaysia','Malaysia'],
+    ['MV','Maldiverna','Maldives'],['ML','Mali','Mali'],['MT','Malta','Malta'],
+    ['MR','Mauretanien','Mauritania'],['MU','Mauritius','Mauritius'],['MX','Mexiko','Mexico'],
+    ['MD','Moldavien','Moldova'],['MN','Mongoliet','Mongolia'],['ME','Montenegro','Montenegro'],
+    ['MA','Marocko','Morocco'],['MZ','Moçambique','Mozambique'],['MM','Myanmar','Myanmar'],
+    ['NA','Namibia','Namibia'],['NP','Nepal','Nepal'],['NL','Nederländerna','Netherlands Holland'],
+    ['NZ','Nya Zeeland','New Zealand'],['NI','Nicaragua','Nicaragua'],['NE','Niger','Niger'],
+    ['NG','Nigeria','Nigeria'],['MK','Nordmakedonien','North Macedonia'],['KP','Nordkorea','North Korea'],
+    ['NO','Norge','Norway'],['OM','Oman','Oman'],['PK','Pakistan','Pakistan'],
+    ['PS','Palestina','Palestine'],['PA','Panama','Panama'],['PG','Papua Nya Guinea','Papua New Guinea'],
+    ['PY','Paraguay','Paraguay'],['PE','Peru','Peru'],['PH','Filippinerna','Philippines'],
+    ['PL','Polen','Poland'],['PT','Portugal','Portugal'],['QA','Qatar','Qatar'],
+    ['RO','Rumänien','Romania'],['RU','Ryssland','Russia'],['RW','Rwanda','Rwanda'],
+    ['SM','San Marino','San Marino'],['SA','Saudiarabien','Saudi Arabia'],['SN','Senegal','Senegal'],
+    ['RS','Serbien','Serbia'],['SL','Sierra Leone','Sierra Leone'],['SG','Singapore','Singapore'],
+    ['SK','Slovakien','Slovakia'],['SI','Slovenien','Slovenia'],['SO','Somalia','Somalia'],
+    ['ZA','Sydafrika','South Africa'],['KR','Sydkorea','South Korea'],['SS','Sydsudan','South Sudan'],
+    ['ES','Spanien','Spain'],['LK','Sri Lanka','Sri Lanka'],['SD','Sudan','Sudan'],
+    ['SR','Surinam','Suriname'],['SE','Sverige','Sweden'],['CH','Schweiz','Switzerland'],
+    ['SY','Syrien','Syria'],['TW','Taiwan','Taiwan'],['TJ','Tadzjikistan','Tajikistan'],
+    ['TZ','Tanzania','Tanzania'],['TH','Thailand','Thailand'],['TG','Togo','Togo'],
+    ['TT','Trinidad och Tobago','Trinidad'],['TN','Tunisien','Tunisia'],['TR','Turkiet','Turkey'],
+    ['TM','Turkmenistan','Turkmenistan'],['UG','Uganda','Uganda'],['UA','Ukraina','Ukraine'],
+    ['AE','Förenade Arabemiraten','United Arab Emirates UAE'],['GB','Storbritannien','United Kingdom Britain'],
+    ['US','USA','United States America'],['UY','Uruguay','Uruguay'],['UZ','Uzbekistan','Uzbekistan'],
+    ['VE','Venezuela','Venezuela'],['VN','Vietnam','Vietnam'],['YE','Jemen','Yemen'],
+    ['ZM','Zambia','Zambia'],['ZW','Zimbabwe','Zimbabwe'],
+    ['GB-ENG','England','England'],['GB-SCT','Skottland','Scotland'],['GB-WLS','Wales','Wales']
+  ].map(([iso,sv,en])=>({ iso, sv, en, flag: iso.indexOf('-')>-1 ? '' : flagEmoji(iso) }));
+
+  // ---------- TEAMS: searchable nation picker ----------
+  const natSearch=$('#natSearch'), natList=$('#natList');
+  let comboActive=-1, comboMatches=[];
+  function normalize(s){ return (s||'').toLowerCase().replace(/[åäà]/g,'a').replace(/[öó]/g,'o').replace(/é/g,'e'); }
+  function renderCombo(){
+    const q=normalize(natSearch.value.trim());
+    const taken=new Set(TEAMS.map(t=>(t.code||'').toUpperCase()).concat(TEAMS.map(t=>normalize(t.name))));
+    comboMatches = !q ? [] : NATIONS_DB.filter(n=>
+      !taken.has(n.iso.toUpperCase()) && !taken.has(normalize(n.sv)) &&
+      (normalize(n.sv).indexOf(q)>-1 || normalize(n.en).indexOf(q)>-1)
+    ).slice(0,10);
+    comboActive = comboMatches.length ? 0 : -1;
+    if(!q){ natList.classList.remove('open'); natList.innerHTML=''; return; }
+    natList.innerHTML = comboMatches.length
+      ? comboMatches.map((n,i)=>'<div class="combo-opt'+(i===comboActive?' active':'')+'" data-i="'+i+'">'+
+          '<span class="fl">'+(n.flag||'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
+      : '<div class="combo-none">Ingen träff. Prova annat namn (svenska eller engelska).</div>';
+    natList.classList.add('open');
+  }
+  async function pickNation(n){
+    if(!n) return;
+    natSearch.value=''; renderCombo(); natSearch.focus();
+    const { error } = await sb.from('teams').insert({ year:YEAR, code:n.iso, name:n.sv, flag:n.flag||null, group_name:null });
     if(error){ toast(error.message, true); return; }
-    $('#tName').value=''; $('#tFlag').value='';
-    toast('Lag tillagt');
-    await loadAll();
+    toast(n.sv+' tillagt'); await loadAll();
+  }
+  natSearch.addEventListener('input', renderCombo);
+  natSearch.addEventListener('keydown', e=>{
+    if(!natList.classList.contains('open')) return;
+    if(e.key==='ArrowDown'){ e.preventDefault(); comboActive=Math.min(comboActive+1,comboMatches.length-1); renderComboActive(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); comboActive=Math.max(comboActive-1,0); renderComboActive(); }
+    else if(e.key==='Enter'){ e.preventDefault(); if(comboMatches[comboActive]) pickNation(comboMatches[comboActive]); }
+    else if(e.key==='Escape'){ natList.classList.remove('open'); }
   });
+  function renderComboActive(){
+    natList.querySelectorAll('.combo-opt').forEach((el,i)=> el.classList.toggle('active', i===comboActive));
+  }
+  natList.addEventListener('click', e=>{
+    const opt=e.target.closest('.combo-opt'); if(!opt) return;
+    pickNation(comboMatches[+opt.dataset.i]);
+  });
+  document.addEventListener('click', e=>{ if(!$('#natCombo').contains(e.target)) natList.classList.remove('open'); });
 
   function renderTeams(){
     $('#teamCount').textContent = TEAMS.length;
-    if(!TEAMS.length){ $('#teamsTable').innerHTML='<div class="empty">Inga lag ännu. Lägg till det första ovan.</div>'; return; }
-    const opts = g => ['<option value="">—</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
-    $('#teamsTable').innerHTML =
-      '<table><thead><tr><th>Lag</th><th style="width:130px">Grupp</th><th style="width:80px"></th></tr></thead><tbody>'+
+    if(!TEAMS.length){ $('#teamsTable').innerHTML='<div class="empty">Inga lag ännu. Sök och lägg till länder ovan.</div>'; return; }
+    const opts = g => ['<option value="">— grupp —</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
+    $('#teamsTable').innerHTML = '<div class="teamgrid">'+
       TEAMS.map(t=>
-        '<tr data-id="'+t.id+'">'+
-          '<td><span class="fl">'+(t.flag||'')+'</span>'+escapeHtml(t.name)+'</td>'+
-          '<td><select class="teamGroup">'+opts(t.group_name)+'</select></td>'+
-          '<td><button class="btn btn-danger btn-sm delTeam">Ta bort</button></td>'+
-        '</tr>').join('')+
-      '</tbody></table>';
+        '<div class="teamchip" data-id="'+t.id+'">'+
+          '<span class="fl">'+(t.flag||'🏳️')+'</span>'+
+          '<span class="nm">'+escapeHtml(t.name)+'</span>'+
+          '<span class="gsel"><select class="teamGroup">'+opts(t.group_name)+'</select>'+
+          '<button class="rm delTeam" title="Ta bort">✕</button></span>'+
+        '</div>').join('')+
+      '</div>';
     $('#teamsTable').querySelectorAll('.teamGroup').forEach(sel=>{
       sel.addEventListener('change', async e=>{
-        const id=e.target.closest('tr').dataset.id;
+        const id=e.target.closest('.teamchip').dataset.id;
         const { error } = await sb.from('teams').update({ group_name:e.target.value||null }).eq('id',id);
         if(error){ toast(error.message,true); return; }
         toast('Grupp uppdaterad'); await loadAll();
@@ -333,7 +462,7 @@
     });
     $('#teamsTable').querySelectorAll('.delTeam').forEach(btn=>{
       btn.addEventListener('click', async e=>{
-        const tr=e.target.closest('tr'); const id=tr.dataset.id;
+        const chip=e.target.closest('.teamchip'); const id=chip.dataset.id;
         const t=teamById(id);
         if(!confirm('Ta bort '+(t?t.name:'laget')+'? Lagets matcher tas också bort.')) return;
         const { error } = await sb.from('teams').delete().eq('id',id);
@@ -342,6 +471,27 @@
       });
     });
   }
+
+  // ---------- GROUP DRAW ----------
+  $('#drawBtn').addEventListener('click', async ()=>{
+    if(!TEAMS.length){ toast('Lägg till lag först.', true); return; }
+    const n=Math.max(1, Math.min(8, parseInt($('#numGroups').value,10)||8));
+    if(!confirm('Lotta '+TEAMS.length+' lag slumpmässigt i '+n+' grupp(er)? Detta skriver över nuvarande gruppindelning.')) return;
+    const shuffled=[...TEAMS];
+    for(let i=shuffled.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
+    const updates = shuffled.map((t,i)=> sb.from('teams').update({ group_name:GROUPS[i%n], sort_order:Math.floor(i/n) }).eq('id',t.id));
+    const results = await Promise.all(updates);
+    const err = results.find(r=>r.error);
+    if(err){ toast(err.error.message, true); return; }
+    toast('Grupperna är lottade!'); await loadAll();
+  });
+  $('#clearGroupsBtn').addEventListener('click', async ()=>{
+    if(!TEAMS.some(t=>t.group_name)){ toast('Inga grupper att rensa.'); return; }
+    if(!confirm('Rensa all gruppindelning? Lagen blir kvar men utan grupp.')) return;
+    const { error } = await sb.from('teams').update({ group_name:null }).eq('year',YEAR).not('id','is',null);
+    if(error){ toast(error.message, true); return; }
+    toast('Gruppindelning rensad'); await loadAll();
+  });
 
   // ---------- STANDINGS ----------
   function computeStandings(groupTeams){
