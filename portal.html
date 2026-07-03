@@ -128,6 +128,46 @@
   .teamchip .rm{cursor:pointer;border:0;background:#fdecea;color:var(--danger);border-radius:7px;width:26px;height:26px;font-weight:800;font-size:.85rem;flex:none}
   .teamchip .rm:hover{background:#f9d7d3}
   .step{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-family:"Sora",sans-serif;font-weight:800;font-size:.85rem;margin-right:9px;vertical-align:2px}
+  /* schedule settings */
+  .btn-ghost-blue{background:#eef2fb;color:var(--blue)}
+  .btn-ghost-blue:hover{background:#e2e9f8}
+  .sched-h{font-size:.95rem;color:var(--navy);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+  .sfield{display:flex;flex-direction:column;gap:5px;font-size:.8rem;font-weight:700;color:var(--muted)}
+  .sfield input,.sfield select{font-weight:500;color:var(--ink)}
+  .daytime-row,.break-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:#fbfcfe}
+  .daytime-row .sfield,.break-row .sfield{margin:0}
+  .daytime-row input[type=date],.break-row input[type=date]{min-width:150px}
+  .daytime-row input[type=time],.break-row input[type=time]{width:110px}
+  .rowrm{cursor:pointer;border:0;background:#fdecea;color:var(--danger);border-radius:8px;width:34px;height:34px;font-weight:800;flex:none}
+  .rowrm:hover{background:#f9d7d3}
+  .viewtoggle{display:inline-flex;background:#eef2fb;border-radius:10px;padding:3px}
+  .vt{cursor:pointer;border:0;background:transparent;color:var(--muted);font-weight:700;font-family:inherit;font-size:.82rem;padding:7px 13px;border-radius:8px}
+  .vt.active{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(8,35,107,.1)}
+  /* schedule tables */
+  .day-block{margin-bottom:24px}
+  .day-block > h3{font-size:1.05rem;color:var(--navy);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:inline-block}
+  .sched-table{width:100%;border-collapse:collapse;font-size:.86rem;margin-bottom:8px}
+  .sched-table th,.sched-table td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  .sched-table th{background:#f3f6fc;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .sched-table td.time{white-space:nowrap;font-weight:700;color:var(--navy);width:110px}
+  .sched-cell{line-height:1.35}
+  .sched-cell .vs{color:var(--muted);font-weight:500;margin:0 4px}
+  .sched-cell .tag{display:inline-block;font-size:.65rem;font-weight:800;padding:1px 6px;border-radius:6px;background:#eef2fb;color:var(--navy);margin-bottom:3px}
+  .sched-cell .tag.ko{background:#fde8e6;color:var(--danger)}
+  .break-line{background:#fff7e0;color:#7a5c00;font-weight:700;text-align:center}
+  .team-sched h4{margin:0 0 6px;font-size:.92rem;color:var(--navy)}
+  .team-sched .trow{display:flex;gap:8px;align-items:center;font-size:.85rem;padding:5px 0;border-bottom:1px solid #f0f3fa}
+  .team-sched .trow .t{color:var(--muted);white-space:nowrap;font-weight:700}
+  .team-col{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+  .warn{background:#fdecea;border:1px solid #f5c6c0;color:#8a2820;border-radius:12px;padding:12px 15px;font-size:.86rem;margin-top:14px}
+  .warn.ok{background:#e7f6ee;border-color:#b6e2c6;color:#176b3a}
+  .editrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:.85rem}
+  .editrow .lbl{flex:1;min-width:160px;font-weight:600}
+  .editrow input,.editrow select{width:auto}
+  .editrow input[type=time]{width:96px}
+  .editrow input[type=date]{width:140px}
+  .editrow select{width:70px}
   .notice{background:#fff7e0;border:1px solid #f4e3a8;color:#7a5c00;border-radius:12px;padding:14px 16px;font-size:.88rem;margin-bottom:18px}
   .notice code{background:#fbeec0;padding:1px 6px;border-radius:5px}
   @media(max-width:560px){
@@ -175,6 +215,7 @@
       <button class="tab" data-panel="groups">Grupper &amp; tabeller</button>
       <button class="tab" data-panel="matches">Gruppmatcher</button>
       <button class="tab" data-panel="knockout">Slutspel</button>
+      <button class="tab" data-panel="schedule">Spelschema</button>
     </div>
 
     <!-- ---- TEAMS ---- -->
@@ -254,6 +295,54 @@
         <div id="koMatches"></div>
       </div>
     </section>
+
+    <!-- ---- SCHEDULE ---- -->
+    <section class="panel" id="panel-schedule">
+      <div class="card">
+        <h2>Inställningar för spelschema</h2>
+        <div class="sub">Ställ in tider, matchlängd, planer och pauser. Sparas för alla arrangörer.</div>
+
+        <h3 class="sched-h">Speldagar</h3>
+        <div id="daysList"></div>
+        <button class="btn btn-ghost-blue btn-sm" id="addDayBtn" type="button">+ Lägg till dag</button>
+
+        <h3 class="sched-h">Match &amp; planer</h3>
+        <div class="settings-grid">
+          <label class="sfield"><span>Halvlekar</span><input id="setHalves" type="number" min="1" max="4" value="2" /></label>
+          <label class="sfield"><span>Min / halvlek</span><input id="setHalfMin" type="number" min="1" max="60" value="10" /></label>
+          <label class="sfield"><span>Halvtidspaus (min)</span><input id="setHalftime" type="number" min="0" max="30" value="2" /></label>
+          <label class="sfield"><span>Byte mellan matcher (min)</span><input id="setChangeover" type="number" min="0" max="60" value="5" /></label>
+          <label class="sfield"><span>Antal planer samtidigt</span><input id="setPitches" type="number" min="1" max="12" value="3" /></label>
+          <label class="sfield"><span>Min vila för lag (min)</span><input id="setRest" type="number" min="0" max="240" value="25" /></label>
+          <label class="sfield"><span>Vila mellan slutspelsomgångar (min)</span><input id="setKoRest" type="number" min="0" max="240" value="45" /></label>
+        </div>
+        <div class="hint" id="matchLenHint"></div>
+
+        <h3 class="sched-h">Pauser &amp; event <span style="font-weight:400;color:var(--muted);font-size:.8rem">(lunch, ceremoni…)</span></h3>
+        <div id="breaksList"></div>
+        <button class="btn btn-ghost-blue btn-sm" id="addBreakBtn" type="button">+ Lägg till paus</button>
+
+        <div class="row" style="margin-top:22px;gap:10px">
+          <button class="btn btn-blue" id="saveSettingsBtn" type="button">💾 Spara inställningar</button>
+          <button class="btn btn-gold" id="genScheduleBtn" type="button">📅 Generera spelschema</button>
+        </div>
+        <div class="hint">Schemat placerar alla gruppmatcher (och slutspelsmatcher om de finns) på planer och tider — samma lag spelar aldrig två matcher i rad, och slutspelet får längre vila mellan omgångarna.</div>
+        <div id="schedWarn"></div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:4px">
+          <h2 style="margin:0">Spelschema</h2>
+          <div class="viewtoggle">
+            <button class="vt active" data-view="pitch" type="button">Per plan</button>
+            <button class="vt" data-view="team" type="button">Per lag</button>
+            <button class="vt" data-view="list" type="button">Lista (redigera)</button>
+          </div>
+        </div>
+        <div class="sub" id="schedSummary"></div>
+        <div id="scheduleView"></div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -296,6 +385,13 @@
 
   const sb = window.supabase.createClient(cfg.url, cfg.anonKey);
   let TEAMS = [], MATCHES = [];
+  const DEFAULT_SETTINGS = {
+    days: [{ date:(YEAR)+'-07-25', start:'09:00', end:'18:00' }],
+    halves:2, halfMin:10, halftimeMin:2, changeoverMin:5,
+    pitches:3, restMin:25, koRestMin:45, breaks:[]
+  };
+  let SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  let SCHED_VIEW = 'pitch';
 
   // ---------- AUTH ----------
   $('#loginForm').addEventListener('submit', async e=>{
@@ -322,14 +418,17 @@
 
   // ---------- DATA ----------
   async function loadAll(){
-    const [tRes, mRes] = await Promise.all([
+    const [tRes, mRes, sRes] = await Promise.all([
       sb.from('teams').select('*').eq('year',YEAR).order('group_name',{nullsFirst:false}).order('sort_order').order('name'),
-      sb.from('matches').select('*').eq('year',YEAR).order('sort_order').order('created_at')
+      sb.from('matches').select('*').eq('year',YEAR).order('sort_order').order('created_at'),
+      sb.from('settings').select('data').eq('year',YEAR).maybeSingle()
     ]);
     if(tRes.error){ toast('Kunde inte läsa lag: '+tRes.error.message, true); return; }
     if(mRes.error){ toast('Kunde inte läsa matcher: '+mRes.error.message, true); return; }
     TEAMS = tRes.data || []; MATCHES = mRes.data || [];
+    if(sRes && !sRes.error && sRes.data && sRes.data.data) SETTINGS = Object.assign({}, DEFAULT_SETTINGS, sRes.data.data);
     renderTeams(); renderStandings(); renderGroupMatches(); renderKnockout(); fillKoTeamSelects();
+    applySettingsToForm(); renderSchedule();
   }
   const teamById = id => TEAMS.find(t=>t.id===id);
   const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
@@ -641,6 +740,278 @@
         toast('Resultat sparat'); await loadAll();
       });
     });
+  }
+
+  // ================= SPELSCHEMA =================
+  const STAGE_SHORT = { R16:'Åttondel', QF:'Kvart', SF:'Semi', F:'Final' };
+  const DAY_SEP = 100000; // minutsavskiljare så att vila över dygnsgräns alltid är stor
+  function hm2min(s){ if(!s||String(s).indexOf(':')<0) return null; const [h,m]=s.split(':').map(Number); return h*60+m; }
+  function min2hm(m){ const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+  function fmtDate(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}); }catch(e){ return d; } }
+  function shortDate(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString('sv-SE',{day:'numeric',month:'short'}); }catch(e){ return d; } }
+  const labelOrTBD = t => t ? teamLabel(t) : '<span style="color:var(--muted)">?</span>';
+
+  function circleRounds(ids){
+    const a=ids.slice(); if(a.length<2) return [];
+    if(a.length%2) a.push(null);
+    const n=a.length, rounds=[], arr=a.slice();
+    for(let r=0;r<n-1;r++){
+      const round=[];
+      for(let i=0;i<n/2;i++){ const x=arr[i], y=arr[n-1-i]; if(x!=null&&y!=null) round.push([x,y]); }
+      rounds.push(round);
+      arr.splice(1,0,arr.pop());
+    }
+    return rounds;
+  }
+  function orderedGroupMatchRows(){
+    const gms=MATCHES.filter(m=>m.stage==='group');
+    const byGroup={}; gms.forEach(m=>{ (byGroup[m.group_name||'?']=byGroup[m.group_name||'?']||[]).push(m); });
+    const groups=Object.keys(byGroup).sort();
+    const groupRounds={}; let maxR=0;
+    groups.forEach(g=>{
+      const ids=[...new Set(byGroup[g].flatMap(m=>[m.home_id,m.away_id]))];
+      groupRounds[g]=circleRounds(ids).map(round=> round.map(([x,y])=>
+        byGroup[g].find(m=>(m.home_id===x&&m.away_id===y)||(m.home_id===y&&m.away_id===x))
+      ).filter(Boolean));
+      maxR=Math.max(maxR, groupRounds[g].length);
+    });
+    const ordered=[];
+    for(let r=0;r<maxR;r++) groups.forEach(g=>{ if(groupRounds[g][r]) ordered.push(...groupRounds[g][r]); });
+    gms.forEach(m=>{ if(ordered.indexOf(m)<0) ordered.push(m); });
+    return ordered;
+  }
+  function generateWaves(s){
+    const matchMin=s.halves*s.halfMin+s.halftimeMin, step=matchMin+s.changeoverMin, waves=[];
+    (s.days||[]).forEach((day,di)=>{
+      const start=hm2min(day.start), end=hm2min(day.end);
+      if(start==null||end==null) return;
+      const dayBreaks=(s.breaks||[]).filter(b=>b.date===day.date&&hm2min(b.start)!=null)
+        .map(b=>({s:hm2min(b.start), e:hm2min(b.start)+(+b.minutes||0)}));
+      let t=start, guard=0;
+      while(t+matchMin<=end && guard++<2000){
+        const c=dayBreaks.find(b=> t<b.e && b.s<t+matchMin);
+        if(c){ t=c.e; continue; }
+        waves.push({ date:day.date, startMin:t, endMin:t+matchMin, absStart:di*DAY_SEP+t, absEnd:di*DAY_SEP+t+matchMin });
+        t+=step;
+      }
+    });
+    return { waves, matchMin };
+  }
+  function buildSchedule(s){
+    const { waves }=generateWaves(s);
+    const P=Math.max(1,s.pitches|0), rest=Math.max(0,s.restMin|0), koRest=Math.max(0,s.koRestMin|0);
+    const assign={}, teamLastEnd={}, overflow=[];
+    // GRUPPSPEL
+    const pending=orderedGroupMatchRows();
+    let lastGroupAbsEnd=-Infinity;
+    for(let wi=0; wi<waves.length && pending.length; wi++){
+      const w=waves[wi]; let used=0; const inWave=new Set();
+      for(let i=0;i<pending.length && used<P;){
+        const m=pending[i], h=m.home_id, a=m.away_id;
+        const okTeams=!inWave.has(h)&&!inWave.has(a);
+        const okRest=(teamLastEnd[h]==null||w.absStart-teamLastEnd[h]>=rest)&&(teamLastEnd[a]==null||w.absStart-teamLastEnd[a]>=rest);
+        if(okTeams&&okRest){
+          assign[m.id]={date:w.date,time:min2hm(w.startMin),pitch:used+1};
+          inWave.add(h); inWave.add(a); teamLastEnd[h]=teamLastEnd[a]=w.absEnd;
+          lastGroupAbsEnd=Math.max(lastGroupAbsEnd,w.absEnd); used++; pending.splice(i,1);
+        } else i++;
+      }
+    }
+    pending.forEach(m=>overflow.push(m));
+    // SLUTSPEL (efter gruppspel + längre vila mellan omgångar)
+    const koByStage=['R16','QF','SF','F'].map(st=>({st,list:MATCHES.filter(m=>m.stage===st)})).filter(o=>o.list.length);
+    if(koByStage.length){
+      let cursorAbs=(lastGroupAbsEnd>-Infinity? lastGroupAbsEnd+koRest : -Infinity);
+      koByStage.forEach(({list})=>{
+        let wi=waves.findIndex(w=>w.absStart>=cursorAbs);
+        if(wi<0){ list.forEach(m=>overflow.push(m)); return; }
+        let li=0, stageEnd=-Infinity;
+        while(li<list.length && wi<waves.length){
+          const w=waves[wi];
+          for(let p=0;p<P && li<list.length;p++,li++){ assign[list[li].id]={date:w.date,time:min2hm(w.startMin),pitch:p+1}; stageEnd=Math.max(stageEnd,w.absEnd); }
+          wi++;
+        }
+        for(;li<list.length;li++) overflow.push(list[li]);
+        cursorAbs=(stageEnd>-Infinity? stageEnd+koRest : cursorAbs);
+      });
+    }
+    return { assign, overflow };
+  }
+  function scheduleConflicts(){
+    const dayIndex={}; (SETTINGS.days||[]).forEach((d,i)=>dayIndex[d.date]=i);
+    const matchMin=SETTINGS.halves*SETTINGS.halfMin+SETTINGS.halftimeMin, perTeam={};
+    MATCHES.filter(m=>m.sched_date&&m.sched_time).forEach(m=>{
+      const di=dayIndex[m.sched_date]||0, st=di*DAY_SEP+hm2min(m.sched_time), en=st+matchMin;
+      [m.home_id,m.away_id].forEach(tid=>{ if(tid){ (perTeam[tid]=perTeam[tid]||[]).push({st,en}); } });
+    });
+    const issues=[];
+    Object.keys(perTeam).forEach(tid=>{
+      const list=perTeam[tid].sort((a,b)=>a.st-b.st);
+      for(let i=1;i<list.length;i++){ const gap=list[i].st-list[i-1].en;
+        if(gap<0) issues.push({tid,type:'overlap'}); else if(gap<SETTINGS.restMin) issues.push({tid,type:'rest'}); }
+    });
+    return issues;
+  }
+
+  // ---- settings form ----
+  function readScalars(){
+    SETTINGS.halves=+$('#setHalves').value||1; SETTINGS.halfMin=+$('#setHalfMin').value||1;
+    SETTINGS.halftimeMin=+$('#setHalftime').value||0; SETTINGS.changeoverMin=+$('#setChangeover').value||0;
+    SETTINGS.pitches=+$('#setPitches').value||1; SETTINGS.restMin=+$('#setRest').value||0; SETTINGS.koRestMin=+$('#setKoRest').value||0;
+  }
+  function updateMatchLenHint(){
+    const mm=SETTINGS.halves*SETTINGS.halfMin+SETTINGS.halftimeMin, step=mm+SETTINGS.changeoverMin;
+    $('#matchLenHint').textContent='Varje match blockar '+mm+' min ('+SETTINGS.halves+'×'+SETTINGS.halfMin+' + '+SETTINGS.halftimeMin+' min halvtid). Ny våg var '+step+':e minut (inkl. '+SETTINGS.changeoverMin+' min byte). Upp till '+SETTINGS.pitches+' matcher samtidigt.';
+  }
+  function renderDaysList(){
+    $('#daysList').innerHTML=(SETTINGS.days||[]).map((d,i)=>
+      '<div class="daytime-row" data-i="'+i+'">'+
+        '<label class="sfield"><span>Datum</span><input type="date" class="d-date" value="'+(d.date||'')+'"></label>'+
+        '<label class="sfield"><span>Start</span><input type="time" class="d-start" value="'+(d.start||'')+'"></label>'+
+        '<label class="sfield"><span>Slut</span><input type="time" class="d-end" value="'+(d.end||'')+'"></label>'+
+        '<button class="rowrm d-rm" type="button" title="Ta bort dag">✕</button>'+
+      '</div>').join('') || '<div class="hint">Lägg till minst en speldag.</div>';
+    $('#daysList').querySelectorAll('.daytime-row').forEach(row=>{ const i=+row.dataset.i;
+      row.querySelector('.d-date').addEventListener('change',e=>SETTINGS.days[i].date=e.target.value);
+      row.querySelector('.d-start').addEventListener('change',e=>SETTINGS.days[i].start=e.target.value);
+      row.querySelector('.d-end').addEventListener('change',e=>SETTINGS.days[i].end=e.target.value);
+      row.querySelector('.d-rm').addEventListener('click',()=>{ SETTINGS.days.splice(i,1); renderDaysList(); });
+    });
+  }
+  function renderBreaksList(){
+    $('#breaksList').innerHTML=(SETTINGS.breaks||[]).map((b,i)=>
+      '<div class="break-row" data-i="'+i+'">'+
+        '<label class="sfield" style="flex:1;min-width:130px"><span>Namn</span><input class="b-label" value="'+escapeHtml(b.label||'')+'" placeholder="Lunch"></label>'+
+        '<label class="sfield"><span>Datum</span><input type="date" class="b-date" value="'+(b.date||'')+'"></label>'+
+        '<label class="sfield"><span>Start</span><input type="time" class="b-start" value="'+(b.start||'')+'"></label>'+
+        '<label class="sfield"><span>Längd (min)</span><input type="number" min="0" class="b-min" value="'+(b.minutes||0)+'" style="width:90px"></label>'+
+        '<button class="rowrm b-rm" type="button">✕</button>'+
+      '</div>').join('') || '<div class="hint">Inga pauser. Lägg till t.ex. lunch.</div>';
+    $('#breaksList').querySelectorAll('.break-row').forEach(row=>{ const i=+row.dataset.i;
+      row.querySelector('.b-label').addEventListener('change',e=>SETTINGS.breaks[i].label=e.target.value);
+      row.querySelector('.b-date').addEventListener('change',e=>SETTINGS.breaks[i].date=e.target.value);
+      row.querySelector('.b-start').addEventListener('change',e=>SETTINGS.breaks[i].start=e.target.value);
+      row.querySelector('.b-min').addEventListener('change',e=>SETTINGS.breaks[i].minutes=+e.target.value||0);
+      row.querySelector('.b-rm').addEventListener('click',()=>{ SETTINGS.breaks.splice(i,1); renderBreaksList(); });
+    });
+  }
+  function applySettingsToForm(){
+    $('#setHalves').value=SETTINGS.halves; $('#setHalfMin').value=SETTINGS.halfMin; $('#setHalftime').value=SETTINGS.halftimeMin;
+    $('#setChangeover').value=SETTINGS.changeoverMin; $('#setPitches').value=SETTINGS.pitches; $('#setRest').value=SETTINGS.restMin; $('#setKoRest').value=SETTINGS.koRestMin;
+    if(!SETTINGS.days) SETTINGS.days=[]; if(!SETTINGS.breaks) SETTINGS.breaks=[];
+    renderDaysList(); renderBreaksList(); updateMatchLenHint();
+  }
+  ['setHalves','setHalfMin','setHalftime','setChangeover','setPitches','setRest','setKoRest'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{ readScalars(); updateMatchLenHint(); });
+  });
+  $('#addDayBtn').addEventListener('click',()=>{ const last=(SETTINGS.days||[])[SETTINGS.days.length-1]; SETTINGS.days.push({date:last?last.date:(YEAR+'-07-25'), start:last?last.start:'09:00', end:last?last.end:'18:00'}); renderDaysList(); });
+  $('#addBreakBtn').addEventListener('click',()=>{ const d=(SETTINGS.days||[])[0]; SETTINGS.breaks.push({label:'Lunch', date:d?d.date:(YEAR+'-07-25'), start:'12:00', minutes:45}); renderBreaksList(); });
+  $('#saveSettingsBtn').addEventListener('click', async ()=>{
+    readScalars();
+    const { error }=await sb.from('settings').upsert({ year:YEAR, data:SETTINGS });
+    if(error){ toast(error.message,true); return; }
+    toast('Inställningar sparade');
+  });
+  $('#genScheduleBtn').addEventListener('click', async ()=>{
+    readScalars();
+    if(!MATCHES.some(m=>m.stage==='group')){ toast('Skapa gruppmatcher först (fliken Gruppmatcher).',true); return; }
+    if(!(SETTINGS.days||[]).length){ toast('Lägg till minst en speldag.',true); return; }
+    if(!confirm('Generera spelschema? Detta sätter tider och planer för alla matcher och skriver över nuvarande schema.')) return;
+    const res=buildSchedule(SETTINGS);
+    const updates=MATCHES.map(m=>{ const a=res.assign[m.id];
+      return sb.from('matches').update({ sched_date:a?a.date:null, sched_time:a?a.time:null, pitch:a?a.pitch:null }).eq('id',m.id); });
+    const results=await Promise.all(updates);
+    const err=results.find(r=>r.error);
+    if(err){ toast(err.error.message,true); return; }
+    await sb.from('settings').upsert({ year:YEAR, data:SETTINGS });
+    if(res.overflow.length) toast(res.overflow.length+' matcher fick inte plats — se varningen', true);
+    else toast('Spelschema genererat!');
+    await loadAll();
+  });
+  document.querySelectorAll('.viewtoggle .vt').forEach(b=>b.addEventListener('click',()=>{
+    SCHED_VIEW=b.dataset.view;
+    document.querySelectorAll('.viewtoggle .vt').forEach(x=>x.classList.toggle('active',x===b));
+    renderSchedule();
+  }));
+
+  // ---- schedule rendering ----
+  function schedCell(m){
+    const h=teamById(m.home_id), a=teamById(m.away_id);
+    const tag=m.stage==='group'?'<span class="tag">Grupp '+(m.group_name||'')+'</span>':'<span class="tag ko">'+(STAGE_SHORT[m.stage]||m.stage)+'</span>';
+    return '<div class="sched-cell">'+tag+'<br>'+labelOrTBD(h)+'<span class="vs">–</span>'+labelOrTBD(a)+'</div>';
+  }
+  function renderPitchView(sched,dates){
+    const maxP=Math.max(SETTINGS.pitches|0, Math.max(1,...sched.map(m=>m.pitch||1)));
+    return dates.map(date=>{
+      const dm=sched.filter(m=>m.sched_date===date);
+      const times=[...new Set(dm.map(m=>m.sched_time))];
+      const brks=(SETTINGS.breaks||[]).filter(b=>b.date===date&&b.start);
+      const entries=times.map(t=>({t,kind:'wave'})).concat(brks.map(b=>({t:b.start,kind:'break',b})));
+      entries.sort((a,b)=>hm2min(a.t)-hm2min(b.t));
+      let rows='';
+      entries.forEach(en=>{
+        if(en.kind==='break'){ rows+='<tr><td class="time">'+en.b.start+'</td><td class="break-line" colspan="'+maxP+'">☕ '+escapeHtml(en.b.label||'Paus')+' ('+(en.b.minutes||0)+' min)</td></tr>'; }
+        else { const wave=dm.filter(m=>m.sched_time===en.t); let cells='';
+          for(let p=1;p<=maxP;p++){ const m=wave.find(x=>(x.pitch||1)===p); cells+='<td>'+(m?schedCell(m):'')+'</td>'; }
+          rows+='<tr><td class="time">'+en.t+'</td>'+cells+'</tr>'; }
+      });
+      let head='<th>Tid</th>'; for(let p=1;p<=maxP;p++) head+='<th>Plan '+p+'</th>';
+      return '<div class="day-block"><h3>'+fmtDate(date)+'</h3><table class="sched-table"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    }).join('');
+  }
+  function renderTeamView(sched){
+    const per={};
+    sched.forEach(m=>{ [[m.home_id,m.away_id],[m.away_id,m.home_id]].forEach(([tid,opp])=>{ if(tid){ (per[tid]=per[tid]||[]).push({m,opp}); } }); });
+    const ids=Object.keys(per).sort((x,y)=>{ const tx=teamById(x),ty=teamById(y); return (tx?tx.name:'').localeCompare(ty?ty.name:''); });
+    return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">'+ids.map(tid=>{
+      const t=teamById(tid);
+      const rows=per[tid].sort((a,b)=>(a.m.sched_date+a.m.sched_time).localeCompare(b.m.sched_date+b.m.sched_time));
+      return '<div class="team-col"><h4>'+(t?teamLabel(t):'?')+'</h4>'+rows.map(({m,opp})=>{ const o=teamById(opp);
+        return '<div class="trow"><span class="t">'+shortDate(m.sched_date)+' '+m.sched_time+'</span><span>Plan '+(m.pitch||'?')+'</span><span>vs '+(o?teamLabel(o):'?')+'</span></div>'; }).join('')+'</div>';
+    }).join('')+'</div>';
+  }
+  function renderListView(sched){
+    const maxP=Math.max(SETTINGS.pitches|0,1);
+    const sorted=sched.slice().sort((a,b)=>((a.sched_date||'')+(a.sched_time||'')).localeCompare((b.sched_date||'')+(b.sched_time||'')));
+    return sorted.map(m=>{
+      const h=teamById(m.home_id), a=teamById(m.away_id);
+      const tag=m.stage==='group'?'Grupp '+(m.group_name||''):(STAGE_SHORT[m.stage]||m.stage);
+      let pol=''; for(let p=1;p<=maxP;p++) pol+='<option value="'+p+'"'+((m.pitch||0)===p?' selected':'')+'>Plan '+p+'</option>';
+      return '<div class="editrow" data-id="'+m.id+'"><span class="lbl">['+tag+'] '+labelOrTBD(h)+' – '+labelOrTBD(a)+'</span>'+
+        '<input type="date" class="e-date" value="'+(m.sched_date||'')+'">'+
+        '<input type="time" class="e-time" value="'+(m.sched_time||'')+'">'+
+        '<select class="e-pitch">'+pol+'</select></div>';
+    }).join('');
+  }
+  function bindListEdits(){
+    $('#scheduleView').querySelectorAll('.editrow').forEach(row=>{
+      const id=row.dataset.id;
+      const save=async patch=>{ const {error}=await sb.from('matches').update(patch).eq('id',id); if(error){toast(error.message,true);return;} toast('Match uppdaterad'); await loadAll(); };
+      row.querySelector('.e-date').addEventListener('change',e=>save({sched_date:e.target.value||null}));
+      row.querySelector('.e-time').addEventListener('change',e=>save({sched_time:e.target.value||null}));
+      row.querySelector('.e-pitch').addEventListener('change',e=>save({pitch:+e.target.value||null}));
+    });
+  }
+  function renderSchedule(){
+    const view=$('#scheduleView'); if(!view) return;
+    const sched=MATCHES.filter(m=>m.sched_date&&m.sched_time);
+    const summary=$('#schedSummary'), warn=$('#schedWarn');
+    if(!sched.length){ view.innerHTML='<div class="empty">Inget schema genererat än. Ställ in ovan och tryck “Generera spelschema”.</div>'; if(summary) summary.textContent=''; if(warn) warn.innerHTML=''; return; }
+    const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
+    if(summary) summary.textContent=sched.length+' matcher schemalagda över '+dates.length+' dag(ar).';
+    if(warn){
+      const issues=scheduleConflicts();
+      const unscheduled=MATCHES.filter(m=>!(m.sched_date&&m.sched_time));
+      let html='';
+      if(unscheduled.length) html+='<div class="warn">⚠️ '+unscheduled.length+' match(er) fick inte plats i schemat. Lägg till fler planer, fler/längre dagar, eller minska vilotiden — och generera om.</div>';
+      if(issues.length){ const names=[...new Set(issues.map(i=>{const t=teamById(i.tid);return t?t.name:'?';}))];
+        html+='<div class="warn">⚠️ För tät speltid för: '+escapeHtml(names.join(', '))+'. Justera i “Lista (redigera)” eller ändra inställningar.</div>'; }
+      if(!html) html='<div class="warn ok">✓ Inga krockar — inget lag spelar två matcher för tätt (min vila '+SETTINGS.restMin+' min respekteras).</div>';
+      warn.innerHTML=html;
+    }
+    if(SCHED_VIEW==='team') view.innerHTML=renderTeamView(sched);
+    else if(SCHED_VIEW==='list'){ view.innerHTML=renderListView(sched); bindListEdits(); }
+    else view.innerHTML=renderPitchView(sched,dates);
   }
 
   function escapeHtml(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }

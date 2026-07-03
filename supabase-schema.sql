@@ -32,16 +32,37 @@ create table if not exists public.matches (
   away_pens   int,
   status      text not null default 'scheduled', -- 'scheduled' | 'live' | 'finished'
   kickoff     timestamptz,
+  pitch       int,                                -- spelplan (1..N)
+  sched_date  text,                               -- schemalagt datum 'YYYY-MM-DD'
+  sched_time  text,                               -- avsparkstid 'HH:MM'
   sort_order  int  default 0,
   created_at  timestamptz default now()
+);
+-- lägg till schemakolumner även om tabellen redan fanns
+alter table public.matches add column if not exists pitch      int;
+alter table public.matches add column if not exists sched_date text;
+alter table public.matches add column if not exists sched_time text;
+
+-- ---------- INSTÄLLNINGAR (schemaparametrar per år) ----------
+create table if not exists public.settings (
+  year       int primary key,
+  data       jsonb not null default '{}',
+  updated_at timestamptz default now()
 );
 
 create index if not exists teams_year_idx   on public.teams(year);
 create index if not exists matches_year_idx on public.matches(year);
 
 -- ---------- SÄKERHET (Row Level Security) ----------
-alter table public.teams   enable row level security;
-alter table public.matches enable row level security;
+alter table public.teams    enable row level security;
+alter table public.matches  enable row level security;
+alter table public.settings enable row level security;
+
+drop policy if exists "public read settings" on public.settings;
+create policy "public read settings" on public.settings for select using (true);
+drop policy if exists "auth write settings" on public.settings;
+create policy "auth write settings" on public.settings for all
+  using (auth.uid() is not null) with check (auth.uid() is not null);
 
 -- Läsning öppen för alla (publika sidan)
 drop policy if exists "public read teams"   on public.teams;
