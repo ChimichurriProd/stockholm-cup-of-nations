@@ -211,6 +211,14 @@
   .year-tab{border:1px solid #c9d4ea;background:#fff;color:var(--navy);font-weight:800;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.15s}
   .year-tab:hover{border-color:var(--blue)}
   .year-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .year-tab.live-tab{border-color:#e13b3b;color:#c0392b}
+  .year-tab.live-tab.active{background:#c0392b;color:#fff;border-color:#c0392b}
+  .livedot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e13b3b;margin-right:5px;vertical-align:middle;animation:livepulse 1.4s infinite}
+  @keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(225,59,59,.55)}70%{box-shadow:0 0 0 7px rgba(225,59,59,0)}100%{box-shadow:0 0 0 0 rgba(225,59,59,0)}}
+  .gcard tbody tr.q td{background:rgba(11,70,196,.09)}
+  .empty-live{text-align:center;color:var(--muted);grid-column:1/-1;padding:20px}
+  .champ-top .livedot{width:11px;height:11px}
+  .champ-top:has(.livedot){background:linear-gradient(120deg,#c0392b,#e35d5d);color:#fff;box-shadow:0 12px 30px rgba(192,57,43,.3)}
   .champ-top{max-width:540px;margin:0 auto 28px;background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;font-weight:900;border-radius:14px;padding:14px 18px;text-align:center;font-size:16px;box-shadow:0 12px 30px rgba(244,194,13,.3)}
   @media(max-width:1000px){.groups-grid{grid-template-columns:repeat(2,1fr)}.bracket{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:560px){.groups-grid{grid-template-columns:1fr}.bracket{grid-template-columns:1fr}}
@@ -594,6 +602,8 @@
 
 <a class="wa" href="https://api.whatsapp.com/send?phone=46722012733" title="WhatsApp" target="_blank" rel="noopener noreferrer" onclick="window.open(this.href,'_blank','noopener');return false;">💬</a>
 
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   /* ---- Countdown ---- */
   const target = new Date("2026-07-25T09:00:00+02:00").getTime();
@@ -624,9 +634,13 @@
     document.querySelectorAll('#langBtn .lng').forEach(el=>{
       el.classList.toggle('active', el.getAttribute('data-set')===lang);
     });
-    renderResults(curYear, lang);
+    renderCurrent(lang);
     renderNations(lang);
     try{ localStorage.setItem('scon_lang', lang); }catch(e){}
+  }
+  function renderCurrent(lang){
+    if(curYear==='live') renderLive(lang);
+    else renderResults(curYear, lang);
   }
 
   /* ---- Results archive (2022–2025) ---- */
@@ -759,7 +773,7 @@
   function setYear(y){
     curYear = y;
     document.querySelectorAll('#yearTabs .year-tab').forEach(b=>b.classList.toggle('active', b.getAttribute('data-year')===y));
-    renderResults(curYear, curLang);
+    renderCurrent(curLang);
   }
   document.querySelectorAll('#langBtn .lng').forEach(el=>{
     el.addEventListener('click', ()=>{ curLang = el.getAttribute('data-set'); applyLang(curLang); });
@@ -769,6 +783,82 @@
   });
   applyLang(curLang);
   setYear(curYear);
+
+  /* ---- Live tournament (from Supabase) ---- */
+  const SB = window.SCON_SUPABASE || {};
+  const LIVE_YEAR = SB.year || 2026;
+  let LIVE = { teams:[], matches:[], loaded:false };
+  const liveTeam = id => LIVE.teams.find(t=>t.id===id);
+  function liveLabel(t){ return t ? ((t.flag?t.flag+' ':'')+esc(t.name)) : '—'; }
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function liveStandings(groupTeams){
+    const tbl={}; groupTeams.forEach(t=> tbl[t.id]={team:t,P:0,W:0,D:0,L:0,GF:0,GA:0,Pts:0});
+    LIVE.matches.filter(m=>m.stage==='group'&&m.status==='finished'&&m.home_score!=null&&m.away_score!=null)
+      .forEach(m=>{ const h=tbl[m.home_id],a=tbl[m.away_id]; if(!h||!a) return;
+        h.P++;a.P++;h.GF+=m.home_score;h.GA+=m.away_score;a.GF+=m.away_score;a.GA+=m.home_score;
+        if(m.home_score>m.away_score){h.W++;a.L++;h.Pts+=3;} else if(m.home_score<m.away_score){a.W++;h.L++;a.Pts+=3;} else {h.D++;a.D++;h.Pts++;a.Pts++;} });
+    return Object.values(tbl).sort((x,y)=> y.Pts-x.Pts || (y.GF-y.GA)-(x.GF-x.GA) || y.GF-x.GF || x.team.name.localeCompare(y.team.name));
+  }
+  function liveMatchCard(m,l){
+    const h=liveTeam(m.home_id),a=liveTeam(m.away_id);
+    const played=m.home_score!=null&&m.away_score!=null;
+    let hw=played&&m.home_score>m.away_score, aw=played&&m.away_score>m.home_score, pline='';
+    if(played&&m.home_score===m.away_score&&m.home_pens!=null&&m.away_pens!=null){
+      if(m.home_pens>m.away_pens)hw=true; else aw=true;
+      pline='<div class="pens">'+(l==='sv'?'straffar ':'pens ')+m.home_pens+':'+m.away_pens+'</div>';
+    }
+    return '<div class="match"><div class="t'+(hw?' win':'')+'"><span>'+liveLabel(h)+'</span><span class="sc">'+(m.home_score??'–')+'</span></div>'+
+           '<div class="t'+(aw?' win':'')+'"><span>'+liveLabel(a)+'</span><span class="sc">'+(m.away_score??'–')+'</span></div>'+pline+'</div>';
+  }
+  function renderLive(l){
+    const grid=document.getElementById('groupsGrid'), brk=document.getElementById('bracket'), ct=document.getElementById('champTop'), note=document.getElementById('archiveNote');
+    if(!grid||!brk) return;
+    const used=['A','B','C','D','E','F','G','H'].filter(g=> LIVE.teams.some(t=>t.group_name===g));
+    const finalM=LIVE.matches.filter(m=>m.stage==='F'&&m.status==='finished'&&m.home_score!=null);
+    let champ=null;
+    if(finalM.length){ const m=finalM[finalM.length-1]; let hw=m.home_score>m.away_score; if(m.home_score===m.away_score&&m.home_pens!=null){hw=m.home_pens>m.away_pens;} champ=liveTeam(hw?m.home_id:m.away_id); }
+    if(ct) ct.innerHTML = champ
+      ? '🏆 '+LIVE_YEAR+' · '+(l==='sv'?'Mästare':'Champion')+': '+liveLabel(champ)
+      : '<span class="livedot"></span> '+LIVE_YEAR+' · '+(l==='sv'?'PÅGÅR NU':'LIVE NOW');
+    const hdr=(l==='sv')?['#','Lag','S','Mål','P']:['#','Team','P','Goals','Pts'];
+    grid.innerHTML = used.map(g=>{
+      const rows=liveStandings(LIVE.teams.filter(t=>t.group_name===g));
+      return '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
+        '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
+        rows.map((r,i)=>'<tr'+(i<2?' class="q"':'')+'><td>'+(i+1)+'</td><td>'+liveLabel(r.team)+'</td><td>'+r.P+'</td><td>'+r.GF+'-'+r.GA+'</td><td>'+r.Pts+'</td></tr>').join('')+
+        '</tbody></table></div>';
+    }).join('') || '<p class="empty-live">'+(l==='sv'?'Lag och grupper publiceras snart.':'Teams and groups will appear here soon.')+'</p>';
+    if(note) note.innerHTML = l==='sv'?'🔵 Topp 2 går vidare · uppdateras live under turneringen':'🔵 Top 2 advance · updated live during the tournament';
+    const order=[['R16',RT.R16],['QF',RT.QF],['SF',RT.SF],['F',RT.F]];
+    brk.innerHTML = order.filter(([s])=>LIVE.matches.some(m=>m.stage===s)).map(([s,names])=>
+      '<div class="round"><h4>'+names[l==='sv'?1:0]+'</h4>'+LIVE.matches.filter(m=>m.stage===s).map(m=>liveMatchCard(m,l)).join('')+
+      (s==='F'&&champ ? '<div class="champ-banner">🏆 '+(l==='sv'?'Mästare':'Champion')+': '+liveLabel(champ)+'</div>' : '')+
+      '</div>').join('');
+  }
+  async function loadLive(){
+    if(!SB.url || SB.url.indexOf('DIN-PROJEKT')>-1 || !window.supabase) return;
+    try{
+      const sb=window.supabase.createClient(SB.url, SB.anonKey);
+      const [t,m]=await Promise.all([
+        sb.from('teams').select('*').eq('year',LIVE_YEAR).order('sort_order').order('name'),
+        sb.from('matches').select('*').eq('year',LIVE_YEAR).order('sort_order').order('created_at')
+      ]);
+      if(t.error||m.error) return;
+      LIVE.teams=t.data||[]; LIVE.matches=m.data||[]; LIVE.loaded=true;
+      if(!LIVE.teams.length) return;              // nothing published yet → keep archive only
+      const tabs=document.getElementById('yearTabs');
+      if(tabs && !tabs.querySelector('[data-year="live"]')){
+        const b=document.createElement('button');
+        b.className='year-tab live-tab'; b.type='button'; b.setAttribute('data-year','live');
+        b.innerHTML='<span class="livedot"></span> '+LIVE_YEAR;
+        b.addEventListener('click', ()=> setYear('live'));
+        tabs.insertBefore(b, tabs.firstChild);
+      }
+      setYear('live');                            // default to the live edition
+    }catch(e){ /* stay on archive */ }
+  }
+  loadLive();
 
   /* ---- Registration form -> opens an email to the organiser ---- */
   const regForm = document.getElementById('regForm');

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Arrangörsportal · Stockholm Cup of Nations</title>
+<link rel="icon" href="img/cup-of-nations-logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --blue:#0b46c4; --navy:#08236b; --gold:#f4c20d; --gold-deep:#b8860b;
+    --paper:#f4f7fc; --ink:#0c1a3a; --muted:#5a6b8c; --line:#e2e8f5;
+    --ok:#178a4c; --danger:#c0392b; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:"Sora","Inter",system-ui,sans-serif;line-height:1.1;letter-spacing:-.02em;margin:0}
+  a{color:var(--blue)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* ---- top bar ---- */
+  header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;border-bottom:3px solid var(--gold)}
+  header .wrap{display:flex;align-items:center;gap:14px;padding:12px 20px}
+  header img{height:38px;width:auto}
+  header .ttl{font-family:"Sora",sans-serif;font-weight:800;font-size:1.05rem}
+  header .ttl small{display:block;font-family:"Inter",sans-serif;font-weight:500;font-size:.72rem;opacity:.75;letter-spacing:.02em}
+  header .spacer{flex:1}
+  .whoami{font-size:.8rem;opacity:.85;margin-right:4px}
+  .btn{cursor:pointer;border:0;border-radius:10px;font-weight:700;font-family:inherit;font-size:.9rem;padding:10px 16px;transition:transform .12s ease,box-shadow .12s ease,background .12s}
+  .btn:active{transform:translateY(1px)}
+  .btn-gold{background:var(--gold);color:#3a2c00}
+  .btn-gold:hover{box-shadow:0 6px 16px rgba(244,194,13,.4)}
+  .btn-blue{background:var(--blue);color:#fff}
+  .btn-blue:hover{box-shadow:0 6px 16px rgba(11,70,196,.35)}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}
+  .btn-ghost:hover{background:rgba(255,255,255,.12)}
+  .btn-sm{padding:6px 11px;font-size:.82rem;border-radius:8px}
+  .btn-danger{background:#fdecea;color:var(--danger)}
+  .btn-danger:hover{background:#f9d7d3}
+
+  /* ---- login ---- */
+  #login{min-height:100vh;display:grid;place-items:center;padding:24px;
+    background:
+      radial-gradient(1200px 500px at 80% -10%, rgba(11,70,196,.12), transparent),
+      radial-gradient(900px 500px at 0% 110%, rgba(244,194,13,.14), transparent),
+      var(--paper);}
+  .login-card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px rgba(8,35,107,.14);padding:34px 30px;width:100%;max-width:400px;text-align:center}
+  .login-card img{height:66px;margin-bottom:14px}
+  .login-card h1{font-size:1.5rem}
+  .login-card p{color:var(--muted);font-size:.9rem;margin:8px 0 22px}
+  .field{text-align:left;margin-bottom:14px}
+  .field label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+  input,select{width:100%;font-family:inherit;font-size:.95rem;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px rgba(11,70,196,.14)}
+  .login-card .btn{width:100%;padding:12px}
+  .msg{font-size:.85rem;margin-top:14px;min-height:1.1em}
+  .msg.err{color:var(--danger)}
+  .msg.ok{color:var(--ok)}
+
+  /* ---- app ---- */
+  #app{display:none;padding:26px 0 80px}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 22px}
+  .tab{cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--muted);font-weight:700;font-family:inherit;font-size:.9rem;padding:9px 16px;border-radius:999px}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .panel{display:none}
+  .panel.active{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:0 6px 18px rgba(8,35,107,.05)}
+  .card h2{font-size:1.15rem;margin-bottom:4px}
+  .card .sub{color:var(--muted);font-size:.85rem;margin-bottom:16px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+  .row .field{margin-bottom:0}
+  .grow{flex:1;min-width:120px}
+  .w90{width:96px}
+  .w70{width:80px}
+
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  td .fl{font-size:1.15rem;margin-right:6px}
+  .pill{display:inline-block;font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:999px;background:#eef2fb;color:var(--navy)}
+  .pill.live{background:#fde8e6;color:var(--danger)}
+  .pill.done{background:#e7f6ee;color:var(--ok)}
+  .pill.sched{background:#eef2fb;color:var(--muted)}
+
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .gcard h3{font-size:1rem;margin-bottom:10px;color:var(--navy)}
+  .gcard table td,.gcard table th{padding:6px 8px;font-size:.85rem}
+  .standings td:nth-child(1){color:var(--muted);width:24px}
+  .standings tr.qualify td{background:rgba(11,70,196,.05)}
+
+  .match-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+  .match-row:last-child{border-bottom:0}
+  .match-row .side{flex:1;min-width:120px;display:flex;align-items:center;gap:6px;font-weight:600}
+  .match-row .side.away{justify-content:flex-end;text-align:right}
+  .match-row .sc{width:52px;text-align:center;padding:8px 6px}
+  .match-row .dash{color:var(--muted);font-weight:800}
+  .pens-wrap{display:flex;align-items:center;gap:5px;font-size:.8rem;color:var(--muted)}
+  .pens-wrap input{width:46px;padding:6px 5px;text-align:center}
+  .stage-block{margin-bottom:18px}
+  .stage-block h3{font-size:.95rem;color:var(--navy);margin-bottom:6px;padding-bottom:6px;border-bottom:2px solid var(--gold);display:inline-block}
+  .empty{color:var(--muted);font-size:.9rem;padding:14px 2px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;font-size:.9rem;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  .toast.err{background:var(--danger)}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:6px}
+  .notice{background:#fff7e0;border:1px solid #f4e3a8;color:#7a5c00;border-radius:12px;padding:14px 16px;font-size:.88rem;margin-bottom:18px}
+  .notice code{background:#fbeec0;padding:1px 6px;border-radius:5px}
+  @media(max-width:560px){
+    header .ttl small{display:none}
+    .match-row .side{min-width:90px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <form class="login-card" id="loginForm">
+    <img src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" onerror="this.style.display='none'" />
+    <h1>Arrangörsportal</h1>
+    <p>Logga in för att hantera lag och resultat för Stockholm Cup of Nations.</p>
+    <div class="field">
+      <label for="email">E-post</label>
+      <input type="email" id="email" autocomplete="username" required />
+    </div>
+    <div class="field">
+      <label for="password">Lösenord</label>
+      <input type="password" id="password" autocomplete="current-password" required />
+    </div>
+    <button class="btn btn-blue" type="submit" id="loginBtn">Logga in</button>
+    <div class="msg" id="loginMsg"></div>
+  </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header>
+    <div class="wrap">
+      <img src="img/cup-of-nations-logo.png" alt="" onerror="this.style.display='none'" />
+      <div class="ttl">Arrangörsportal<small>Stockholm Cup of Nations · <span id="yearLabel"></span></small></div>
+      <div class="spacer"></div>
+      <span class="whoami" id="whoami"></span>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn">Logga ut</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tabs">
+      <button class="tab active" data-panel="teams">Lag</button>
+      <button class="tab" data-panel="groups">Grupper &amp; tabeller</button>
+      <button class="tab" data-panel="matches">Gruppmatcher</button>
+      <button class="tab" data-panel="knockout">Slutspel</button>
+    </div>
+
+    <!-- ---- TEAMS ---- -->
+    <section class="panel active" id="panel-teams">
+      <div class="card">
+        <h2>Lägg till lag</h2>
+        <div class="sub">Nation/lag som deltar i turneringen. Flagga är valfri (klistra in en emoji, t.ex. 🇺🇾).</div>
+        <form id="teamForm" class="row">
+          <div class="field grow"><label>Lag / Nation</label><input id="tName" placeholder="Uruguay" required /></div>
+          <div class="field w70"><label>Flagga</label><input id="tFlag" placeholder="🇺🇾" /></div>
+          <div class="field w90"><label>Grupp</label>
+            <select id="tGroup"><option value="">—</option></select>
+          </div>
+          <button class="btn btn-blue" type="submit">Lägg till</button>
+        </form>
+        <div class="hint">Tips: skapa alla lag först, tilldela grupp här eller i listan nedan, och generera sedan gruppmatcherna under fliken “Gruppmatcher”.</div>
+      </div>
+      <div class="card">
+        <h2>Lag <span class="pill" id="teamCount">0</span></h2>
+        <div class="sub">Ändra grupp direkt i listan. Att ta bort ett lag tar även bort dess matcher.</div>
+        <div id="teamsTable"></div>
+      </div>
+    </section>
+
+    <!-- ---- GROUPS / STANDINGS ---- -->
+    <section class="panel" id="panel-groups">
+      <div class="card">
+        <h2>Tabeller</h2>
+        <div class="sub">Räknas automatiskt ut från spelade gruppmatcher. Vinst = 3 p, oavgjort = 1 p. Topp 2 (blåmarkerade) går vidare.</div>
+        <div id="standings" class="grid2"></div>
+      </div>
+    </section>
+
+    <!-- ---- GROUP MATCHES ---- -->
+    <section class="panel" id="panel-matches">
+      <div class="card">
+        <h2>Gruppmatcher</h2>
+        <div class="sub">Fyll i resultat och tryck spara. Lämna tomt för ospelade matcher.</div>
+        <div class="row" style="margin-bottom:14px">
+          <button class="btn btn-gold btn-sm" id="genGroupBtn">↻ Generera gruppmatcher</button>
+          <span class="hint" style="margin:0">Skapar alla möten (varje lag möter varje) i grupperna. Befintliga gruppmatcher rensas först.</span>
+        </div>
+        <div id="groupMatches"></div>
+      </div>
+    </section>
+
+    <!-- ---- KNOCKOUT ---- -->
+    <section class="panel" id="panel-knockout">
+      <div class="card">
+        <h2>Lägg till slutspelsmatch</h2>
+        <div class="sub">Bygg slutspelsträdet steg för steg — åttondels-, kvarts-, semifinal och final.</div>
+        <form id="koForm" class="row">
+          <div class="field w90"><label>Steg</label>
+            <select id="koStage">
+              <option value="R16">Åttondel</option>
+              <option value="QF">Kvartsfinal</option>
+              <option value="SF">Semifinal</option>
+              <option value="F">Final</option>
+            </select>
+          </div>
+          <div class="field grow"><label>Hemmalag</label><select id="koHome"></select></div>
+          <div class="field grow"><label>Bortalag</label><select id="koAway"></select></div>
+          <button class="btn btn-blue" type="submit">Lägg till match</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Slutspelsträd</h2>
+        <div class="sub">Fyll i resultat. Vid oavgjort, ange straffar för att avgöra.</div>
+        <div id="koMatches"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  "use strict";
+  const cfg = window.SCON_SUPABASE || {};
+  const YEAR = cfg.year || 2026;
+  const GROUPS = ['A','B','C','D','E','F','G','H'];
+  const STAGE_NAMES = { R16:'Åttondelsfinaler', QF:'Kvartsfinaler', SF:'Semifinaler', F:'Final' };
+  const $ = s => document.querySelector(s);
+
+  document.getElementById('yearLabel').textContent = YEAR;
+  // fill group dropdown
+  const tGroupSel = $('#tGroup');
+  GROUPS.forEach(g => { const o=document.createElement('option'); o.value=g; o.textContent='Grupp '+g; tGroupSel.appendChild(o); });
+
+  function toast(msg, isErr){
+    const t=$('#toast'); t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+    setTimeout(()=>{ t.className='toast'+(isErr?' err':''); }, 2600);
+  }
+
+  // ---- config guard ----
+  if(!cfg.url || cfg.url.indexOf('DIN-PROJEKT')>-1 || !window.supabase){
+    $('#loginMsg').className='msg err';
+    $('#loginMsg').innerHTML='⚠️ Supabase är inte konfigurerat ännu.<br>Fyll i <code>supabase-config.js</code> med projektets URL och anon-nyckel. Se <b>SUPABASE-SETUP.md</b>.';
+    $('#loginBtn').disabled=true;
+    return;
+  }
+
+  const sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+  let TEAMS = [], MATCHES = [];
+
+  // ---------- AUTH ----------
+  $('#loginForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const btn=$('#loginBtn'), msg=$('#loginMsg');
+    btn.disabled=true; btn.textContent='Loggar in…'; msg.className='msg';
+    const { error } = await sb.auth.signInWithPassword({ email:$('#email').value.trim(), password:$('#password').value });
+    btn.disabled=false; btn.textContent='Logga in';
+    if(error){ msg.className='msg err'; msg.textContent = error.message.includes('Invalid')?'Fel e-post eller lösenord.':error.message; }
+  });
+  $('#logoutBtn').addEventListener('click', async ()=>{ await sb.auth.signOut(); });
+
+  sb.auth.onAuthStateChange((_e, session)=>{
+    if(session){ showApp(session); } else { showLogin(); }
+  });
+  sb.auth.getSession().then(({data})=>{ if(data.session) showApp(data.session); });
+
+  function showLogin(){ $('#app').style.display='none'; $('#login').style.display='grid'; }
+  async function showApp(session){
+    $('#login').style.display='none'; $('#app').style.display='block';
+    $('#whoami').textContent = session.user.email;
+    await loadAll();
+  }
+
+  // ---------- DATA ----------
+  async function loadAll(){
+    const [tRes, mRes] = await Promise.all([
+      sb.from('teams').select('*').eq('year',YEAR).order('group_name',{nullsFirst:false}).order('sort_order').order('name'),
+      sb.from('matches').select('*').eq('year',YEAR).order('sort_order').order('created_at')
+    ]);
+    if(tRes.error){ toast('Kunde inte läsa lag: '+tRes.error.message, true); return; }
+    if(mRes.error){ toast('Kunde inte läsa matcher: '+mRes.error.message, true); return; }
+    TEAMS = tRes.data || []; MATCHES = mRes.data || [];
+    renderTeams(); renderStandings(); renderGroupMatches(); renderKnockout(); fillKoTeamSelects();
+  }
+  const teamById = id => TEAMS.find(t=>t.id===id);
+  const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
+
+  // ---------- TEAMS ----------
+  $('#teamForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const name=$('#tName').value.trim(); if(!name) return;
+    const rec={ year:YEAR, name, flag:$('#tFlag').value.trim()||null, group_name:$('#tGroup').value||null };
+    const { error } = await sb.from('teams').insert(rec);
+    if(error){ toast(error.message, true); return; }
+    $('#tName').value=''; $('#tFlag').value='';
+    toast('Lag tillagt');
+    await loadAll();
+  });
+
+  function renderTeams(){
+    $('#teamCount').textContent = TEAMS.length;
+    if(!TEAMS.length){ $('#teamsTable').innerHTML='<div class="empty">Inga lag ännu. Lägg till det första ovan.</div>'; return; }
+    const opts = g => ['<option value="">—</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
+    $('#teamsTable').innerHTML =
+      '<table><thead><tr><th>Lag</th><th style="width:130px">Grupp</th><th style="width:80px"></th></tr></thead><tbody>'+
+      TEAMS.map(t=>
+        '<tr data-id="'+t.id+'">'+
+          '<td><span class="fl">'+(t.flag||'')+'</span>'+escapeHtml(t.name)+'</td>'+
+          '<td><select class="teamGroup">'+opts(t.group_name)+'</select></td>'+
+          '<td><button class="btn btn-danger btn-sm delTeam">Ta bort</button></td>'+
+        '</tr>').join('')+
+      '</tbody></table>';
+    $('#teamsTable').querySelectorAll('.teamGroup').forEach(sel=>{
+      sel.addEventListener('change', async e=>{
+        const id=e.target.closest('tr').dataset.id;
+        const { error } = await sb.from('teams').update({ group_name:e.target.value||null }).eq('id',id);
+        if(error){ toast(error.message,true); return; }
+        toast('Grupp uppdaterad'); await loadAll();
+      });
+    });
+    $('#teamsTable').querySelectorAll('.delTeam').forEach(btn=>{
+      btn.addEventListener('click', async e=>{
+        const tr=e.target.closest('tr'); const id=tr.dataset.id;
+        const t=teamById(id);
+        if(!confirm('Ta bort '+(t?t.name:'laget')+'? Lagets matcher tas också bort.')) return;
+        const { error } = await sb.from('teams').delete().eq('id',id);
+        if(error){ toast(error.message,true); return; }
+        toast('Lag borttaget'); await loadAll();
+      });
+    });
+  }
+
+  // ---------- STANDINGS ----------
+  function computeStandings(groupTeams){
+    const tbl = {};
+    groupTeams.forEach(t=> tbl[t.id]={ team:t, P:0,W:0,D:0,L:0,GF:0,GA:0,Pts:0 });
+    MATCHES.filter(m=>m.stage==='group' && m.status==='finished' && m.home_score!=null && m.away_score!=null)
+      .forEach(m=>{
+        const h=tbl[m.home_id], a=tbl[m.away_id]; if(!h||!a) return;
+        h.P++; a.P++; h.GF+=m.home_score; h.GA+=m.away_score; a.GF+=m.away_score; a.GA+=m.home_score;
+        if(m.home_score>m.away_score){ h.W++; a.L++; h.Pts+=3; }
+        else if(m.home_score<m.away_score){ a.W++; h.L++; a.Pts+=3; }
+        else { h.D++; a.D++; h.Pts++; a.Pts++; }
+      });
+    return Object.values(tbl).sort((x,y)=> y.Pts-x.Pts || (y.GF-y.GA)-(x.GF-x.GA) || y.GF-x.GF || x.team.name.localeCompare(y.team.name));
+  }
+  function renderStandings(){
+    const used = GROUPS.filter(g=> TEAMS.some(t=>t.group_name===g));
+    if(!used.length){ $('#standings').innerHTML='<div class="empty">Tilldela lag till grupper (A–H) under fliken “Lag” för att se tabeller.</div>'; return; }
+    $('#standings').innerHTML = used.map(g=>{
+      const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
+      return '<div class="gcard"><h3>Grupp '+g+'</h3><table class="standings"><thead><tr>'+
+        '<th>#</th><th>Lag</th><th>S</th><th>V</th><th>O</th><th>F</th><th>MÅL</th><th>+/−</th><th>P</th></tr></thead><tbody>'+
+        rows.map((r,i)=>'<tr class="'+(i<2?'qualify':'')+'"><td>'+(i+1)+'</td>'+
+          '<td><span class="fl">'+(r.team.flag||'')+'</span>'+escapeHtml(r.team.name)+'</td>'+
+          '<td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td>'+
+          '<td>'+r.GF+'-'+r.GA+'</td><td>'+(r.GF-r.GA>0?'+':'')+(r.GF-r.GA)+'</td><td><b>'+r.Pts+'</b></td></tr>').join('')+
+        '</tbody></table></div>';
+    }).join('');
+  }
+
+  // ---------- GROUP MATCHES ----------
+  $('#genGroupBtn').addEventListener('click', async ()=>{
+    const used = GROUPS.filter(g=> TEAMS.filter(t=>t.group_name===g).length>=2);
+    if(!used.length){ toast('Tilldela minst 2 lag till en grupp först.', true); return; }
+    if(!confirm('Generera gruppmatcher för '+used.length+' grupp(er)? Befintliga gruppmatcher (och deras resultat) rensas först.')) return;
+    await sb.from('matches').delete().eq('year',YEAR).eq('stage','group');
+    const rows=[]; let order=0;
+    used.forEach(g=>{
+      const ts=TEAMS.filter(t=>t.group_name===g);
+      for(let i=0;i<ts.length;i++) for(let j=i+1;j<ts.length;j++)
+        rows.push({ year:YEAR, stage:'group', group_name:g, home_id:ts[i].id, away_id:ts[j].id, status:'scheduled', sort_order:order++ });
+    });
+    const { error } = await sb.from('matches').insert(rows);
+    if(error){ toast(error.message, true); return; }
+    toast(rows.length+' matcher skapade'); await loadAll();
+  });
+
+  function scoreRow(m){
+    const h=teamById(m.home_id), a=teamById(m.away_id);
+    const st = m.status==='finished'?'<span class="pill done">Klar</span>':m.status==='live'?'<span class="pill live">Live</span>':'<span class="pill sched">Ej spelad</span>';
+    return '<div class="match-row" data-id="'+m.id+'">'+
+      '<span class="side"><span class="fl">'+(h&&h.flag||'')+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
+      '<input class="sc mHome" type="number" min="0" inputmode="numeric" value="'+(m.home_score??'')+'" />'+
+      '<span class="dash">–</span>'+
+      '<input class="sc mAway" type="number" min="0" inputmode="numeric" value="'+(m.away_score??'')+'" />'+
+      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+(a&&a.flag||'')+'</span></span>'+
+      '<button class="btn btn-blue btn-sm saveScore">Spara</button>'+st+
+    '</div>';
+  }
+  function renderGroupMatches(){
+    const gm = MATCHES.filter(m=>m.stage==='group');
+    if(!gm.length){ $('#groupMatches').innerHTML='<div class="empty">Inga gruppmatcher ännu. Tryck “Generera gruppmatcher”.</div>'; return; }
+    const used = GROUPS.filter(g=> gm.some(m=>m.group_name===g));
+    $('#groupMatches').innerHTML = used.map(g=>
+      '<div class="stage-block"><h3>Grupp '+g+'</h3>'+ gm.filter(m=>m.group_name===g).map(scoreRow).join('') +'</div>'
+    ).join('');
+    bindScoreSaves('#groupMatches');
+  }
+
+  // ---------- KNOCKOUT ----------
+  function fillKoTeamSelects(){
+    const opts='<option value="">— välj lag —</option>'+TEAMS.map(t=>'<option value="'+t.id+'">'+teamLabel(t)+'</option>').join('');
+    $('#koHome').innerHTML=opts; $('#koAway').innerHTML=opts;
+  }
+  $('#koForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const home=$('#koHome').value, away=$('#koAway').value, stage=$('#koStage').value;
+    if(!home||!away){ toast('Välj båda lagen.', true); return; }
+    if(home===away){ toast('Ett lag kan inte möta sig självt.', true); return; }
+    const order = MATCHES.filter(m=>m.stage===stage).length;
+    const { error } = await sb.from('matches').insert({ year:YEAR, stage, home_id:home, away_id:away, status:'scheduled', sort_order:order });
+    if(error){ toast(error.message, true); return; }
+    toast('Slutspelsmatch tillagd'); await loadAll();
+  });
+
+  function koRow(m){
+    const h=teamById(m.home_id), a=teamById(m.away_id);
+    const drawn = m.home_score!=null && m.away_score!=null && m.home_score===m.away_score;
+    const st = m.status==='finished'?'<span class="pill done">Klar</span>':'<span class="pill sched">Ej spelad</span>';
+    return '<div class="match-row" data-id="'+m.id+'">'+
+      '<span class="side"><span class="fl">'+(h&&h.flag||'')+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
+      '<input class="sc mHome" type="number" min="0" inputmode="numeric" value="'+(m.home_score??'')+'" />'+
+      '<span class="dash">–</span>'+
+      '<input class="sc mAway" type="number" min="0" inputmode="numeric" value="'+(m.away_score??'')+'" />'+
+      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+(a&&a.flag||'')+'</span></span>'+
+      '<span class="pens-wrap" title="Straffar">🥅<input class="mHP" type="number" min="0" inputmode="numeric" value="'+(m.home_pens??'')+'" />:'+
+        '<input class="mAP" type="number" min="0" inputmode="numeric" value="'+(m.away_pens??'')+'" /></span>'+
+      '<button class="btn btn-blue btn-sm saveScore">Spara</button>'+
+      '<button class="btn btn-danger btn-sm delMatch">✕</button>'+st+
+    '</div>';
+  }
+  function renderKnockout(){
+    const order=['R16','QF','SF','F'];
+    const has = order.filter(s=> MATCHES.some(m=>m.stage===s));
+    if(!has.length){ $('#koMatches').innerHTML='<div class="empty">Inga slutspelsmatcher ännu. Lägg till en ovan.</div>'; return; }
+    $('#koMatches').innerHTML = has.map(s=>
+      '<div class="stage-block"><h3>'+STAGE_NAMES[s]+'</h3>'+ MATCHES.filter(m=>m.stage===s).map(koRow).join('') +'</div>'
+    ).join('');
+    bindScoreSaves('#koMatches');
+    $('#koMatches').querySelectorAll('.delMatch').forEach(btn=>{
+      btn.addEventListener('click', async e=>{
+        const id=e.target.closest('.match-row').dataset.id;
+        if(!confirm('Ta bort matchen?')) return;
+        const { error } = await sb.from('matches').delete().eq('id',id);
+        if(error){ toast(error.message,true); return; }
+        toast('Match borttagen'); await loadAll();
+      });
+    });
+  }
+
+  // ---------- SAVE SCORES (shared) ----------
+  function bindScoreSaves(scope){
+    document.querySelectorAll(scope+' .saveScore').forEach(btn=>{
+      btn.addEventListener('click', async e=>{
+        const rowEl=e.target.closest('.match-row'); const id=rowEl.dataset.id;
+        const hv=rowEl.querySelector('.mHome').value, av=rowEl.querySelector('.mAway').value;
+        const upd={};
+        if(hv==='' && av===''){ upd.home_score=null; upd.away_score=null; upd.status='scheduled'; }
+        else { upd.home_score=hv===''?null:parseInt(hv,10); upd.away_score=av===''?null:parseInt(av,10);
+               upd.status=(hv!==''&&av!=='')?'finished':'live'; }
+        const hp=rowEl.querySelector('.mHP'), ap=rowEl.querySelector('.mAP');
+        if(hp) upd.home_pens = hp.value===''?null:parseInt(hp.value,10);
+        if(ap) upd.away_pens = ap.value===''?null:parseInt(ap.value,10);
+        e.target.disabled=true; e.target.textContent='…';
+        const { error } = await sb.from('matches').update(upd).eq('id',id);
+        e.target.disabled=false; e.target.textContent='Spara';
+        if(error){ toast(error.message, true); return; }
+        toast('Resultat sparat'); await loadAll();
+      });
+    });
+  }
+
+  function escapeHtml(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+})();
+</script>
+</body>
+</html>
