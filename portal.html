@@ -272,6 +272,15 @@
 
   document.getElementById('yearLabel').textContent = YEAR;
 
+  // ---------- TAB SWITCHING ----------
+  document.querySelectorAll('.tabs .tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const p = tab.getAttribute('data-panel');
+      document.querySelectorAll('.tabs .tab').forEach(t=> t.classList.toggle('active', t===tab));
+      document.querySelectorAll('.panel').forEach(sec=> sec.classList.toggle('active', sec.id==='panel-'+p));
+    });
+  });
+
   function toast(msg, isErr){
     const t=$('#toast'); t.textContent=msg; t.className='toast show'+(isErr?' err':'');
     setTimeout(()=>{ t.className='toast'+(isErr?' err':''); }, 2600);
