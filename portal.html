@@ -82,6 +82,7 @@
   td .fl{font-size:1.15rem;margin-right:6px}
   .pill{display:inline-block;font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:999px;background:#eef2fb;color:var(--navy)}
   .pill.live{background:#fde8e6;color:var(--danger)}
+  .pill.over{background:#fdecea;color:var(--danger)}
   .pill.done{background:#e7f6ee;color:var(--ok)}
   .pill.sched{background:#eef2fb;color:var(--muted)}
 
@@ -265,10 +266,9 @@
         </div>
       </div>
 
-      <!-- STEG 2: LAG + LOTTNING -->
+      <!-- STEG 2: LAG + LOTTNING (öppnas under steg 1) -->
       <div id="wzStep2" style="display:none">
         <div class="card">
-          <button class="btn btn-ghost-blue btn-sm" id="wzBackBtn" type="button" style="margin-bottom:14px">← Ändra format</button>
           <h2><span class="step">2</span>Lägg till lagen <span class="pill" id="wzCount">0</span></h2>
           <div class="sub">Sök landslag (flagga hämtas automatiskt) eller lägg till egna lag, ett i taget. Du behöver inte fylla alla platser innan du lottar — tomma platser är ok, fyll på senare.</div>
           <div class="combo" id="wzCombo">
@@ -458,7 +458,7 @@
     if(SETTINGS.numTeams && $('#wzNumTeams') && !$('#wzNumTeams').value) $('#wzNumTeams').value=SETTINGS.numTeams;
     renderTeams(); renderStandings(); renderGroupMatches(); renderKnockout();
     applySettingsToForm(); renderSchedule(); wzUpdatePreview();
-    wzShowStep(TEAMS.length>0 ? 2 : 1);   // returning users with teams land on step 2
+    wzShowStep2(TEAMS.length>0);   // open step 2 if teams already exist
   }
   const teamById = id => TEAMS.find(t=>t.id===id);
   const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
@@ -536,7 +536,10 @@
 
   // ---------- TEAMS: searchable nation picker (reusable) ----------
   function normalize(s){ return (s||'').toLowerCase().replace(/[åäà]/g,'a').replace(/[öó]/g,'o').replace(/é/g,'e'); }
+  function teamLimit(){ return +($('#wzNumTeams') && $('#wzNumTeams').value) || SETTINGS.numTeams || 0; }
   async function addTeam(rec){
+    const lim=teamLimit();
+    if(lim && TEAMS.length >= lim){ toast('Du har redan lagt till alla '+lim+' lag. Höj “Antal lag” i steg 1 för fler.', true); return false; }
     const { error } = await sb.from('teams').insert(Object.assign({ year:YEAR, group_name:null }, rec));
     if(error){ toast(error.message, true); return false; }
     return true;
@@ -587,7 +590,7 @@
 
   function renderTeams(){
     const target = Math.max(0, +($('#wzNumTeams') && $('#wzNumTeams').value || 0));
-    document.querySelectorAll('#teamCount,#wzCount').forEach(el=>el.textContent = target ? (TEAMS.length+' / '+target) : String(TEAMS.length));
+    document.querySelectorAll('#teamCount,#wzCount').forEach(el=>{ el.textContent = target ? (TEAMS.length+' / '+target) : String(TEAMS.length); el.classList.toggle('over', !!target && TEAMS.length>target); });
     const opts = g => ['<option value="">— grupp —</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
     const anyGroups = TEAMS.some(t=>t.group_name);
     const filledChip = t =>
@@ -757,22 +760,20 @@
     const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>{ renderTeams(); wzUpdatePreview(); });
   });
 
-  // ---- stepped wizard ----
-  function wzShowStep(n){
-    const s1=$('#wzStep1'), s2=$('#wzStep2'); if(!s1||!s2) return;
-    s1.style.display = n===1?'':'none';
-    s2.style.display = n===2?'':'none';
-    if(n===2) renderTeams();
+  // ---- stepped wizard (step 1 stays visible; step 2 opens below) ----
+  function wzShowStep2(show){
+    const s2=$('#wzStep2'); if(!s2) return;
+    s2.style.display = show?'':'none';
+    if(show) renderTeams();
   }
   $('#wzNextBtn').addEventListener('click', ()=>{
     const nt=+$('#wzNumTeams').value;
     if(!nt || nt<2){ toast('Ange antal lag (minst 2) först.', true); $('#wzNumTeams').focus(); return; }
     SETTINGS.numTeams=nt;
-    wzShowStep(2);                                    // switch immediately
+    wzShowStep2(true);
     $('#wzSearch') && $('#wzSearch').focus();
     try{ sb.from('settings').upsert({ year:YEAR, data:SETTINGS }); }catch(e){}   // persist in background
   });
-  $('#wzBackBtn').addEventListener('click', ()=> wzShowStep(1));
 
   async function drawWholeTournament(){
     const f=wzReadFormat();
