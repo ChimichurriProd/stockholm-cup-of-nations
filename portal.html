@@ -233,55 +233,65 @@
 
     <!-- ---- CREATE WIZARD ---- -->
     <section class="panel active" id="panel-create">
-      <div class="card">
-        <h2><span class="step">1</span>Format</h2>
-        <div class="sub">Turneringens ramar. Datum, tider och pauser ställs in under fliken “Spelschema”.</div>
-        <div class="settings-grid">
-          <label class="sfield"><span>Antal lag</span><input id="wzNumTeams" type="number" min="2" max="64" placeholder="t.ex. 16" list="teamPresets">
-            <datalist id="teamPresets"><option>8</option><option>12</option><option>16</option><option>24</option><option>32</option></datalist>
-          </label>
-          <label class="sfield"><span>Önskad gruppstorlek</span>
-            <select id="wzPerGroup"><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
-          </label>
-          <label class="sfield"><span>Går vidare</span>
-            <select id="wzQual">
-              <option value="one">Gruppvinnaren</option>
-              <option value="two" selected>Topp 2</option>
-              <option value="thirds">Topp 2 + bästa 3:orna</option>
-            </select>
-          </label>
-          <label class="sfield"><span>Halvlekar</span><input id="wzHalves" type="number" min="1" max="4" value="2"></label>
-          <label class="sfield"><span>Min/halvlek (grupp)</span><input id="wzHalfMin" type="number" min="1" max="60" value="10"></label>
-          <label class="sfield"><span>Min/halvlek (slutspel)</span><input id="wzKoHalfMin" type="number" min="1" max="60" value="10"></label>
-          <label class="sfield"><span>Tid mellan matcher (min)</span><input id="wzChangeover" type="number" min="0" max="60" value="5"></label>
-          <label class="sfield"><span>Antal planer</span><input id="wzPitches" type="number" min="1" max="12" value="3"></label>
+      <!-- STEG 1: FORMAT -->
+      <div id="wzStep1">
+        <div class="card">
+          <h2><span class="step">1</span>Format</h2>
+          <div class="sub">Turneringens ramar. Datum, tider och pauser ställs in under fliken “Spelschema”.</div>
+          <div class="settings-grid">
+            <label class="sfield"><span>Antal lag</span><input id="wzNumTeams" type="number" min="2" max="64" placeholder="t.ex. 16" list="teamPresets">
+              <datalist id="teamPresets"><option>8</option><option>12</option><option>16</option><option>24</option><option>32</option></datalist>
+            </label>
+            <label class="sfield"><span>Önskad gruppstorlek</span>
+              <select id="wzPerGroup"><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
+            </label>
+            <label class="sfield"><span>Går vidare</span>
+              <select id="wzQual">
+                <option value="one">Gruppvinnaren</option>
+                <option value="two" selected>Topp 2</option>
+                <option value="thirds">Topp 2 + bästa 3:orna</option>
+              </select>
+            </label>
+            <label class="sfield"><span>Halvlekar</span><input id="wzHalves" type="number" min="1" max="4" value="2"></label>
+            <label class="sfield"><span>Min/halvlek (grupp)</span><input id="wzHalfMin" type="number" min="1" max="60" value="10"></label>
+            <label class="sfield"><span>Min/halvlek (slutspel)</span><input id="wzKoHalfMin" type="number" min="1" max="60" value="10"></label>
+            <label class="sfield"><span>Tid mellan matcher (min)</span><input id="wzChangeover" type="number" min="0" max="60" value="5"></label>
+            <label class="sfield"><span>Antal planer</span><input id="wzPitches" type="number" min="1" max="12" value="3"></label>
+          </div>
+          <div class="hint" id="wzPreview"></div>
+          <div class="row" style="margin-top:18px">
+            <button class="btn btn-blue" id="wzNextBtn" type="button" style="font-size:1rem;padding:12px 22px">Gå vidare →</button>
+          </div>
         </div>
-        <div class="hint" id="wzPreview"></div>
       </div>
 
-      <div class="card">
-        <h2><span class="step">2</span>Lägg till lagen <span class="pill" id="wzCount">0</span></h2>
-        <div class="sub">Sök landslag (flagga hämtas automatiskt) eller lägg till egna lag. Ta bort med ✕, byt grupp i rullgardinen efter lottning.</div>
-        <div class="combo" id="wzCombo">
-          <span class="ico">🔎</span>
-          <input id="wzSearch" type="text" placeholder="Sök land… (t.ex. Argentina)" autocomplete="off" />
-          <div class="combo-list" id="wzList"></div>
+      <!-- STEG 2: LAG + LOTTNING -->
+      <div id="wzStep2" style="display:none">
+        <div class="card">
+          <button class="btn btn-ghost-blue btn-sm" id="wzBackBtn" type="button" style="margin-bottom:14px">← Ändra format</button>
+          <h2><span class="step">2</span>Lägg till lagen <span class="pill" id="wzCount">0</span></h2>
+          <div class="sub">Sök landslag (flagga hämtas automatiskt) eller lägg till egna lag, ett i taget. Du behöver inte fylla alla platser innan du lottar — tomma platser är ok, fyll på senare.</div>
+          <div class="combo" id="wzCombo">
+            <span class="ico">🔎</span>
+            <input id="wzSearch" type="text" placeholder="Sök land… (t.ex. Argentina)" autocomplete="off" />
+            <div class="combo-list" id="wzList"></div>
+          </div>
+          <div class="row" style="margin-top:12px;align-items:flex-end">
+            <div class="field grow"><label>Eget lag</label><input id="wzCustomName" placeholder="t.ex. FC Kompisarna"></div>
+            <div class="field w70"><label>Flagga</label><input id="wzCustomFlag" placeholder="🏴"></div>
+            <button class="btn btn-ghost-blue" id="wzCustomAddBtn" type="button">+ Lägg till eget</button>
+            <button class="btn btn-danger btn-sm" id="clearTeamsBtn" type="button" style="margin-left:auto">🗑 Töm alla lag</button>
+          </div>
+          <div id="wzTeamList" style="margin-top:14px"></div>
         </div>
-        <div class="row" style="margin-top:12px;align-items:flex-end">
-          <div class="field grow"><label>Eget lag</label><input id="wzCustomName" placeholder="t.ex. FC Kompisarna"></div>
-          <div class="field w70"><label>Flagga</label><input id="wzCustomFlag" placeholder="🏴"></div>
-          <button class="btn btn-ghost-blue" id="wzCustomAddBtn" type="button">+ Lägg till eget</button>
-          <button class="btn btn-danger btn-sm" id="clearTeamsBtn" type="button" style="margin-left:auto">🗑 Töm alla lag</button>
-        </div>
-        <div id="wzTeamList" style="margin-top:14px"></div>
-      </div>
 
-      <div class="card">
-        <h2><span class="step">3</span>Lotta hela turneringen</h2>
-        <div class="sub">Ett klick: delar in i grupper, skapar alla gruppmatcher, bygger slutspelsträdet och lägger spelschemat.</div>
-        <button class="btn btn-gold" id="drawAllBtn" style="font-size:1rem;padding:13px 22px">🎲 Lotta turneringen</button>
-        <div class="hint">Slutspelsträdet skapas med platshållare (“Etta grupp A”, “Vinnare QF-1”…) som fylls i automatiskt när resultaten matas in. Detta skriver över befintliga grupper, matcher och schema.</div>
-        <div id="drawResult"></div>
+        <div class="card">
+          <h2><span class="step">3</span>Lotta turneringen</h2>
+          <div class="sub">Delar in i grupper, skapar alla matcher, bygger slutspelsträdet och lägger spelschemat. Går bra även om alla platser inte är fyllda — lotta om senare när fler lag tillkommit.</div>
+          <button class="btn btn-gold" id="drawAllBtn" style="font-size:1rem;padding:13px 22px">🎲 Lotta turneringen</button>
+          <div class="hint">Slutspelsträdet skapas med platshållare (“Etta grupp A”, “Vinnare QF-1”…) som fylls i automatiskt när resultaten matas in. Detta skriver över befintliga grupper, matcher och schema.</div>
+          <div id="drawResult"></div>
+        </div>
       </div>
     </section>
 
@@ -445,9 +455,10 @@
     TEAMS = tRes.data || []; MATCHES = mRes.data || [];
     if(sRes && !sRes.error && sRes.data && sRes.data.data) SETTINGS = Object.assign({}, DEFAULT_SETTINGS, sRes.data.data);
     await autoAdvance();   // fill knockout placeholders from finished results
+    if(SETTINGS.numTeams && $('#wzNumTeams') && !$('#wzNumTeams').value) $('#wzNumTeams').value=SETTINGS.numTeams;
     renderTeams(); renderStandings(); renderGroupMatches(); renderKnockout();
     applySettingsToForm(); renderSchedule(); wzUpdatePreview();
-    const ws=$('#wzStart'); if(ws && !ws.value){ ws.value=(SETTINGS.days&&SETTINGS.days[0]&&SETTINGS.days[0].date)||(YEAR+'-07-25'); }
+    wzShowStep(TEAMS.length>0 ? 2 : 1);   // returning users with teams land on step 2
   }
   const teamById = id => TEAMS.find(t=>t.id===id);
   const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
@@ -746,6 +757,23 @@
     const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>{ renderTeams(); wzUpdatePreview(); });
   });
 
+  // ---- stepped wizard ----
+  function wzShowStep(n){
+    const s1=$('#wzStep1'), s2=$('#wzStep2'); if(!s1||!s2) return;
+    s1.style.display = n===1?'':'none';
+    s2.style.display = n===2?'':'none';
+    if(n===2) renderTeams();
+  }
+  $('#wzNextBtn').addEventListener('click', ()=>{
+    const nt=+$('#wzNumTeams').value;
+    if(!nt || nt<2){ toast('Ange antal lag (minst 2) först.', true); $('#wzNumTeams').focus(); return; }
+    SETTINGS.numTeams=nt;
+    wzShowStep(2);                                    // switch immediately
+    $('#wzSearch') && $('#wzSearch').focus();
+    try{ sb.from('settings').upsert({ year:YEAR, data:SETTINGS }); }catch(e){}   // persist in background
+  });
+  $('#wzBackBtn').addEventListener('click', ()=> wzShowStep(1));
+
   async function drawWholeTournament(){
     const f=wzReadFormat();
     const r=wzPlan(TEAMS.length, f);
@@ -968,8 +996,12 @@
   function buildSchedule(s){
     const P=Math.max(1,s.pitches|0), rest=Math.max(0,s.restMin|0), koRest=Math.max(0,s.koRestMin|0);
     const assign={}, teamLastEnd={}, overflow=[];
+    // Flera dagar → gruppspel på tidigare dag(ar), slutspel på sista dagen.
+    const days=s.days||[]; const multiDay=days.length>1;
+    const groupDates=new Set((multiDay?days.slice(0,-1):days).map(d=>d.date));
+    const koDates=new Set((multiDay?days.slice(-1):days).map(d=>d.date));
     // GRUPPSPEL (grupp-matchlängd)
-    const gWaves=makeWaves(s, groupMatchMin(s));
+    const gWaves=makeWaves(s, groupMatchMin(s)).filter(w=>groupDates.has(w.date));
     const pending=orderedGroupMatchRows();
     let lastGroupAbsEnd=-Infinity;
     for(let wi=0; wi<gWaves.length && pending.length; wi++){
@@ -989,7 +1021,7 @@
     // SLUTSPEL (slutspels-matchlängd, egen våg-grid efter gruppspelet + längre vila)
     const koByStage=['R16','QF','SF','F'].map(st=>({st,list:MATCHES.filter(m=>m.stage===st)})).filter(o=>o.list.length);
     if(koByStage.length){
-      const koWaves=makeWaves(s, koMatchMin(s));
+      const koWaves=makeWaves(s, koMatchMin(s)).filter(w=>koDates.has(w.date));
       let cursorAbs=(lastGroupAbsEnd>-Infinity? lastGroupAbsEnd+koRest : -Infinity);
       koByStage.forEach(({list})=>{
         let wi=koWaves.findIndex(w=>w.absStart>=cursorAbs);

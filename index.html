@@ -493,7 +493,34 @@
   </div>
 </section>
 
-<!-- LIVE RESULTS -->
+<!-- CURRENT TOURNAMENT (live from Supabase, shown only when teams exist) -->
+<section class="live" id="live-now" style="display:none">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="Current tournament" data-sv="Pågående turnering">Current tournament</span>
+      <h2 data-en="Live standings &amp; bracket" data-sv="Tabeller &amp; slutspel">Live standings &amp; bracket</h2>
+      <p data-en="Group tables and the knockout tree — updated live during the tournament." data-sv="Grupptabeller och slutspelsträdet — uppdateras live under turneringen.">Group tables and the knockout tree — updated live during the tournament.</p>
+    </div>
+    <div id="liveChamp" class="champ-top"></div>
+    <div id="liveGroups" class="groups-grid"></div>
+    <p class="legend" id="liveNote"></p>
+    <div id="liveBracket" class="bracket"></div>
+  </div>
+</section>
+
+<!-- SCHEDULE (from Supabase, shown only when a schedule exists) -->
+<section class="sched-sec" id="schedule" style="display:none">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="Match schedule" data-sv="Spelschema">Match schedule</span>
+      <h2 data-en="Fixtures &amp; kick-off times" data-sv="Matcher &amp; avsparkstider">Fixtures &amp; kick-off times</h2>
+      <p data-en="Dates, times and pitches for every match. Check when your nation plays." data-sv="Datum, tider och planer för varje match. Se när din nation spelar.">Dates, times and pitches for every match. Check when your nation plays.</p>
+    </div>
+    <div id="pubSchedule"></div>
+  </div>
+</section>
+
+<!-- RESULTS ARCHIVE (past editions only) -->
 <section class="live" id="results">
   <div class="wrap">
     <div class="sec-head">
@@ -511,18 +538,6 @@
     <div id="groupsGrid" class="groups-grid"></div>
     <p class="legend" id="archiveNote"></p>
     <div id="bracket" class="bracket"></div>
-  </div>
-</section>
-
-<!-- SCHEDULE (from Supabase, shown only when a schedule exists) -->
-<section class="sched-sec" id="schedule" style="display:none">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow" data-en="Match schedule" data-sv="Spelschema">Match schedule</span>
-      <h2 data-en="Fixtures &amp; kick-off times" data-sv="Matcher &amp; avsparkstider">Fixtures &amp; kick-off times</h2>
-      <p data-en="Dates, times and pitches for every match. Check when your nation plays." data-sv="Datum, tider och planer för varje match. Se när din nation spelar.">Dates, times and pitches for every match. Check when your nation plays.</p>
-    </div>
-    <div id="pubSchedule"></div>
   </div>
 </section>
 
@@ -661,11 +676,11 @@
     renderCurrent(lang);
     renderNations(lang);
     if(typeof renderPublicSchedule==='function') renderPublicSchedule(lang);
+    if(typeof renderLive==='function') renderLive(lang);
     try{ localStorage.setItem('scon_lang', lang); }catch(e){}
   }
   function renderCurrent(lang){
-    if(curYear==='live') renderLive(lang);
-    else renderResults(curYear, lang);
+    renderResults(curYear, lang);   // archive only (past editions)
   }
 
   /* ---- Results archive (2022–2025) ---- */
@@ -848,8 +863,11 @@
            '<div class="t'+(aw?' win':'')+'"><span>'+aL+'</span><span class="sc">'+(m.away_score??'–')+'</span></div>'+pline+'</div>';
   }
   function renderLive(l){
-    const grid=document.getElementById('groupsGrid'), brk=document.getElementById('bracket'), ct=document.getElementById('champTop'), note=document.getElementById('archiveNote');
+    const sec=document.getElementById('live-now');
+    const grid=document.getElementById('liveGroups'), brk=document.getElementById('liveBracket'), ct=document.getElementById('liveChamp'), note=document.getElementById('liveNote');
     if(!grid||!brk) return;
+    if(!LIVE.teams.length){ if(sec) sec.style.display='none'; return; }
+    if(sec) sec.style.display='';
     const used=['A','B','C','D','E','F','G','H'].filter(g=> LIVE.teams.some(t=>t.group_name===g));
     const finalM=LIVE.matches.filter(m=>m.stage==='F'&&m.status==='finished'&&m.home_score!=null);
     let champ=null;
@@ -884,18 +902,9 @@
       if(t.error||m.error) return;
       LIVE.teams=t.data||[]; LIVE.matches=m.data||[]; LIVE.loaded=true;
       LIVE.settings=(st&&!st.error&&st.data&&st.data.data)?st.data.data:{};
-      renderPublicSchedule(curLang);              // schedule section (shows itself if data exists)
-      if(!LIVE.teams.length) return;              // nothing published yet → keep archive only
-      const tabs=document.getElementById('yearTabs');
-      if(tabs && !tabs.querySelector('[data-year="live"]')){
-        const b=document.createElement('button');
-        b.className='year-tab live-tab'; b.type='button'; b.setAttribute('data-year','live');
-        b.innerHTML='<span class="livedot"></span> '+LIVE_YEAR;
-        b.addEventListener('click', ()=> setYear('live'));
-        tabs.insertBefore(b, tabs.firstChild);
-      }
-      setYear('live');                            // default to the live edition
-    }catch(e){ /* stay on archive */ }
+      renderPublicSchedule(curLang);              // schedule section (its own block)
+      renderLive(curLang);                        // current-tournament section (its own block, separate from the archive)
+    }catch(e){ /* archive still works on its own */ }
   }
   const KO_SHORT = { R16:['R16','Åttondel'], QF:['QF','Kvart'], SF:['SF','Semi'], F:['Final','Final'] };
   function pubFmtDate(d,l){ try{ return new Date(d+'T12:00:00').toLocaleDateString(l==='sv'?'sv-SE':'en-GB',{weekday:'long',day:'numeric',month:'long'}); }catch(e){ return d; } }
