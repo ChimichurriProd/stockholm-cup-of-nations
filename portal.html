@@ -138,6 +138,7 @@
   .teamchip select{padding:5px 6px;font-size:.8rem;border-radius:8px;width:auto}
   .teamchip .rm{cursor:pointer;border:0;background:#fdecea;color:var(--danger);border-radius:7px;width:26px;height:26px;font-weight:800;font-size:.85rem;flex:none}
   .teamchip .rm:hover{background:#f9d7d3}
+  .teamchip.excess{border-color:var(--danger);background:#fdecea}
   .teamchip.empty{border-style:dashed;background:#fafbfe;opacity:.8}
   .teamchip.empty .fl{opacity:.4}
   .teamchip .nm.slot{color:var(--muted);font-weight:500}
@@ -226,9 +227,9 @@
   <main class="wrap">
     <div class="tabs">
       <button class="tab active" data-panel="create">✨ Skapa turnering</button>
+      <button class="tab" data-panel="groups">Grupper &amp; tabeller</button>
       <button class="tab" data-panel="schedule">Spelschema</button>
       <button class="tab" data-panel="matches">Resultat</button>
-      <button class="tab" data-panel="groups">Grupper &amp; tabeller</button>
       <button class="tab" data-panel="knockout">Slutspel</button>
     </div>
 
@@ -593,8 +594,9 @@
     document.querySelectorAll('#teamCount,#wzCount').forEach(el=>{ el.textContent = target ? (TEAMS.length+' / '+target) : String(TEAMS.length); el.classList.toggle('over', !!target && TEAMS.length>target); });
     const opts = g => ['<option value="">— grupp —</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
     const anyGroups = TEAMS.some(t=>t.group_name);
-    const filledChip = t =>
-      '<div class="teamchip" data-id="'+t.id+'">'+
+    const over = !!target && TEAMS.length>target;
+    const filledChip = (t,i) =>
+      '<div class="teamchip'+(over && i>=target?' excess':'')+'" data-id="'+t.id+'">'+
         '<span class="fl">'+(t.flag||'🏳️')+'</span>'+
         '<span class="nm">'+escapeHtml(t.name)+'</span>'+
         '<span class="gsel">'+(anyGroups?'<select class="teamGroup">'+opts(t.group_name)+'</select>':'')+
@@ -603,10 +605,20 @@
     const emptySlot = i => '<div class="teamchip empty"><span class="fl">➕</span><span class="nm slot">Lag '+(i+1)+'</span></div>';
     const total = Math.max(target, TEAMS.length);
     let html='';
-    for(let i=0;i<total;i++){ html += TEAMS[i] ? filledChip(TEAMS[i]) : emptySlot(i); }
+    for(let i=0;i<total;i++){ html += TEAMS[i] ? filledChip(TEAMS[i],i) : emptySlot(i); }
+    const warnHtml = over
+      ? '<div class="warn" style="margin-bottom:12px">⚠️ Du har <b>'+TEAMS.length+'</b> lag men valt <b>'+target+'</b>. Ta bort '+(TEAMS.length-target)+' lag (✕ på de rödmarkerade) eller höj “Antal lag” i steg 1. <button class="btn btn-danger btn-sm" id="rmExcessBtn" type="button" style="margin-left:6px">Ta bort de '+(TEAMS.length-target)+' sista</button></div>'
+      : '';
     const wz=$('#wzTeamList');
     if(wz){
-      wz.innerHTML = total ? '<div class="teamgrid">'+html+'</div>' : '<div class="empty">Ange antal lag i steg 1, sök sedan och lägg till lagen.</div>';
+      wz.innerHTML = warnHtml + (total ? '<div class="teamgrid">'+html+'</div>' : '<div class="empty">Ange antal lag i steg 1, sök sedan och lägg till lagen.</div>');
+      const rmEx=$('#rmExcessBtn'); if(rmEx) rmEx.addEventListener('click', async ()=>{
+        const excess=TEAMS.slice(target); if(!excess.length) return;
+        if(!confirm('Ta bort '+excess.length+' lag (de sista i listan)?')) return;
+        const results=await Promise.all(excess.map(t=> sb.from('teams').delete().eq('id',t.id)));
+        const err=results.find(r=>r.error); if(err){ toast(err.error.message,true); return; }
+        toast(excess.length+' lag borttagna'); await loadAll();
+      });
       wz.querySelectorAll('.teamGroup').forEach(sel=> sel.addEventListener('change', async e=>{
         const id=e.target.closest('.teamchip').dataset.id;
         const { error } = await sb.from('teams').update({ group_name:e.target.value||null }).eq('id',id);
@@ -749,6 +761,7 @@
     const f=wzReadFormat(), N=TEAMS.length, el=$('#wzPreview'); if(!el) return;
     const progress='<b>'+N+(f.numTeams?' / '+f.numTeams:'')+' lag tillagda</b>. ';
     if(!N){ el.innerHTML=progress+'Sök och lägg till lagen i steg 2 för att se formatet.'; return; }
+    if(f.numTeams && N>f.numTeams){ el.innerHTML=progress+'⚠️ Ta bort '+(N-f.numTeams)+' lag för att komma till '+f.numTeams+'.'; return; }
     const r=wzPlan(N, f);
     const sizeStr = r.sizes ? r.sizes.join(', ') : '';
     if(!r.ok){ const pre = r.G ? '<b>'+r.G+' grupper</b> ('+sizeStr+' lag). ' : ''; el.innerHTML=progress+pre+r.msg; return; }
@@ -777,6 +790,8 @@
 
   async function drawWholeTournament(){
     const f=wzReadFormat();
+    const lim=teamLimit();
+    if(lim && TEAMS.length>lim){ toast('Du har '+TEAMS.length+' lag men valt '+lim+'. Ta bort '+(TEAMS.length-lim)+' lag först.', true); return; }
     const r=wzPlan(TEAMS.length, f);
     if(!r.ok){ toast(r.msg.replace(/<[^>]+>/g,''), true); return; }
     const { G, groups, plan, sizes } = r;
@@ -812,6 +827,7 @@
       (sched.overflow.length? ' ⚠️ '+sched.overflow.length+' matcher fick inte plats i tiden — justera under Spelschema.':'')+'</div>';
     toast('Turneringen är lottad!');
     await loadAll();
+    const gt=document.querySelector('.tab[data-panel="groups"]'); if(gt) gt.click();   // hoppa till översikten
   }
   $('#drawAllBtn').addEventListener('click', drawWholeTournament);
 
