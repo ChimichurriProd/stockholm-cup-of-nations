@@ -235,12 +235,12 @@
     <section class="panel active" id="panel-create">
       <div class="card">
         <h2><span class="step">1</span>Format</h2>
-        <div class="sub">Ställ in turneringens ramar. Detaljer (pauser, vila) kan finjusteras under “Spelschema”.</div>
+        <div class="sub">Turneringens ramar. Datum, tider och pauser ställs in under fliken “Spelschema”.</div>
         <div class="settings-grid">
-          <label class="sfield"><span>Antal lag</span><input id="wzNumTeams" type="number" min="2" max="64" value="16" list="teamPresets">
+          <label class="sfield"><span>Antal lag</span><input id="wzNumTeams" type="number" min="2" max="64" placeholder="t.ex. 16" list="teamPresets">
             <datalist id="teamPresets"><option>8</option><option>12</option><option>16</option><option>24</option><option>32</option></datalist>
           </label>
-          <label class="sfield"><span>Lag per grupp</span>
+          <label class="sfield"><span>Önskad gruppstorlek</span>
             <select id="wzPerGroup"><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
           </label>
           <label class="sfield"><span>Går vidare</span>
@@ -250,13 +250,10 @@
               <option value="thirds">Topp 2 + bästa 3:orna</option>
             </select>
           </label>
-          <label class="sfield"><span>Startdatum</span><input id="wzStart" type="date"></label>
-          <label class="sfield"><span>Antal dagar</span><input id="wzDays" type="number" min="1" max="10" value="2"></label>
-          <label class="sfield"><span>Dagens starttid</span><input id="wzDayStart" type="time" value="09:00"></label>
-          <label class="sfield"><span>Dagens sluttid</span><input id="wzDayEnd" type="time" value="18:00"></label>
           <label class="sfield"><span>Halvlekar</span><input id="wzHalves" type="number" min="1" max="4" value="2"></label>
           <label class="sfield"><span>Min/halvlek (grupp)</span><input id="wzHalfMin" type="number" min="1" max="60" value="10"></label>
           <label class="sfield"><span>Min/halvlek (slutspel)</span><input id="wzKoHalfMin" type="number" min="1" max="60" value="10"></label>
+          <label class="sfield"><span>Tid mellan matcher (min)</span><input id="wzChangeover" type="number" min="0" max="60" value="5"></label>
           <label class="sfield"><span>Antal planer</span><input id="wzPitches" type="number" min="1" max="12" value="3"></label>
         </div>
         <div class="hint" id="wzPreview"></div>
@@ -702,36 +699,42 @@
   // ================= WIZARD =================
   const QUAL_LABEL = { one:'gruppvinnaren', two:'topp 2', thirds:'topp 2 + bästa 3:orna' };
   function wzReadFormat(){
+    const nt=$('#wzNumTeams').value;
     return {
-      numTeams: Math.max(2, +$('#wzNumTeams').value||16),
-      start: $('#wzStart').value || (YEAR+'-07-25'),
-      days: Math.max(1, +$('#wzDays').value||1),
-      dayStart: $('#wzDayStart').value||'09:00',
-      dayEnd: $('#wzDayEnd').value||'18:00',
+      numTeams: nt ? Math.max(2, +nt) : 0,
       halves: +$('#wzHalves').value||2,
       halfMin: +$('#wzHalfMin').value||10,
       koHalfMin: +$('#wzKoHalfMin').value||(+$('#wzHalfMin').value||10),
+      changeover: Math.max(0, +$('#wzChangeover').value||0),
       pitches: +$('#wzPitches').value||3,
       perGroup: Math.max(2, +$('#wzPerGroup').value||4),
       qualMode: $('#wzQual').value||'two'
     };
   }
-  // plan from actual team count: {ok,G,groups,sizes,plan,msg}
+  function sizesFor(count, G){ const base=Math.floor(count/G), r=count%G, s=[]; for(let i=0;i<G;i++) s.push(base+(i<r?1:0)); return s; }
+  // auto-pick a group count near the preferred size that yields a valid bracket for the chosen mode
   function wzPlan(count, f){
     if(count<2) return { ok:false, msg:'Lägg till minst 2 lag.' };
-    const gp=planGroups(count, f.perGroup);
-    if(gp.G<1) return { ok:false, msg:'För få lag.' };
-    const groups=GROUPS.slice(0,gp.G);
-    const plan=buildBracketPlan(groups, f.qualMode);
-    if(!plan.ok) return { ok:false, G:gp.G, sizes:gp.sizes, msg:plan.msg };
-    return { ok:true, G:gp.G, groups, sizes:gp.sizes, plan };
+    const ideal=Math.max(1, Math.round(count/f.perGroup));
+    const cand=[]; for(let G=1;G<=Math.min(GROUPS.length,count);G++) cand.push(G);
+    cand.sort((a,b)=> Math.abs(a-ideal)-Math.abs(b-ideal) || a-b);
+    // pass 1: valid bracket AND min group size >=3
+    // pass 2: valid bracket (allow smaller groups)
+    for(const minSize of [3,2]){
+      for(const G of cand){
+        const sizes=sizesFor(count,G);
+        if(Math.min(...sizes)<minSize && G>1) continue;
+        const plan=buildBracketPlan(GROUPS.slice(0,G), f.qualMode);
+        if(plan.ok) return { ok:true, G, groups:GROUPS.slice(0,G), sizes, plan };
+      }
+    }
+    const gs=sizesFor(count, ideal);
+    return { ok:false, G:ideal, sizes:gs, msg:'Den här kombinationen ger inget jämnt slutspel. Prova ett annat antal lag, gruppstorlek eller “Går vidare” (t.ex. “Topp 2 + bästa 3:orna”).' };
   }
-  function addDays(dateStr, n){ const d=new Date(dateStr+'T12:00:00'); d.setDate(d.getDate()+n);
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   function wzUpdatePreview(){
     const f=wzReadFormat(), N=TEAMS.length, el=$('#wzPreview'); if(!el) return;
-    const progress='<b>'+N+' / '+f.numTeams+' lag tillagda</b>. ';
-    if(!N){ el.innerHTML=progress+'Lägg till lag i steg 2 för att se formatet.'; return; }
+    const progress='<b>'+N+(f.numTeams?' / '+f.numTeams:'')+' lag tillagda</b>. ';
+    if(!N){ el.innerHTML=progress+'Sök och lägg till lagen i steg 2 för att se formatet.'; return; }
     const r=wzPlan(N, f);
     const sizeStr = r.sizes ? r.sizes.join(', ') : '';
     if(!r.ok){ const pre = r.G ? '<b>'+r.G+' grupper</b> ('+sizeStr+' lag). ' : ''; el.innerHTML=progress+pre+r.msg; return; }
@@ -739,7 +742,7 @@
     el.innerHTML=progress+'→ <b>'+r.G+' grupper</b> ('+sizeStr+' lag), '+QUAL_LABEL[f.qualMode]+' vidare → <b>'+r.plan.size+' lag i slutspel</b> ('+koName+')'+
       (r.plan.thirds?' varav '+r.plan.thirds+' bästa 3:or':'')+'.';
   }
-  ['wzNumTeams','wzStart','wzDays','wzDayStart','wzDayEnd','wzHalves','wzHalfMin','wzKoHalfMin','wzPitches','wzPerGroup','wzQual'].forEach(id=>{
+  ['wzNumTeams','wzHalves','wzHalfMin','wzKoHalfMin','wzChangeover','wzPitches','wzPerGroup','wzQual'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>{ renderTeams(); wzUpdatePreview(); });
   });
 
@@ -750,9 +753,9 @@
     const { G, groups, plan, sizes } = r;
     if(!confirm('Lotta hela turneringen?\n\n'+TEAMS.length+' lag → '+G+' grupper ('+sizes.join(', ')+' lag) → '+plan.size+' lag i slutspel.\n\nDetta skriver över nuvarande grupper, matcher och schema.')) return;
     const res=$('#drawResult'); res.innerHTML='<div class="hint">Lottar…</div>';
-    // 1) write format into SETTINGS
-    SETTINGS.days=[]; for(let d=0; d<f.days; d++) SETTINGS.days.push({ date:addDays(f.start,d), start:f.dayStart, end:f.dayEnd });
-    SETTINGS.halves=f.halves; SETTINGS.halfMin=f.halfMin; SETTINGS.koHalfMin=f.koHalfMin; SETTINGS.pitches=f.pitches;
+    // 1) write match/format scalars into SETTINGS (days/times come from the Spelschema tab)
+    SETTINGS.halves=f.halves; SETTINGS.halfMin=f.halfMin; SETTINGS.koHalfMin=f.koHalfMin; SETTINGS.changeoverMin=f.changeover; SETTINGS.pitches=f.pitches;
+    if(!SETTINGS.days || !SETTINGS.days.length) SETTINGS.days=[{ date:(YEAR)+'-07-25', start:'09:00', end:'18:00' }];
     // 2) shuffle + assign groups
     const shuffled=[...TEAMS];
     for(let i=shuffled.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
