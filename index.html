@@ -830,6 +830,7 @@
     if(!src) return '<span style="color:var(--muted)">?</span>';
     if(src[0]==='W'){ const p=src.slice(2).split('-'); const nm=(l==='sv'?{R16:'åttondel',QF:'kvart',SF:'semi',F:'final'}:{R16:'R16',QF:'QF',SF:'SF',F:'final'})[p[0]]||p[0];
       return '<span style="color:var(--muted)">'+(l==='sv'?'Vinnare ':'Winner ')+nm+(p[1]?' '+p[1]:'')+'</span>'; }
+    if(src[0]==='T'){ return '<span style="color:var(--muted)">'+(l==='sv'?'Bästa 3:a #':'Best 3rd #')+src.slice(1)+'</span>'; }
     const pos=+src[0], g=src.slice(1);
     const posT = l==='sv' ? (pos===1?'Etta':pos===2?'Tvåa':pos+':a') : (pos===1?'1st':pos===2?'2nd':pos+'th');
     return '<span style="color:var(--muted)">'+posT+' '+(l==='sv'?'grupp ':'group ')+g+'</span>';
