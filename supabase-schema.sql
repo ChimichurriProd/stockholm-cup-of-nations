@@ -38,10 +38,13 @@ create table if not exists public.matches (
   sort_order  int  default 0,
   created_at  timestamptz default now()
 );
--- lägg till schemakolumner även om tabellen redan fanns
+-- lägg till schema- & slutspelskolumner även om tabellen redan fanns
 alter table public.matches add column if not exists pitch      int;
 alter table public.matches add column if not exists sched_date text;
 alter table public.matches add column if not exists sched_time text;
+alter table public.matches add column if not exists code       text;  -- t.ex. 'QF-1'
+alter table public.matches add column if not exists home_src   text;  -- '1A' | '2B' | 'W:QF-1'
+alter table public.matches add column if not exists away_src   text;
 
 -- ---------- INSTÄLLNINGAR (schemaparametrar per år) ----------
 create table if not exists public.settings (

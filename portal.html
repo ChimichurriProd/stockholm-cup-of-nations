@@ -211,15 +211,60 @@
 
   <main class="wrap">
     <div class="tabs">
-      <button class="tab active" data-panel="teams">Lag</button>
+      <button class="tab active" data-panel="create">✨ Skapa turnering</button>
+      <button class="tab" data-panel="teams">Lag</button>
       <button class="tab" data-panel="groups">Grupper &amp; tabeller</button>
       <button class="tab" data-panel="matches">Gruppmatcher</button>
       <button class="tab" data-panel="knockout">Slutspel</button>
       <button class="tab" data-panel="schedule">Spelschema</button>
     </div>
 
+    <!-- ---- CREATE WIZARD ---- -->
+    <section class="panel active" id="panel-create">
+      <div class="card">
+        <h2><span class="step">1</span>Format</h2>
+        <div class="sub">Ställ in turneringens ramar. Detaljer (pauser, vila) kan finjusteras under “Spelschema”.</div>
+        <div class="settings-grid">
+          <label class="sfield"><span>Startdatum</span><input id="wzStart" type="date"></label>
+          <label class="sfield"><span>Antal dagar</span><input id="wzDays" type="number" min="1" max="10" value="2"></label>
+          <label class="sfield"><span>Dagens starttid</span><input id="wzDayStart" type="time" value="09:00"></label>
+          <label class="sfield"><span>Dagens sluttid</span><input id="wzDayEnd" type="time" value="18:00"></label>
+          <label class="sfield"><span>Halvlekar</span><input id="wzHalves" type="number" min="1" max="4" value="2"></label>
+          <label class="sfield"><span>Min / halvlek</span><input id="wzHalfMin" type="number" min="1" max="60" value="10"></label>
+          <label class="sfield"><span>Antal planer</span><input id="wzPitches" type="number" min="1" max="12" value="3"></label>
+          <label class="sfield"><span>Lag per grupp</span><input id="wzPerGroup" type="number" min="2" max="6" value="4"></label>
+          <label class="sfield"><span>Går vidare / grupp</span><input id="wzQual" type="number" min="1" max="2" value="2"></label>
+        </div>
+        <div class="hint" id="wzPreview"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="step">2</span>Lägg till lagen <span class="pill" id="wzCount">0</span></h2>
+        <div class="sub">Sök landslag (flagga hämtas automatiskt) eller lägg till egna lag.</div>
+        <div class="combo" id="wzCombo">
+          <span class="ico">🔎</span>
+          <input id="wzSearch" type="text" placeholder="Sök land… (t.ex. Argentina)" autocomplete="off" />
+          <div class="combo-list" id="wzList"></div>
+        </div>
+        <div class="row" style="margin-top:12px;align-items:flex-end">
+          <div class="field grow"><label>Eget lag</label><input id="wzCustomName" placeholder="t.ex. FC Kompisarna"></div>
+          <div class="field w70"><label>Flagga</label><input id="wzCustomFlag" placeholder="🏴"></div>
+          <button class="btn btn-ghost-blue" id="wzCustomAddBtn" type="button">+ Lägg till eget</button>
+        </div>
+        <div id="wzTeamList" style="margin-top:14px"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="step">3</span>Lotta hela turneringen</h2>
+        <div class="sub">Ett klick: delar in i grupper, skapar alla gruppmatcher, bygger slutspelsträdet och lägger spelschemat.</div>
+        <button class="btn btn-gold" id="drawAllBtn" style="font-size:1rem;padding:13px 22px">🎲 Lotta turneringen</button>
+        <div class="hint">Slutspelsträdet skapas med platshållare (“Etta grupp A”, “Vinnare QF-1”…) som fylls i automatiskt när resultaten matas in. Detta skriver över befintliga grupper, matcher och schema.</div>
+        <div id="drawResult"></div>
+      </div>
+    </section>
+
     <!-- ---- TEAMS ---- -->
-    <section class="panel active" id="panel-teams">
+    <section class="panel" id="panel-teams">
       <div class="card">
         <h2><span class="step">1</span>Välj deltagande lag</h2>
         <div class="sub">Sök på land och klicka för att lägga till. Flaggan hämtas automatiskt.</div>
@@ -227,6 +272,11 @@
           <span class="ico">🔎</span>
           <input id="natSearch" type="text" placeholder="Sök land… (t.ex. Argentina)" autocomplete="off" />
           <div class="combo-list" id="natList"></div>
+        </div>
+        <div class="row" style="margin-top:12px;align-items:flex-end">
+          <div class="field grow"><label>Eget lag</label><input id="customName" placeholder="t.ex. FC Kompisarna"></div>
+          <div class="field w70"><label>Flagga</label><input id="customFlag" placeholder="🏴"></div>
+          <button class="btn btn-ghost-blue" id="customAddBtn" type="button">+ Lägg till eget</button>
         </div>
       </div>
       <div class="card">
@@ -427,8 +477,10 @@
     if(mRes.error){ toast('Kunde inte läsa matcher: '+mRes.error.message, true); return; }
     TEAMS = tRes.data || []; MATCHES = mRes.data || [];
     if(sRes && !sRes.error && sRes.data && sRes.data.data) SETTINGS = Object.assign({}, DEFAULT_SETTINGS, sRes.data.data);
+    await autoAdvance();   // fill knockout placeholders from finished results
     renderTeams(); renderStandings(); renderGroupMatches(); renderKnockout(); fillKoTeamSelects();
-    applySettingsToForm(); renderSchedule();
+    applySettingsToForm(); renderSchedule(); wzUpdatePreview();
+    const ws=$('#wzStart'); if(ws && !ws.value){ ws.value=(SETTINGS.days&&SETTINGS.days[0]&&SETTINGS.days[0].date)||(YEAR+'-07-25'); }
   }
   const teamById = id => TEAMS.find(t=>t.id===id);
   const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
@@ -504,80 +556,86 @@
     ['GB-ENG','England','England'],['GB-SCT','Skottland','Scotland'],['GB-WLS','Wales','Wales']
   ].map(([iso,sv,en])=>({ iso, sv, en, flag: iso.indexOf('-')>-1 ? '' : flagEmoji(iso) }));
 
-  // ---------- TEAMS: searchable nation picker ----------
-  const natSearch=$('#natSearch'), natList=$('#natList');
-  let comboActive=-1, comboMatches=[];
+  // ---------- TEAMS: searchable nation picker (reusable) ----------
   function normalize(s){ return (s||'').toLowerCase().replace(/[åäà]/g,'a').replace(/[öó]/g,'o').replace(/é/g,'e'); }
-  function renderCombo(){
-    const q=normalize(natSearch.value.trim());
-    const taken=new Set(TEAMS.map(t=>(t.code||'').toUpperCase()).concat(TEAMS.map(t=>normalize(t.name))));
-    comboMatches = !q ? [] : NATIONS_DB.filter(n=>
-      !taken.has(n.iso.toUpperCase()) && !taken.has(normalize(n.sv)) &&
-      (normalize(n.sv).indexOf(q)>-1 || normalize(n.en).indexOf(q)>-1)
-    ).slice(0,10);
-    comboActive = comboMatches.length ? 0 : -1;
-    if(!q){ natList.classList.remove('open'); natList.innerHTML=''; return; }
-    natList.innerHTML = comboMatches.length
-      ? comboMatches.map((n,i)=>'<div class="combo-opt'+(i===comboActive?' active':'')+'" data-i="'+i+'">'+
-          '<span class="fl">'+(n.flag||'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
-      : '<div class="combo-none">Ingen träff. Prova annat namn (svenska eller engelska).</div>';
-    natList.classList.add('open');
+  async function addTeam(rec){
+    const { error } = await sb.from('teams').insert(Object.assign({ year:YEAR, group_name:null }, rec));
+    if(error){ toast(error.message, true); return false; }
+    return true;
   }
   async function pickNation(n){
     if(!n) return;
-    natSearch.value=''; renderCombo(); natSearch.focus();
-    const { error } = await sb.from('teams').insert({ year:YEAR, code:n.iso, name:n.sv, flag:n.flag||null, group_name:null });
-    if(error){ toast(error.message, true); return; }
-    toast(n.sv+' tillagt'); await loadAll();
+    if(await addTeam({ code:n.iso, name:n.sv, flag:n.flag||null })){ toast(n.sv+' tillagt'); await loadAll(); }
   }
-  natSearch.addEventListener('input', renderCombo);
-  natSearch.addEventListener('keydown', e=>{
-    if(!natList.classList.contains('open')) return;
-    if(e.key==='ArrowDown'){ e.preventDefault(); comboActive=Math.min(comboActive+1,comboMatches.length-1); renderComboActive(); }
-    else if(e.key==='ArrowUp'){ e.preventDefault(); comboActive=Math.max(comboActive-1,0); renderComboActive(); }
-    else if(e.key==='Enter'){ e.preventDefault(); if(comboMatches[comboActive]) pickNation(comboMatches[comboActive]); }
-    else if(e.key==='Escape'){ natList.classList.remove('open'); }
-  });
-  function renderComboActive(){
-    natList.querySelectorAll('.combo-opt').forEach((el,i)=> el.classList.toggle('active', i===comboActive));
+  function initNationPicker(comboSel, searchSel, listSel){
+    const combo=$(comboSel), search=$(searchSel), list=$(listSel);
+    if(!combo||!search||!list) return;
+    let active=-1, matches=[];
+    function render(){
+      const q=normalize(search.value.trim());
+      const taken=new Set(TEAMS.map(t=>(t.code||'').toUpperCase()).concat(TEAMS.map(t=>normalize(t.name))));
+      matches = !q ? [] : NATIONS_DB.filter(n=> !taken.has(n.iso.toUpperCase()) && !taken.has(normalize(n.sv)) &&
+        (normalize(n.sv).indexOf(q)>-1 || normalize(n.en).indexOf(q)>-1)).slice(0,10);
+      active = matches.length ? 0 : -1;
+      if(!q){ list.classList.remove('open'); list.innerHTML=''; return; }
+      list.innerHTML = matches.length
+        ? matches.map((n,i)=>'<div class="combo-opt'+(i===active?' active':'')+'" data-i="'+i+'"><span class="fl">'+(n.flag||'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
+        : '<div class="combo-none">Ingen träff. Prova annat namn (svenska eller engelska).</div>';
+      list.classList.add('open');
+    }
+    function markActive(){ list.querySelectorAll('.combo-opt').forEach((el,i)=>el.classList.toggle('active',i===active)); }
+    async function choose(n){ if(!n) return; search.value=''; render(); search.focus(); await pickNation(n); }
+    search.addEventListener('input', render);
+    search.addEventListener('keydown', e=>{ if(!list.classList.contains('open')) return;
+      if(e.key==='ArrowDown'){ e.preventDefault(); active=Math.min(active+1,matches.length-1); markActive(); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); active=Math.max(active-1,0); markActive(); }
+      else if(e.key==='Enter'){ e.preventDefault(); if(matches[active]) choose(matches[active]); }
+      else if(e.key==='Escape'){ list.classList.remove('open'); } });
+    list.addEventListener('click', e=>{ const opt=e.target.closest('.combo-opt'); if(opt) choose(matches[+opt.dataset.i]); });
+    document.addEventListener('click', e=>{ if(!combo.contains(e.target)) list.classList.remove('open'); });
   }
-  natList.addEventListener('click', e=>{
-    const opt=e.target.closest('.combo-opt'); if(!opt) return;
-    pickNation(comboMatches[+opt.dataset.i]);
-  });
-  document.addEventListener('click', e=>{ if(!$('#natCombo').contains(e.target)) natList.classList.remove('open'); });
+  initNationPicker('#natCombo','#natSearch','#natList');
+  initNationPicker('#wzCombo','#wzSearch','#wzList');
+
+  // ---------- custom teams ----------
+  function initCustomTeam(nameSel, flagSel, btnSel){
+    const nameEl=$(nameSel), flagEl=$(flagSel), btn=$(btnSel);
+    if(!btn) return;
+    const add=async()=>{ const name=(nameEl.value||'').trim(); if(!name){ toast('Skriv ett lagnamn.',true); return; }
+      if(await addTeam({ code:null, name, flag:(flagEl&&flagEl.value.trim())||null })){ nameEl.value=''; if(flagEl) flagEl.value=''; toast(name+' tillagt'); await loadAll(); nameEl.focus(); } };
+    btn.addEventListener('click', add);
+    nameEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+  }
+  initCustomTeam('#customName','#customFlag','#customAddBtn');
+  initCustomTeam('#wzCustomName','#wzCustomFlag','#wzCustomAddBtn');
 
   function renderTeams(){
-    $('#teamCount').textContent = TEAMS.length;
-    if(!TEAMS.length){ $('#teamsTable').innerHTML='<div class="empty">Inga lag ännu. Sök och lägg till länder ovan.</div>'; return; }
+    document.querySelectorAll('#teamCount,#wzCount').forEach(el=>el.textContent=TEAMS.length);
     const opts = g => ['<option value="">— grupp —</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
-    $('#teamsTable').innerHTML = '<div class="teamgrid">'+
-      TEAMS.map(t=>
-        '<div class="teamchip" data-id="'+t.id+'">'+
-          '<span class="fl">'+(t.flag||'🏳️')+'</span>'+
-          '<span class="nm">'+escapeHtml(t.name)+'</span>'+
-          '<span class="gsel"><select class="teamGroup">'+opts(t.group_name)+'</select>'+
-          '<button class="rm delTeam" title="Ta bort">✕</button></span>'+
-        '</div>').join('')+
-      '</div>';
-    $('#teamsTable').querySelectorAll('.teamGroup').forEach(sel=>{
-      sel.addEventListener('change', async e=>{
+    const chipsHtml = withGroup => TEAMS.map(t=>
+      '<div class="teamchip" data-id="'+t.id+'">'+
+        '<span class="fl">'+(t.flag||'🏳️')+'</span>'+
+        '<span class="nm">'+escapeHtml(t.name)+'</span>'+
+        '<span class="gsel">'+(withGroup?'<select class="teamGroup">'+opts(t.group_name)+'</select>':'')+
+        '<button class="rm delTeam" title="Ta bort">✕</button></span>'+
+      '</div>').join('');
+    const bind = host => {
+      if(!host) return;
+      host.querySelectorAll('.teamGroup').forEach(sel=> sel.addEventListener('change', async e=>{
         const id=e.target.closest('.teamchip').dataset.id;
         const { error } = await sb.from('teams').update({ group_name:e.target.value||null }).eq('id',id);
-        if(error){ toast(error.message,true); return; }
-        toast('Grupp uppdaterad'); await loadAll();
-      });
-    });
-    $('#teamsTable').querySelectorAll('.delTeam').forEach(btn=>{
-      btn.addEventListener('click', async e=>{
-        const chip=e.target.closest('.teamchip'); const id=chip.dataset.id;
-        const t=teamById(id);
+        if(error){ toast(error.message,true); return; } toast('Grupp uppdaterad'); await loadAll();
+      }));
+      host.querySelectorAll('.delTeam').forEach(btn=> btn.addEventListener('click', async e=>{
+        const id=e.target.closest('.teamchip').dataset.id, t=teamById(id);
         if(!confirm('Ta bort '+(t?t.name:'laget')+'? Lagets matcher tas också bort.')) return;
         const { error } = await sb.from('teams').delete().eq('id',id);
-        if(error){ toast(error.message,true); return; }
-        toast('Lag borttaget'); await loadAll();
-      });
-    });
+        if(error){ toast(error.message,true); return; } toast('Lag borttaget'); await loadAll();
+      }));
+    };
+    const tt=$('#teamsTable'), wz=$('#wzTeamList');
+    if(tt){ tt.innerHTML = TEAMS.length ? '<div class="teamgrid">'+chipsHtml(true)+'</div>' : '<div class="empty">Inga lag ännu. Sök och lägg till länder ovan.</div>'; bind(tt); }
+    if(wz){ wz.innerHTML = TEAMS.length ? '<div class="teamgrid">'+chipsHtml(false)+'</div>' : '<div class="empty">Inga lag tillagda än.</div>'; bind(wz); }
   }
 
   // ---------- GROUP DRAW ----------
@@ -600,6 +658,134 @@
     if(error){ toast(error.message, true); return; }
     toast('Gruppindelning rensad'); await loadAll();
   });
+
+  // ================= BRACKET (auto knockout tree) =================
+  const STAGE_BY_MATCHES = { 8:'R16', 4:'QF', 2:'SF', 1:'F' };
+  function buildBracketPlan(groups, qPerGroup){
+    const G=groups.length;
+    const firsts=groups.map(g=>'1'+g), seconds=groups.map(g=>'2'+g);
+    let qualifiers = qPerGroup>=2 ? firsts.concat(seconds) : firsts.slice();
+    let size=1; while(size*2<=qualifiers.length) size*=2;
+    if(size<2) return { matches:[], size:0 };
+    const stageOf=nm=> STAGE_BY_MATCHES[nm] || ('RD'+nm);
+    let roundSrc=[];
+    if(qPerGroup>=2 && size===2*G){ for(let i=0;i<G;i++) roundSrc.push([firsts[i], seconds[(i+1)%G]]); }
+    else { const q=qualifiers.slice(0,size); for(let i=0;i<size/2;i++) roundSrc.push([q[i], q[size-1-i]]); }
+    const matches=[]; let prevCodes=[]; let n=size/2;
+    roundSrc.forEach((pair,i)=>{ const code=stageOf(n)+'-'+(i+1); matches.push({code,stage:stageOf(n),home_src:pair[0],away_src:pair[1]}); prevCodes.push(code); });
+    n=n/2;
+    while(n>=1){ const codes=[]; for(let i=0;i<n;i++){ const code=stageOf(n)+'-'+(i+1); matches.push({code,stage:stageOf(n),home_src:'W:'+prevCodes[2*i],away_src:'W:'+prevCodes[2*i+1]}); codes.push(code);} prevCodes=codes; n=n/2; }
+    return { matches, size };
+  }
+  function winnerOfMatch(m){
+    if(!m||!m.home_id||!m.away_id||m.status!=='finished'||m.home_score==null||m.away_score==null) return null;
+    if(m.home_score>m.away_score) return m.home_id;
+    if(m.away_score>m.home_score) return m.away_id;
+    if(m.home_pens!=null && m.away_pens!=null) return m.home_pens>m.away_pens?m.home_id:m.away_id;
+    return null;
+  }
+  function resolveSrcToId(src){
+    if(!src) return null;
+    if(src[0]==='W'){ const m=MATCHES.find(x=>x.code===src.slice(2)); return m?winnerOfMatch(m):null; }
+    const pos=+src[0], g=src.slice(1);
+    const gm=MATCHES.filter(m=>m.stage==='group'&&m.group_name===g);
+    if(!gm.length || !gm.every(m=>m.status==='finished')) return null;
+    const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
+    return rows[pos-1] ? rows[pos-1].team.id : null;
+  }
+  // fills bracket placeholders from finished results; returns DB updates (also mutates MATCHES)
+  async function autoAdvance(){
+    const ko=MATCHES.filter(m=>['R16','QF','SF','F'].includes(m.stage));
+    if(!ko.length) return;
+    const patch={}; // id -> {home_id?,away_id?}
+    for(let pass=0; pass<6; pass++){
+      ko.forEach(m=>{
+        if(!m.home_id && m.home_src){ const id=resolveSrcToId(m.home_src); if(id){ m.home_id=id; (patch[m.id]=patch[m.id]||{}).home_id=id; } }
+        if(!m.away_id && m.away_src){ const id=resolveSrcToId(m.away_src); if(id){ m.away_id=id; (patch[m.id]=patch[m.id]||{}).away_id=id; } }
+      });
+    }
+    const ids=Object.keys(patch);
+    if(ids.length){ await Promise.all(ids.map(id=> sb.from('matches').update(patch[id]).eq('id',id))); }
+  }
+  function srcLabel(src){
+    if(!src) return '<span style="color:var(--muted)">?</span>';
+    if(src[0]==='W'){ const c=src.slice(2); return '<span style="color:var(--muted)">Vinnare '+prettyCode(c)+'</span>'; }
+    const pos=+src[0], g=src.slice(1);
+    return '<span style="color:var(--muted)">'+(pos===1?'Etta':pos===2?'Tvåa':pos+':a')+' grupp '+g+'</span>';
+  }
+  function prettyCode(code){ const p=code.split('-'); const nm={R16:'åttondel',QF:'kvartsfinal',SF:'semifinal',F:'final'}[p[0]]||p[0]; return p[1]?nm+' '+p[1]:nm; }
+
+  // ================= WIZARD =================
+  function wzReadFormat(){
+    return {
+      start: $('#wzStart').value || (YEAR+'-07-25'),
+      days: Math.max(1, +$('#wzDays').value||1),
+      dayStart: $('#wzDayStart').value||'09:00',
+      dayEnd: $('#wzDayEnd').value||'18:00',
+      halves: +$('#wzHalves').value||2,
+      halfMin: +$('#wzHalfMin').value||10,
+      pitches: +$('#wzPitches').value||3,
+      perGroup: Math.max(2, +$('#wzPerGroup').value||4),
+      qual: Math.max(1, Math.min(2, +$('#wzQual').value||2))
+    };
+  }
+  function addDays(dateStr, n){ const d=new Date(dateStr+'T12:00:00'); d.setDate(d.getDate()+n);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function wzUpdatePreview(){
+    const f=wzReadFormat(), N=TEAMS.length;
+    const G=Math.max(1, Math.ceil(N/f.perGroup));
+    const groups=GROUPS.slice(0,G);
+    const plan=buildBracketPlan(groups, f.qual);
+    const el=$('#wzPreview'); if(!el) return;
+    if(!N){ el.textContent='Lägg till lag i steg 2 för att se turneringsformatet.'; return; }
+    const koName = plan.size>=16?'åttondelsfinaler':plan.size>=8?'kvartsfinaler':plan.size>=4?'semifinaler':plan.size>=2?'final':'—';
+    el.innerHTML='<b>'+N+' lag</b> → <b>'+G+' grupper</b> (~'+f.perGroup+'/grupp), topp '+f.qual+' vidare → <b>'+plan.size+' lag i slutspel</b> ('+koName+'). '+
+      (plan.size<f.qual*G ? '⚠️ '+(f.qual*G)+' skulle gå vidare men slutspelet rymmer '+plan.size+' (jämn tabell) — de lägst rankade platserna faller bort.' : '');
+  }
+  ['wzStart','wzDays','wzDayStart','wzDayEnd','wzHalves','wzHalfMin','wzPitches','wzPerGroup','wzQual'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.addEventListener('input', wzUpdatePreview);
+  });
+
+  async function drawWholeTournament(){
+    const f=wzReadFormat();
+    if(TEAMS.length<2){ toast('Lägg till minst 2 lag först.', true); return; }
+    const G=Math.max(1, Math.ceil(TEAMS.length/f.perGroup));
+    const groups=GROUPS.slice(0,G);
+    const plan=buildBracketPlan(groups, f.qual);
+    if(!confirm('Lotta hela turneringen?\n\n'+TEAMS.length+' lag → '+G+' grupper → '+plan.size+' lag i slutspel.\n\nDetta skriver över nuvarande grupper, matcher och schema.')) return;
+    const res=$('#drawResult'); res.innerHTML='<div class="hint">Lottar…</div>';
+    // 1) write format into SETTINGS
+    SETTINGS.days=[]; for(let d=0; d<f.days; d++) SETTINGS.days.push({ date:addDays(f.start,d), start:f.dayStart, end:f.dayEnd });
+    SETTINGS.halves=f.halves; SETTINGS.halfMin=f.halfMin; SETTINGS.pitches=f.pitches;
+    // 2) shuffle + assign groups
+    const shuffled=[...TEAMS];
+    for(let i=shuffled.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
+    await Promise.all(shuffled.map((t,i)=> sb.from('teams').update({ group_name:groups[i%G], sort_order:Math.floor(i/G) }).eq('id',t.id)));
+    // reload teams so group_name is set for match generation
+    const tRes=await sb.from('teams').select('*').eq('year',YEAR);
+    TEAMS=tRes.data||[];
+    // 3) group matches (round robin)
+    await sb.from('matches').delete().eq('year',YEAR);   // clear all matches (groups + old KO)
+    const gRows=[]; let order=0;
+    groups.forEach(g=>{ const ts=TEAMS.filter(t=>t.group_name===g);
+      for(let i=0;i<ts.length;i++) for(let j=i+1;j<ts.length;j++) gRows.push({ year:YEAR, stage:'group', group_name:g, home_id:ts[i].id, away_id:ts[j].id, status:'scheduled', sort_order:order++ }); });
+    if(gRows.length){ const {error}=await sb.from('matches').insert(gRows); if(error){ toast(error.message,true); return; } }
+    // 4) knockout bracket (placeholders)
+    if(plan.matches.length){ const koRows=plan.matches.map((m,i)=>({ year:YEAR, stage:m.stage, code:m.code, home_src:m.home_src, away_src:m.away_src, status:'scheduled', sort_order:i }));
+      const {error}=await sb.from('matches').insert(koRows); if(error){ toast(error.message,true); return; } }
+    // 5) reload matches, then schedule
+    const mRes=await sb.from('matches').select('*').eq('year',YEAR).order('sort_order').order('created_at');
+    MATCHES=mRes.data||[];
+    const sched=buildSchedule(SETTINGS);
+    await Promise.all(MATCHES.map(m=>{ const a=sched.assign[m.id];
+      return sb.from('matches').update({ sched_date:a?a.date:null, sched_time:a?a.time:null, pitch:a?a.pitch:null }).eq('id',m.id); }));
+    await sb.from('settings').upsert({ year:YEAR, data:SETTINGS });
+    res.innerHTML='<div class="warn ok">✓ Klart! '+G+' grupper, '+gRows.length+' gruppmatcher, slutspelsträd ('+plan.size+' lag) och spelschema skapade.'+
+      (sched.overflow.length? ' ⚠️ '+sched.overflow.length+' matcher fick inte plats i tiden — justera under Spelschema.':'')+'</div>';
+    toast('Turneringen är lottad!');
+    await loadAll();
+  }
+  $('#drawAllBtn').addEventListener('click', drawWholeTournament);
 
   // ---------- STANDINGS ----------
   function computeStandings(groupTeams){
@@ -687,14 +873,16 @@
 
   function koRow(m){
     const h=teamById(m.home_id), a=teamById(m.away_id);
-    const drawn = m.home_score!=null && m.away_score!=null && m.home_score===m.away_score;
     const st = m.status==='finished'?'<span class="pill done">Klar</span>':'<span class="pill sched">Ej spelad</span>';
-    return '<div class="match-row" data-id="'+m.id+'">'+
-      '<span class="side"><span class="fl">'+(h&&h.flag||'')+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
+    const hSide = h ? '<span class="fl">'+(h.flag||'')+'</span>'+escapeHtml(h.name) : srcLabel(m.home_src);
+    const aSide = a ? escapeHtml(a.name)+'<span class="fl">'+(a.flag||'')+'</span>' : srcLabel(m.away_src);
+    const codeTag = m.code ? '<span class="pill sched" style="margin-right:6px">'+m.code+'</span>' : '';
+    return '<div class="match-row" data-id="'+m.id+'">'+codeTag+
+      '<span class="side">'+hSide+'</span>'+
       '<input class="sc mHome" type="number" min="0" inputmode="numeric" value="'+(m.home_score??'')+'" />'+
       '<span class="dash">–</span>'+
       '<input class="sc mAway" type="number" min="0" inputmode="numeric" value="'+(m.away_score??'')+'" />'+
-      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+(a&&a.flag||'')+'</span></span>'+
+      '<span class="side away">'+aSide+'</span>'+
       '<span class="pens-wrap" title="Straffar">🥅<input class="mHP" type="number" min="0" inputmode="numeric" value="'+(m.home_pens??'')+'" />:'+
         '<input class="mAP" type="number" min="0" inputmode="numeric" value="'+(m.away_pens??'')+'" /></span>'+
       '<button class="btn btn-blue btn-sm saveScore">Spara</button>'+
