@@ -183,6 +183,19 @@
   .team-col .tw-meta{display:block;font-size:.74rem;color:var(--muted)}
   .warn{background:#fdecea;border:1px solid #f5c6c0;color:#8a2820;border-radius:12px;padding:12px 15px;font-size:.86rem;margin-top:14px}
   .warn.ok{background:#e7f6ee;border-color:#b6e2c6;color:#176b3a}
+  /* overview */
+  .ov-stats{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0 6px}
+  .ov-stat{background:#f3f6fc;border:1px solid var(--line);border-radius:12px;padding:12px 18px;min-width:90px;text-align:center}
+  .ov-stat b{display:block;font-family:"Sora",sans-serif;font-size:1.5rem;color:var(--blue);line-height:1}
+  .ov-stat span{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .bracket-ro{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .round-ro h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold-deep);margin:0 0 8px;text-align:center}
+  .match-ro{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:.82rem;margin-bottom:8px;box-shadow:0 4px 12px rgba(8,35,107,.05)}
+  .match-ro .ro-t{display:flex;justify-content:space-between;gap:8px;color:var(--muted);padding:1px 0}
+  .match-ro .ro-t.win{color:var(--ink);font-weight:800}
+  .match-ro .ro-sc{font-weight:800;color:var(--ink)}
+  .match-ro .ro-t.win .ro-sc{color:var(--blue)}
+  .match-ro .ro-pens{margin-top:4px;padding-top:4px;border-top:1px dashed var(--line);font-size:.68rem;color:var(--muted);text-align:center}
   .editrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:.85rem}
   .editrow .lbl{flex:1 1 220px;min-width:180px;font-weight:600}
   .editrow input,.editrow select{width:auto;flex:none}
@@ -236,7 +249,7 @@
       <button class="tab" data-panel="groups">Grupper &amp; tabeller</button>
       <button class="tab" data-panel="schedule">Spelschema</button>
       <button class="tab" data-panel="matches">Resultat</button>
-      <button class="tab" data-panel="knockout">Slutspel</button>
+      <button class="tab" data-panel="overview">Översikt</button>
     </div>
 
     <!-- ---- CREATE WIZARD ---- -->
@@ -323,12 +336,15 @@
       </div>
     </section>
 
-    <!-- ---- KNOCKOUT ---- -->
-    <section class="panel" id="panel-knockout">
+    <!-- ---- OVERVIEW ---- -->
+    <section class="panel" id="panel-overview">
       <div class="card">
-        <h2>Slutspelsträd</h2>
-        <div class="sub">Skapas automatiskt vid lottningen. Lagen fylls i av sig själva när grupperna är färdigspelade, och vinnare avancerar automatiskt. Fyll bara i resultaten (straffar vid oavgjort).</div>
-        <div id="koMatches"></div>
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h2 style="margin:0">Översikt</h2>
+          <button class="btn btn-gold" id="pdfBtn" type="button">📄 Exportera spelschema (PDF)</button>
+        </div>
+        <div class="sub">Hela turneringen på en sida — lag, grupper, tabeller och slutspelsträd. Exportera spelschemat som PDF för utskrift.</div>
+        <div id="overview"></div>
       </div>
     </section>
 
@@ -467,7 +483,7 @@
     if(sRes && !sRes.error && sRes.data && sRes.data.data) SETTINGS = Object.assign({}, DEFAULT_SETTINGS, sRes.data.data);
     await autoAdvance();   // fill knockout placeholders from finished results
     if(SETTINGS.numTeams && $('#wzNumTeams') && !$('#wzNumTeams').value) $('#wzNumTeams').value=SETTINGS.numTeams;
-    renderTeams(); renderStandings(); renderGroupMatches(); renderKnockout();
+    renderTeams(); renderStandings(); renderGroupMatches(); renderOverview();
     applySettingsToForm(); renderSchedule(); wzUpdatePreview();
     wzShowStep2(TEAMS.length>0);   // open step 2 if teams already exist
   }
@@ -876,21 +892,22 @@
       });
     return Object.values(tbl).sort((x,y)=> y.Pts-x.Pts || (y.GF-y.GA)-(x.GF-x.GA) || y.GF-x.GF || x.team.name.localeCompare(y.team.name));
   }
+  function standingsCardHtml(g){
+    const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
+    return '<div class="gcard"><h3>Grupp '+g+'</h3><table class="standings">'+
+      '<colgroup><col class="c-num"><col><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-gf"><col class="c-gd"><col class="c-num"></colgroup>'+
+      '<thead><tr>'+
+      '<th>#</th><th>Lag</th><th>S</th><th>V</th><th>O</th><th>F</th><th>MÅL</th><th>±</th><th>P</th></tr></thead><tbody>'+
+      rows.map((r,i)=>'<tr class="'+(i<2?'qualify':'')+'"><td>'+(i+1)+'</td>'+
+        '<td><span class="fl">'+(r.team.flag||'')+'</span>'+escapeHtml(r.team.name)+'</td>'+
+        '<td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td>'+
+        '<td>'+r.GF+'-'+r.GA+'</td><td>'+(r.GF-r.GA>0?'+':'')+(r.GF-r.GA)+'</td><td><b>'+r.Pts+'</b></td></tr>').join('')+
+      '</tbody></table></div>';
+  }
   function renderStandings(){
     const used = GROUPS.filter(g=> TEAMS.some(t=>t.group_name===g));
     if(!used.length){ $('#standings').innerHTML='<div class="empty">Inga grupper än. Skapa turneringen under fliken “✨ Skapa turnering”.</div>'; return; }
-    $('#standings').innerHTML = used.map(g=>{
-      const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
-      return '<div class="gcard"><h3>Grupp '+g+'</h3><table class="standings">'+
-        '<colgroup><col class="c-num"><col><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-gf"><col class="c-gd"><col class="c-num"></colgroup>'+
-        '<thead><tr>'+
-        '<th>#</th><th>Lag</th><th>S</th><th>V</th><th>O</th><th>F</th><th>MÅL</th><th>±</th><th>P</th></tr></thead><tbody>'+
-        rows.map((r,i)=>'<tr class="'+(i<2?'qualify':'')+'"><td>'+(i+1)+'</td>'+
-          '<td><span class="fl">'+(r.team.flag||'')+'</span>'+escapeHtml(r.team.name)+'</td>'+
-          '<td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td>'+
-          '<td>'+r.GF+'-'+r.GA+'</td><td>'+(r.GF-r.GA>0?'+':'')+(r.GF-r.GA)+'</td><td><b>'+r.Pts+'</b></td></tr>').join('')+
-        '</tbody></table></div>';
-    }).join('');
+    $('#standings').innerHTML = used.map(standingsCardHtml).join('');
   }
 
   // ---------- RESULTS (all matches) ----------
@@ -952,14 +969,94 @@
       (ready?'<button class="btn btn-blue btn-sm saveScore">Spara</button>':'<span class="pill sched">Väntar på lag</span>')+st+
     '</div>';
   }
-  function renderKnockout(){
-    const order=['R16','QF','SF','F'];
-    const has = order.filter(s=> MATCHES.some(m=>m.stage===s));
-    if(!has.length){ $('#koMatches').innerHTML='<div class="empty">Slutspelsträdet skapas automatiskt när du lottar turneringen under “✨ Skapa turnering”.</div>'; return; }
-    $('#koMatches').innerHTML = has.map(s=>
-      '<div class="stage-block"><h3>'+STAGE_NAMES[s]+'</h3>'+ MATCHES.filter(m=>m.stage===s).map(koRow).join('') +'</div>'
-    ).join('');
-    bindScoreSaves('#koMatches');
+  // ---------- OVERVIEW ----------
+  function koLabel(m, side){
+    const id = side==='h'?m.home_id:m.away_id, src = side==='h'?m.home_src:m.away_src;
+    const t = teamById(id);
+    return t ? ((t.flag?t.flag+' ':'')+escapeHtml(t.name)) : srcLabel(src);
+  }
+  function bracketReadOnly(){
+    const has = KO_STAGES.filter(s=> MATCHES.some(m=>m.stage===s));
+    if(!has.length) return '';
+    return '<div class="bracket-ro">'+ has.map(s=>
+      '<div class="round-ro"><h4>'+STAGE_NAMES[s]+'</h4>'+ MATCHES.filter(m=>m.stage===s).map(m=>{
+        const played = m.home_score!=null && m.away_score!=null;
+        const hw = played && (m.home_score>m.away_score || (m.home_score===m.away_score && m.home_pens>m.away_pens));
+        const aw = played && (m.away_score>m.home_score || (m.home_score===m.away_score && m.away_pens>m.home_pens));
+        const pens = (played && m.home_score===m.away_score && m.home_pens!=null) ? '<div class="ro-pens">straffar '+m.home_pens+'–'+m.away_pens+'</div>' : '';
+        return '<div class="match-ro">'+
+          '<div class="ro-t'+(hw?' win':'')+'"><span>'+koLabel(m,'h')+'</span><span class="ro-sc">'+(m.home_score??'–')+'</span></div>'+
+          '<div class="ro-t'+(aw?' win':'')+'"><span>'+koLabel(m,'a')+'</span><span class="ro-sc">'+(m.away_score??'–')+'</span></div>'+pens+'</div>';
+      }).join('') +'</div>'
+    ).join('') +'</div>';
+  }
+  function renderOverview(){
+    const host=$('#overview'); if(!host) return;
+    if(!TEAMS.length){ host.innerHTML='<div class="empty">Skapa turneringen under “✨ Skapa turnering” så visas översikten här.</div>'; return; }
+    const groups=[...new Set(TEAMS.map(t=>t.group_name).filter(Boolean))].sort();
+    const sched=MATCHES.filter(m=>m.sched_date&&m.sched_time);
+    const days=[...new Set(sched.map(m=>m.sched_date))];
+    const played=MATCHES.filter(m=>m.status==='finished').length;
+    const stat=(n,l)=>'<div class="ov-stat"><b>'+n+'</b><span>'+l+'</span></div>';
+    let html='<div class="ov-stats">'+stat(TEAMS.length,'lag')+stat(groups.length,'grupper')+stat(MATCHES.length,'matcher')+stat(played,'spelade')+stat(days.length,'dagar')+'</div>';
+    if(groups.length){ html+='<h3 class="sched-h">Tabeller</h3><div class="grid2">'+groups.map(standingsCardHtml).join('')+'</div>'; }
+    const brk=bracketReadOnly();
+    if(brk){ html+='<h3 class="sched-h">Slutspelsträd</h3>'+brk; }
+    host.innerHTML=html;
+  }
+  $('#pdfBtn') && $('#pdfBtn').addEventListener('click', exportSchedulePDF);
+  function srcText(src){
+    if(!src) return '?';
+    if(src[0]==='W') return 'Vinnare '+prettyCode(src.slice(2));
+    if(src[0]==='T') return 'Bästa 3:a #'+src.slice(1);
+    const pos=+src[0], g=src.slice(1);
+    return (pos===1?'Etta':pos===2?'Tvåa':pos+':a')+' grupp '+g;
+  }
+  function exportSchedulePDF(){
+    const sched=MATCHES.filter(m=>m.sched_date&&m.sched_time);
+    if(!sched.length){ toast('Inget schema att exportera — lotta turneringen först.', true); return; }
+    const maxP=Math.max(SETTINGS.pitches|0, Math.max(1, ...sched.map(m=>m.pitch||1)));
+    const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
+    const nm=t=> t?((t.flag?t.flag+' ':'')+escapeHtml(t.name)):'';
+    const cell=m=>{
+      const h=teamById(m.home_id), a=teamById(m.away_id);
+      const tag=m.stage==='group'?'Grupp '+(m.group_name||''):(STAGE_SHORT[m.stage]||m.stage);
+      const hn=h?nm(h):escapeHtml(srcText(m.home_src)), an=a?nm(a):escapeHtml(srcText(m.away_src));
+      const sc=(m.home_score!=null&&m.away_score!=null)?'<b class="sc">'+m.home_score+'–'+m.away_score+'</b>':'';
+      return '<div class="tag">'+tag+'</div><div class="mt">'+hn+' – '+an+' '+sc+'</div>';
+    };
+    let body='';
+    dates.forEach(date=>{
+      const dm=sched.filter(m=>m.sched_date===date);
+      const times=[...new Set(dm.map(m=>m.sched_time))];
+      const brks=(SETTINGS.breaks||[]).filter(b=>b.date===date&&b.start);
+      const entries=times.map(t=>({t,k:'w'})).concat(brks.map(b=>({t:b.start,k:'b',b}))).sort((x,y)=>x.t.localeCompare(y.t));
+      let rows='';
+      entries.forEach(en=>{
+        if(en.k==='b'){ rows+='<tr class="brk"><td>'+en.b.start+'</td><td colspan="'+maxP+'">☕ '+escapeHtml(en.b.label||'Paus')+'</td></tr>'; }
+        else { const wave=dm.filter(m=>m.sched_time===en.t); let c='';
+          for(let p=1;p<=maxP;p++){ const m=wave.find(x=>(x.pitch||1)===p); c+='<td>'+(m?cell(m):'')+'</td>'; }
+          rows+='<tr><td class="tm">'+en.t+'</td>'+c+'</tr>'; }
+      });
+      let head='<th class="tm">Tid</th>'; for(let p=1;p<=maxP;p++) head+='<th>Plan '+p+'</th>';
+      body+='<h2>'+fmtDate(date)+'</h2><table><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table>';
+    });
+    const css='*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0c1a3a;margin:28px}'+
+      'h1{font-size:22px;margin:0 0 2px;color:#08236b}p.meta{color:#5a6b8c;margin:0 0 18px;font-size:13px}'+
+      'h2{font-size:15px;margin:22px 0 8px;color:#08236b;text-transform:capitalize;border-bottom:2px solid #f4c20d;display:inline-block;padding-bottom:4px}'+
+      'table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px}'+
+      'th,td{border:1px solid #cdd7ea;padding:5px 7px;text-align:left;vertical-align:top}'+
+      'th{background:#08236b;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.03em}'+
+      'td.tm,th.tm{width:56px;white-space:nowrap;font-weight:700;color:#08236b}'+
+      '.tag{font-size:9px;font-weight:800;color:#5a6b8c;text-transform:uppercase}.mt{margin-top:1px}.sc{color:#0b46c4}'+
+      'tr.brk td{background:#fff7e0;color:#7a5c00;font-weight:700;text-align:center}'+
+      '@media print{body{margin:12mm}h2{page-break-after:avoid}table{page-break-inside:auto}tr{page-break-inside:avoid}}';
+    const html='<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>Spelschema '+YEAR+'</title><style>'+css+'</style></head><body>'+
+      '<h1>Stockholm Cup of Nations '+YEAR+'</h1><p class="meta">Spelschema · '+dates.length+' dag(ar) · '+sched.length+' matcher</p>'+body+
+      '<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},350);};</scr'+'ipt></body></html>';
+    const w=window.open('','_blank');
+    if(!w){ toast('Tillåt popup-fönster för att exportera PDF.', true); return; }
+    w.document.open(); w.document.write(html); w.document.close();
   }
 
   // ---------- SAVE SCORES (shared) ----------
