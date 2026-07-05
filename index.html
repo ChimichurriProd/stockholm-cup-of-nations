@@ -106,6 +106,17 @@
   .sec-head{text-align:center;max-width:680px;margin:0 auto 46px}
   .sec-head h2{font-size:clamp(28px,4vw,42px);font-weight:900;margin:10px 0}
   .sec-head p{color:var(--muted);font-size:16px}
+  /* collapsible sections */
+  .sec-head-toggle{position:relative;cursor:pointer;user-select:none;transition:margin .3s ease}
+  .sec-toggle{position:absolute;top:0;right:0;border:1px solid var(--line,#e2e8f5);background:#fff;color:var(--blue);width:38px;height:38px;border-radius:50%;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(8,35,107,.08);transition:transform .3s ease}
+  .sec-head-toggle:hover .sec-toggle{background:#eef2fb}
+  .js-collapse.collapsed .sec-toggle{transform:rotate(-90deg)}
+  .js-collapse.collapsed .sec-head-toggle{margin-bottom:0}
+  .js-collapse.collapsed .sec-head p{display:none}
+  .sec-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows .35s ease}
+  .js-collapse.collapsed .sec-body{grid-template-rows:0fr}
+  .sec-body-inner{overflow:hidden;min-height:0}
+  @media(max-width:560px){ .sec-toggle{width:34px;height:34px;font-size:15px} }
 
   /* stats */
   .stats{border-top:1px solid #e2e8f4;border-bottom:1px solid #e2e8f4}
@@ -426,7 +437,7 @@
 </section>
 
 <!-- ABOUT / OM OSS -->
-<section class="about" id="about">
+<section class="about js-collapse" id="about">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="About us" data-sv="Om oss">About us</span>
@@ -460,7 +471,7 @@
 </section>
 
 <!-- CHAMPIONS -->
-<section class="champs" id="champions">
+<section class="champs js-collapse" id="champions">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Hall of champions" data-sv="Mästargalleri">Hall of champions</span>
@@ -478,7 +489,7 @@
 </section>
 
 <!-- GALLERY -->
-<section class="gallery">
+<section class="gallery js-collapse" id="gallery" data-collapsed>
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="The atmosphere" data-sv="Stämningen">The atmosphere</span>
@@ -494,7 +505,7 @@
 </section>
 
 <!-- CURRENT TOURNAMENT (live from Supabase, shown only when teams exist) -->
-<section class="live" id="live-now" style="display:none">
+<section class="live js-collapse" id="live-now" style="display:none">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Current tournament" data-sv="Pågående turnering">Current tournament</span>
@@ -509,7 +520,7 @@
 </section>
 
 <!-- SCHEDULE (from Supabase, shown only when a schedule exists) -->
-<section class="sched-sec" id="schedule" style="display:none">
+<section class="sched-sec js-collapse" id="schedule" style="display:none">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Match schedule" data-sv="Spelschema">Match schedule</span>
@@ -521,7 +532,7 @@
 </section>
 
 <!-- RESULTS ARCHIVE (past editions only) -->
-<section class="live" id="results">
+<section class="live js-collapse" id="results" data-collapsed>
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Results archive" data-sv="Resultatarkiv">Results archive</span>
@@ -542,7 +553,7 @@
 </section>
 
 <!-- NATIONS -->
-<section class="nations" id="nations">
+<section class="nations js-collapse" id="nations" data-collapsed>
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="A global celebration" data-sv="En global fotbollsfest">A global celebration</span>
@@ -570,7 +581,7 @@
 </section>
 
 <!-- SPONSORS -->
-<section class="sponsors" id="sponsors">
+<section class="sponsors js-collapse" id="sponsors" data-collapsed>
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Partners &amp; sponsors" data-sv="Partner &amp; sponsorer">Partners &amp; sponsors</span>
@@ -957,6 +968,47 @@
       window.location.href='mailto:info@stockholmcupofnations.eu?subject='+subject+'&body='+body;
     });
   }
+
+  /* ---- Collapsible sections (minimise / maximise) ---- */
+  function setupCollapsibles(){
+    document.querySelectorAll('section.js-collapse').forEach(sec=>{
+      const wrap = sec.querySelector(':scope > .wrap'); if(!wrap) return;
+      const head = wrap.querySelector(':scope > .sec-head'); if(!head) return;
+      if(head.classList.contains('sec-head-toggle')) return;   // already set up
+      // move everything after the header into a collapsible body
+      const body=document.createElement('div'); body.className='sec-body';
+      const inner=document.createElement('div'); inner.className='sec-body-inner';
+      let n=head.nextElementSibling;
+      while(n){ const next=n.nextElementSibling; inner.appendChild(n); n=next; }
+      body.appendChild(inner); wrap.appendChild(body);
+      // chevron toggle
+      const chev=document.createElement('button');
+      chev.className='sec-toggle'; chev.type='button'; chev.setAttribute('aria-label','Minimera / maximera'); chev.textContent='▾';
+      head.appendChild(chev); head.classList.add('sec-head-toggle');
+      const key='scon_sec_'+(sec.id||Math.random());
+      let collapsed=sec.hasAttribute('data-collapsed');
+      try{ const s=localStorage.getItem(key); if(s!=null) collapsed = s==='1'; }catch(e){}
+      sec.classList.toggle('collapsed', collapsed);
+      head.addEventListener('click', e=>{
+        if(e.target.closest('a')) return;
+        const c=!sec.classList.contains('collapsed');
+        sec.classList.toggle('collapsed', c);
+        try{ localStorage.setItem(key, c?'1':'0'); }catch(e){}
+      });
+    });
+    // nav / anchor links expand their target section before scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', ()=>{
+        const id=a.getAttribute('href').slice(1); if(!id) return;
+        const t=document.getElementById(id);
+        if(t && t.classList.contains('js-collapse') && t.classList.contains('collapsed')){
+          t.classList.remove('collapsed');
+          try{ localStorage.setItem('scon_sec_'+id,'0'); }catch(e){}
+        }
+      });
+    });
+  }
+  setupCollapsibles();
 
   /* ---- Mobile menu ---- */
   const burger = document.querySelector('.burger');
