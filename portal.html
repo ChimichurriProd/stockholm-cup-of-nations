@@ -843,24 +843,28 @@
     };
   }
   function sizesFor(count, G){ const base=Math.floor(count/G), r=count%G, s=[]; for(let i=0;i<G;i++) s.push(base+(i<r?1:0)); return s; }
-  // auto-pick a group count near the preferred size that yields a valid bracket for the chosen mode
+  // Keep the wanted group size (group count closest to ideal); if the chosen
+  // qualification doesn't yield an even knockout at that count, ADAPT the
+  // qualification (prefer adding best 3rd-placed teams) rather than changing the groups.
   function wzPlan(count, f){
     if(count<2) return { ok:false, msg:'Lägg till minst 2 lag.' };
     const ideal=Math.max(1, Math.round(count/f.perGroup));
     const cand=[]; for(let G=1;G<=Math.min(GROUPS.length,count);G++) cand.push(G);
     cand.sort((a,b)=> Math.abs(a-ideal)-Math.abs(b-ideal) || a-b);
-    // pass 1: valid bracket AND min group size >=3
-    // pass 2: valid bracket (allow smaller groups)
+    const modePref = m => m===f.qualMode ? 0 : (m==='thirds'?1 : m==='two'?2 : 3);
+    const modes = ['one','two','thirds'].sort((a,b)=> modePref(a)-modePref(b));
     for(const minSize of [3,2]){
       for(const G of cand){
         const sizes=sizesFor(count,G);
         if(Math.min(...sizes)<minSize && G>1) continue;
-        const plan=buildBracketPlan(GROUPS.slice(0,G), f.qualMode);
-        if(plan.ok) return { ok:true, G, groups:GROUPS.slice(0,G), sizes, plan };
+        for(const mode of modes){
+          const plan=buildBracketPlan(GROUPS.slice(0,G), mode);
+          if(plan.ok) return { ok:true, G, groups:GROUPS.slice(0,G), sizes, plan, usedMode:mode };
+        }
       }
     }
     const gs=sizesFor(count, ideal);
-    return { ok:false, G:ideal, sizes:gs, msg:'Den här kombinationen ger inget jämnt slutspel. Prova ett annat antal lag, gruppstorlek eller “Går vidare” (t.ex. “Topp 2 + bästa 3:orna”).' };
+    return { ok:false, G:ideal, sizes:gs, msg:'Den här kombinationen ger inget jämnt slutspel. Prova ett annat antal lag eller gruppstorlek.' };
   }
   function wzUpdatePreview(){
     const f=wzReadFormat(), N=TEAMS.length, el=$('#wzPreview'); if(!el) return;
@@ -871,8 +875,10 @@
     const sizeStr = r.sizes ? r.sizes.join(', ') : '';
     if(!r.ok){ const pre = r.G ? '<b>'+r.G+' grupper</b> ('+sizeStr+' lag). ' : ''; el.innerHTML=progress+pre+r.msg; return; }
     const koName=r.plan.size>=16?'åttondelsfinaler':r.plan.size>=8?'kvartsfinaler':r.plan.size>=4?'semifinaler':r.plan.size>=2?'final':'—';
-    el.innerHTML=progress+'→ <b>'+r.G+' grupper</b> ('+sizeStr+' lag), '+QUAL_LABEL[f.qualMode]+' vidare → <b>'+r.plan.size+' lag i slutspel</b> ('+koName+')'+
-      (r.plan.thirds?' varav '+r.plan.thirds+' bästa 3:or':'')+'.';
+    const usedMode=r.usedMode||f.qualMode, adapted=usedMode!==f.qualMode;
+    el.innerHTML=progress+'→ <b>'+r.G+' grupper</b> ('+sizeStr+' lag), '+QUAL_LABEL[usedMode]+' vidare → <b>'+r.plan.size+' lag i slutspel</b> ('+koName+')'+
+      (r.plan.thirds?', varav '+r.plan.thirds+' bästa 3:or':'')+'.'+
+      (adapted?' <span style="color:#b8860b">(kvalet anpassades så slutspelet blir jämnt)</span>':'');
   }
   ['wzNumTeams','wzHalves','wzHalfMin','wzKoHalfMin','wzChangeover','wzPitches','wzPerGroup','wzQual'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.addEventListener('input', ()=>{ renderTeams(); wzUpdatePreview(); });
