@@ -204,6 +204,9 @@
   .editrow select{width:96px}
   .notice{background:#fff7e0;border:1px solid #f4e3a8;color:#7a5c00;border-radius:12px;padding:14px 16px;font-size:.88rem;margin-bottom:18px}
   .notice code{background:#fbeec0;padding:1px 6px;border-radius:5px}
+  .demo-sep{display:flex;align-items:center;gap:10px;margin:18px 0 14px;color:var(--muted);font-size:.78rem}
+  .demo-sep::before,.demo-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+  #demoBanner{background:#fff7e0;border-bottom:1px solid #f4e3a8;color:#7a5c00;text-align:center;font-size:.85rem;padding:9px 16px}
   @media(max-width:560px){
     header .ttl small{display:none}
     .match-row .side{min-width:90px}
@@ -228,6 +231,9 @@
     </div>
     <button class="btn btn-blue" type="submit" id="loginBtn">Logga in</button>
     <div class="msg" id="loginMsg"></div>
+    <div class="demo-sep"><span>eller</span></div>
+    <button class="btn btn-ghost-blue" type="button" id="demoBtn" style="width:100%">🧪 Testa utan inloggning</button>
+    <p style="font-size:.75rem;color:var(--muted);margin:10px 0 0">I demoläget kan du prova allt fritt — inget sparas i databasen.</p>
   </form>
 </div>
 
@@ -242,6 +248,7 @@
       <button class="btn btn-ghost btn-sm" id="logoutBtn">Logga ut</button>
     </div>
   </header>
+  <div id="demoBanner" style="display:none">🧪 <b>Demoläge</b> – du testar utan inloggning. Inget sparas i databasen (uppdatera sidan för att nollställa).</div>
 
   <main class="wrap">
     <div class="tabs">
@@ -437,7 +444,9 @@
     return;
   }
 
-  const sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+  let sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+  const realClient = sb;
+  let DEMO = false;
   let TEAMS = [], MATCHES = [];
   const DEFAULT_SETTINGS = {
     days: [{ date:(YEAR)+'-07-25', start:'09:00', end:'18:00' }],
@@ -456,12 +465,61 @@
     btn.disabled=false; btn.textContent='Logga in';
     if(error){ msg.className='msg err'; msg.textContent = error.message.includes('Invalid')?'Fel e-post eller lösenord.':error.message; }
   });
-  $('#logoutBtn').addEventListener('click', async ()=>{ await sb.auth.signOut(); });
+  $('#logoutBtn').addEventListener('click', async ()=>{
+    if(DEMO){ DEMO=false; sb=realClient; $('#demoBanner').style.display='none'; showLogin(); return; }
+    await sb.auth.signOut();
+  });
 
-  sb.auth.onAuthStateChange((_e, session)=>{
+  realClient.auth.onAuthStateChange((_e, session)=>{
+    if(DEMO) return;                       // ignore real auth while in demo
     if(session){ showApp(session); } else { showLogin(); }
   });
-  sb.auth.getSession().then(({data})=>{ if(data.session) showApp(data.session); });
+  realClient.auth.getSession().then(({data})=>{ if(!DEMO && data.session) showApp(data.session); });
+
+  // ---------- DEMO MODE (local, nothing saved to the database) ----------
+  function makeMockClient(){
+    const store={ teams:[], matches:[], settings:[] };
+    let seq=1;
+    const proj=(row,cols)=>{ if(!cols||cols==='*') return Object.assign({},row); const o={}; cols.split(',').map(s=>s.trim()).forEach(k=>o[k]=row[k]); return o; };
+    function run(q){
+      try{
+        if(q.op==='insert'){ (Array.isArray(q.payload)?q.payload:[q.payload]).forEach(r=>{ const row=Object.assign({},r); if(row.id==null) row.id='demo-'+(seq++); row.created_at=seq++; store[q.table].push(row); }); return {data:null,error:null}; }
+        const match=row=> q.filters.every(([c,op,v])=>{ if(op==='eq') return row[c]===v; if(op==='not_is') return v===null? row[c]!=null : row[c]!==v; return true; });
+        if(q.op==='update'){ store[q.table].forEach(row=>{ if(match(row)) Object.assign(row,q.payload); }); return {data:null,error:null}; }
+        if(q.op==='delete'){ store[q.table]=store[q.table].filter(row=>!match(row)); return {data:null,error:null}; }
+        if(q.op==='upsert'){ (Array.isArray(q.payload)?q.payload:[q.payload]).forEach(r=>{ const ex=store[q.table].find(row=>row.year===r.year); if(ex) Object.assign(ex,r); else { const row=Object.assign({},r); row.created_at=seq++; store[q.table].push(row); } }); return {data:null,error:null}; }
+        let res=store[q.table].filter(match);
+        if(q.orders.length) res=res.slice().sort((a,b)=>{ for(const [col,opts] of q.orders){ let av=a[col],bv=b[col]; const nf=opts&&opts.nullsFirst; if(av==null&&bv==null) continue; if(av==null) return nf?-1:1; if(bv==null) return nf?1:-1; if(av<bv) return -1; if(av>bv) return 1; } return 0; });
+        const data = q.single ? (res.length?proj(res[0],q.cols):null) : res.map(r=>proj(r,q.cols));
+        return {data,error:null};
+      }catch(e){ return {data:null,error:{message:e.message}}; }
+    }
+    function builder(table){
+      const q={ table, op:'select', cols:'*', filters:[], orders:[], single:false, payload:null };
+      let ran=false, result; const ensure=()=>{ if(!ran){ ran=true; result=run(q); } return result; };
+      queueMicrotask(ensure);
+      const api={
+        select(c){ q.op='select'; q.cols=c; return api; },
+        eq(c,v){ q.filters.push([c,'eq',v]); return api; },
+        not(c,op,v){ q.filters.push([c,'not_'+op,v]); return api; },
+        order(c,opts){ q.orders.push([c,opts]); return api; },
+        maybeSingle(){ q.single=true; return api; },
+        insert(p){ q.op='insert'; q.payload=p; return api; },
+        update(p){ q.op='update'; q.payload=p; return api; },
+        delete(){ q.op='delete'; return api; },
+        upsert(p){ q.op='upsert'; q.payload=p; return api; },
+        then(onF,onR){ Promise.resolve().then(ensure).then(onF,onR); }
+      };
+      return api;
+    }
+    return { from:builder, auth:{ signInWithPassword:async()=>({error:{message:'demo'}}), signOut:async()=>{}, onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}), getSession:async()=>({data:{session:null}}) } };
+  }
+  $('#demoBtn') && $('#demoBtn').addEventListener('click', ()=>{
+    DEMO=true; sb=makeMockClient();
+    $('#demoBanner').style.display='';
+    showApp({ user:{ email:'🧪 Demoläge' } });
+    toast('Demoläge – inget sparas i databasen');
+  });
 
   function showLogin(){ $('#app').style.display='none'; $('#login').style.display='grid'; }
   async function showApp(session){
