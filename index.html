@@ -98,8 +98,14 @@
   .draw{margin-top:12px;font-size:12.5px;color:#cdd8f0}
 
   /* flag strip */
-  .flagstrip{position:relative;z-index:2;display:flex;gap:8px;justify-content:center;padding:0 0 26px;flex-wrap:wrap}
-  .flagstrip span{font-size:22px}
+  .flagstrip{position:relative;z-index:2;overflow:hidden;padding:14px 0 30px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+  .flag-track{display:flex;gap:26px;width:max-content;animation:flagscroll 60s linear infinite}
+  .flag-track span{font-size:30px;line-height:1}
+  .flagstrip:hover .flag-track{animation-play-state:paused}
+  @keyframes flagscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.flag-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}}
 
   section{padding:78px 0}
   section[id]{scroll-margin-top:88px}
@@ -116,7 +122,12 @@
   .sec-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows .35s ease}
   .js-collapse.collapsed .sec-body{grid-template-rows:0fr}
   .sec-body-inner{overflow:hidden;min-height:0}
-  @media(max-width:560px){ .sec-toggle{width:34px;height:34px;font-size:15px} }
+  /* each collapsible section reads as its own clearly-separated panel */
+  section.js-collapse{padding:22px 0}
+  .js-collapse > .wrap{background:#fff;border:1px solid #e6ebf5;border-radius:26px;padding:38px 36px;box-shadow:0 22px 54px rgba(8,35,107,.07)}
+  .js-collapse .sec-head{margin-bottom:30px}
+  .js-collapse.collapsed .sec-head{margin-bottom:0}
+  @media(max-width:560px){ .sec-toggle{width:34px;height:34px;font-size:15px} section.js-collapse{padding:12px 0} .js-collapse > .wrap{padding:24px 18px;border-radius:20px} }
 
   /* stats */
   .stats{border-top:1px solid #e2e8f4;border-bottom:1px solid #e2e8f4}
@@ -159,7 +170,10 @@
   .org-badge b{display:block;font-size:15px;color:var(--navy);letter-spacing:-.01em;margin-top:2px}
 
   /* champions */
-  .champs .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .champs .grid,.champ-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .everpresent{text-align:center;margin-top:22px;color:var(--muted);font-size:14px}
+  .archive-divider{display:flex;align-items:center;gap:14px;margin:40px 0 26px;color:var(--navy);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+  .archive-divider::before,.archive-divider::after{content:"";flex:1;height:1px;background:#dbe3f2}
   .champ{background:#fff;border:1px solid #e6ebf5;border-radius:var(--radius);padding:24px;position:relative;overflow:hidden}
   .champ::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--blue),var(--gold))}
   .champ .yr{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.08em}
@@ -277,9 +291,12 @@
   .food .copy p{color:var(--muted)}
 
   /* sponsors */
-  .sponsors{background:transparent;text-align:center;border-top:1px solid #e2e8f4}
-  .logo-row{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:30px}
-  .logo-slot{width:170px;height:78px;border:1px dashed #c4cfe4;border-radius:12px;display:grid;place-items:center;color:#94a1c0;font-size:13px;font-weight:600;background:rgba(255,255,255,.6)}
+  .sponsors{background:transparent;text-align:center}
+  .logo-row{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;align-items:stretch;margin-top:30px}
+  .logo-item{width:170px;min-height:96px;border:1px solid #e6ebf5;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px;background:#fff;box-shadow:0 8px 22px rgba(8,35,107,.06)}
+  .logo-item img{max-height:52px;max-width:130px;width:auto;object-fit:contain}
+  .logo-item span{font-size:11px;color:var(--muted);font-weight:700;text-align:center;line-height:1.2}
+  .logo-slot{width:170px;min-height:96px;border:1px dashed #c4cfe4;border-radius:12px;display:grid;place-items:center;color:#94a1c0;font-size:13px;font-weight:600;background:rgba(255,255,255,.6)}
 
   .band{background:linear-gradient(120deg,var(--gold),var(--gold-2));color:#3a2c00;text-align:center}
   .band h2{font-size:clamp(28px,4vw,44px);font-weight:900}
@@ -386,9 +403,7 @@
       </div>
     </div>
   </div>
-  <div class="flagstrip">
-    <span>🇸🇪</span><span>🇧🇷</span><span>🇳🇬</span><span>🇰🇿</span><span>🇰🇬</span><span>🇺🇾</span><span>🇦🇱</span><span>🇺🇦</span><span>🇹🇿</span><span>🇦🇿</span><span>🇫🇷</span><span>🇪🇸</span><span>🇵🇹</span><span>🇲🇦</span><span>🇨🇴</span><span>🇯🇵</span>
-  </div>
+  <div class="flagstrip" aria-hidden="true"><div class="flag-track" id="flagTrack"></div></div>
 </section>
 
 <!-- STATS -->
@@ -470,24 +485,6 @@
   </div>
 </section>
 
-<!-- CHAMPIONS -->
-<section class="champs js-collapse" id="champions">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow" data-en="Hall of champions" data-sv="Mästargalleri">Hall of champions</span>
-      <h2 data-en="Four years. Four nations lifted the cup." data-sv="Fyra år. Fyra nationer har lyft bucklan.">Four years. Four nations lifted the cup.</h2>
-      <p data-en="Born in 2022, the Stockholm Cup of Nations has grown from 16 to 32 nations — a tribute to the city's multicultural spirit." data-sv="Stockholm Cup of Nations startade 2022 och har vuxit från 16 till 32 nationer — en hyllning till stadens mångkulturella själ.">Born in 2022, the Stockholm Cup of Nations has grown from 16 to 32 nations — a tribute to the city's multicultural spirit.</p>
-    </div>
-    <div class="grid">
-      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag">🇦🇱</div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag">🇺🇦</div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag">🇹🇿</div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2025 · Östermalms IP</div><div class="flag">🇺🇾</div><div class="win">Uruguay</div><div class="venue" data-en="32 nations" data-sv="32 nationer">32 nations</div><div class="cup">🏆</div></div>
-    </div>
-    <p style="text-align:center;margin-top:26px;color:var(--muted);font-size:14px" data-en="Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan" data-sv="Med sedan start: 🇸🇪 Sverige · 🇧🇷 Brasilien · 🇳🇬 Nigeria · 🇰🇿 Kazakstan · 🇰🇬 Kirgizistan">Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan</p>
-  </div>
-</section>
-
 <!-- GALLERY -->
 <section class="gallery js-collapse" id="gallery" data-collapsed>
   <div class="wrap">
@@ -531,14 +528,22 @@
   </div>
 </section>
 
-<!-- RESULTS ARCHIVE (past editions only) -->
-<section class="live js-collapse" id="results" data-collapsed>
+<!-- PAST EDITIONS: champions + full results archive (merged) -->
+<section class="live js-collapse" id="results">
   <div class="wrap">
     <div class="sec-head">
-      <span class="eyebrow" data-en="Results archive" data-sv="Resultatarkiv">Results archive</span>
+      <span class="eyebrow" data-en="Champions &amp; archive" data-sv="Mästare &amp; arkiv">Champions &amp; archive</span>
       <h2 data-en="Past editions" data-sv="Tidigare upplagor">Past editions</h2>
-      <p data-en="Every group and the full knockout stage, 2022–2025. Pick a year." data-sv="Alla grupper och hela slutspelet, 2022–2025. Välj ett år.">Every group and the full knockout stage, 2022–2025. Pick a year.</p>
+      <p data-en="Four years, four champions — and every group and knockout result since 2022." data-sv="Fyra år, fyra mästare — och alla grupper och slutspel sedan 2022.">Four years, four champions — and every group and knockout result since 2022.</p>
     </div>
+    <div class="grid champ-grid">
+      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag">🇦🇱</div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag">🇺🇦</div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag">🇹🇿</div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2025 · Östermalms IP</div><div class="flag">🇺🇾</div><div class="win">Uruguay</div><div class="venue" data-en="32 nations" data-sv="32 nationer">32 nations</div><div class="cup">🏆</div></div>
+    </div>
+    <p class="everpresent" data-en="Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan" data-sv="Med sedan start: 🇸🇪 Sverige · 🇧🇷 Brasilien · 🇳🇬 Nigeria · 🇰🇿 Kazakstan · 🇰🇬 Kirgizistan">Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan</p>
+    <div class="archive-divider"><span data-en="Browse every result" data-sv="Bläddra bland alla resultat">Browse every result</span></div>
     <div class="year-tabs" id="yearTabs">
       <button class="year-tab" type="button" data-year="2025">2025</button>
       <button class="year-tab" type="button" data-year="2024">2024</button>
@@ -593,9 +598,9 @@
       <img loading="lazy" src="img/korpen.png" alt="Korpen" />
     </div>
     <div class="logo-row">
-      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
-      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
-      <div class="logo-slot" data-en="Your logo" data-sv="Din logga">Your logo</div>
+      <div class="logo-item"><img loading="lazy" src="img/academy-logo.png" alt="Stockholm United Sport Academy" /><span data-en="Organiser" data-sv="Arrangör">Organiser</span></div>
+      <div class="logo-item"><img loading="lazy" src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" /><span>Stockholm Cup of Nations</span></div>
+      <div class="logo-slot" data-en="Your logo here" data-sv="Din logga här">Your logo here</div>
     </div>
     <a href="mailto:info@stockholmcupofnations.eu" class="btn btn-gold" style="margin-top:30px" data-en="Become a partner" data-sv="Bli partner">Become a partner</a>
   </div>
@@ -968,6 +973,15 @@
       window.location.href='mailto:info@stockholmcupofnations.eu?subject='+subject+'&body='+body;
     });
   }
+
+  /* ---- Infinite flag marquee (all nations, all-time) ---- */
+  function renderFlagMarquee(){
+    const track=document.getElementById('flagTrack'); if(!track) return;
+    const flags = ALL_NATIONS.map(([code])=> (NATIONS[code]&&NATIONS[code][0]) || '🏳️');
+    const one = flags.map(f=>'<span>'+f+'</span>').join('');
+    track.innerHTML = one + one;   // duplicated so the -50% scroll loops seamlessly
+  }
+  renderFlagMarquee();
 
   /* ---- Collapsible sections (minimise / maximise) ---- */
   function setupCollapsibles(){
