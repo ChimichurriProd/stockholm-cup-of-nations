@@ -13,5 +13,5 @@ window.SCON_SUPABASE = {
   url:         "https://mwempjsaylynnyzqdtno.supabase.co",
   anonKey:     "sb_publishable_D9RvjAByxZUld9C4WwfqVA_zTQzx4Kc",
   year:        2026,
-  portalEmail: "chimichurriprod@gmail.com"
+  portalEmail: "pin@stockholmcupofnations.se"
 };
