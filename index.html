@@ -261,21 +261,26 @@
   @media(max-width:560px){.groups-grid{grid-template-columns:1fr}.bracket{grid-template-columns:1fr}}
   /* all-time nations */
   .nations{background:transparent}
-  .nations .big46{font-size:clamp(52px,10vw,96px);font-weight:900;line-height:1;color:var(--blue);text-align:center;letter-spacing:-.03em}
-  .nations .big46 small{display:block;font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-top:8px}
-  .nations-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
-  .nat-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e6ebf5;border-radius:12px;padding:12px 14px;box-shadow:0 6px 16px rgba(8,35,107,.05)}
-  .nat-card .fl{font-size:26px;line-height:1;flex:0 0 auto}
+  .nations .big46{font-size:clamp(36px,6vw,56px);font-weight:900;line-height:1;color:var(--blue);text-align:center;letter-spacing:-.03em}
+  .nations .big46 small{display:block;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);margin-top:6px}
+  .nations-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:22px}
+  .nat-card{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e6ebf5;border-radius:10px;padding:7px 9px;box-shadow:0 4px 10px rgba(8,35,107,.04)}
+  .nat-card .fl{font-size:19px;line-height:1;flex:0 0 auto}
   .nat-card .info{min-width:0}
-  .nat-card .nm{font-weight:800;color:var(--navy);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .nat-card .yrs{font-size:11.5px;color:var(--muted);margin-top:1px}
-  .nat-card .cnt{margin-left:auto;flex:0 0 auto;background:var(--navy);color:#fff;font-weight:900;font-size:12px;min-width:24px;height:24px;padding:0 6px;border-radius:999px;display:grid;place-items:center}
+  .nat-card .nm{font-weight:800;color:var(--navy);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nat-card .yrs{font-size:9.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nat-card .cnt{margin-left:auto;flex:0 0 auto;background:var(--navy);color:#fff;font-weight:900;font-size:10.5px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;display:grid;place-items:center}
   .nat-card.multi .cnt{background:linear-gradient(180deg,var(--gold-2),var(--gold));color:#3a2c00}
   .nat-card,.champ{transition:transform .18s ease, box-shadow .18s ease}
   .nat-card:hover,.champ:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(8,35,107,.13)}
-  @media(max-width:1000px){.nations-grid{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:680px){.nations-grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:430px){.nations-grid{grid-template-columns:1fr}}
+  /* grayed-out "coming soon" state for live sections until data is pushed from the portal */
+  section.soon .sec-head{opacity:.5;filter:grayscale(1)}
+  .soon-box{border:2px dashed #ccd6ea;background:#f4f7fc;color:var(--muted);border-radius:16px;padding:28px 20px;text-align:center;font-weight:600;font-size:15px;line-height:1.55}
+  .soon-box b{color:var(--navy)}
+  section:not(.soon) .soon-box{display:none}
+  @media(max-width:1100px){.nations-grid{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:760px){.nations-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:520px){.nations-grid{grid-template-columns:repeat(2,1fr)}}
   /* featured partner */
   .partner-featured{max-width:520px;margin:0 auto 24px;background:#fff;border:2px solid var(--gold);border-radius:16px;padding:22px 26px;text-align:center;box-shadow:0 16px 40px rgba(8,35,107,.12)}
   .partner-featured .tag{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:12px}
@@ -485,30 +490,15 @@
   </div>
 </section>
 
-<!-- GALLERY -->
-<section class="gallery js-collapse" id="gallery" data-collapsed>
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow" data-en="The atmosphere" data-sv="Stämningen">The atmosphere</span>
-      <h2 data-en="Built on honor and integrity" data-sv="Byggt på heder och integritet">Built on honor and integrity</h2>
-      <p data-en="Where the world meets in the heart of Stockholm — flags, fans, food and football." data-sv="Där världen möts i hjärtat av Stockholm — flaggor, fans, mat och fotboll.">Where the world meets in the heart of Stockholm — flags, fans, food and football.</p>
-    </div>
-    <div class="gal-grid">
-      <figure><img loading="lazy" src="img/gallery-original.jpg" alt="The Original Stockholm Cup of Nations 2026" /><figcaption data-en="The Original — 2026" data-sv="Originalet — 2026">The Original — 2026</figcaption></figure>
-      <figure><img loading="lazy" src="img/gallery-champions.jpg" alt="Champions celebrating with the trophy" /><figcaption data-en="One goal — all united" data-sv="Ett mål — alla förenade">One goal — all united</figcaption></figure>
-      <figure><img loading="lazy" src="img/gallery-players.jpg" alt="Players at Östermalms IP" /><figcaption data-en="25–26 July · Östermalms IP" data-sv="25–26 juli · Östermalms IP">25–26 July · Östermalms IP</figcaption></figure>
-    </div>
-  </div>
-</section>
-
-<!-- CURRENT TOURNAMENT (live from Supabase, shown only when teams exist) -->
-<section class="live js-collapse" id="live-now" style="display:none">
+<!-- CURRENT TOURNAMENT (live from Supabase; grayed out until teams are pushed from the portal) -->
+<section class="live js-collapse soon" id="live-now">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Current tournament" data-sv="Pågående turnering">Current tournament</span>
       <h2 data-en="Live standings &amp; bracket" data-sv="Tabeller &amp; slutspel">Live standings &amp; bracket</h2>
       <p data-en="Group tables and the knockout tree — updated live during the tournament." data-sv="Grupptabeller och slutspelsträdet — uppdateras live under turneringen.">Group tables and the knockout tree — updated live during the tournament.</p>
     </div>
+    <div class="soon-box" data-en="🔒 The groups &amp; bracket are published here after the official draw — <b>18 July 2026</b>." data-sv="🔒 Grupperna &amp; slutspelsträdet publiceras här efter den officiella lottningen — <b>18 juli 2026</b>.">🔒 The groups &amp; bracket are published here after the official draw — <b>18 July 2026</b>.</div>
     <div id="liveChamp" class="champ-top"></div>
     <div id="liveGroups" class="groups-grid"></div>
     <p class="legend" id="liveNote"></p>
@@ -516,14 +506,15 @@
   </div>
 </section>
 
-<!-- SCHEDULE (from Supabase, shown only when a schedule exists) -->
-<section class="sched-sec js-collapse" id="schedule" style="display:none">
+<!-- SCHEDULE (from Supabase; grayed out until a schedule is pushed from the portal) -->
+<section class="sched-sec js-collapse soon" id="schedule">
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow" data-en="Match schedule" data-sv="Spelschema">Match schedule</span>
       <h2 data-en="Fixtures &amp; kick-off times" data-sv="Matcher &amp; avsparkstider">Fixtures &amp; kick-off times</h2>
       <p data-en="Dates, times and pitches for every match. Check when your nation plays." data-sv="Datum, tider och planer för varje match. Se när din nation spelar.">Dates, times and pitches for every match. Check when your nation plays.</p>
     </div>
+    <div class="soon-box" data-en="🔒 The match schedule is published here after the draw — <b>18 July 2026</b>." data-sv="🔒 Spelschemat publiceras här efter lottningen — <b>18 juli 2026</b>.">🔒 The match schedule is published here after the draw — <b>18 July 2026</b>.</div>
     <div id="pubSchedule"></div>
   </div>
 </section>
@@ -567,6 +558,22 @@
     </div>
     <div class="big46">46<small data-en="Nations all-time" data-sv="Nationer genom åren">Nations all-time</small></div>
     <div id="nationsGrid" class="nations-grid"></div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery js-collapse" id="gallery" data-collapsed>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="The atmosphere" data-sv="Stämningen">The atmosphere</span>
+      <h2 data-en="Built on honor and integrity" data-sv="Byggt på heder och integritet">Built on honor and integrity</h2>
+      <p data-en="Where the world meets in the heart of Stockholm — flags, fans, food and football." data-sv="Där världen möts i hjärtat av Stockholm — flaggor, fans, mat och fotboll.">Where the world meets in the heart of Stockholm — flags, fans, food and football.</p>
+    </div>
+    <div class="gal-grid">
+      <figure><img loading="lazy" src="img/gallery-original.jpg" alt="The Original Stockholm Cup of Nations 2026" /><figcaption data-en="The Original — 2026" data-sv="Originalet — 2026">The Original — 2026</figcaption></figure>
+      <figure><img loading="lazy" src="img/gallery-champions.jpg" alt="Champions celebrating with the trophy" /><figcaption data-en="One goal — all united" data-sv="Ett mål — alla förenade">One goal — all united</figcaption></figure>
+      <figure><img loading="lazy" src="img/gallery-players.jpg" alt="Players at Östermalms IP" /><figcaption data-en="25–26 July · Östermalms IP" data-sv="25–26 juli · Östermalms IP">25–26 July · Östermalms IP</figcaption></figure>
+    </div>
   </div>
 </section>
 
@@ -882,8 +889,8 @@
     const sec=document.getElementById('live-now');
     const grid=document.getElementById('liveGroups'), brk=document.getElementById('liveBracket'), ct=document.getElementById('liveChamp'), note=document.getElementById('liveNote');
     if(!grid||!brk) return;
-    if(!LIVE.teams.length){ if(sec) sec.style.display='none'; return; }
-    if(sec) sec.style.display='';
+    if(!LIVE.teams.length){ if(sec) sec.classList.add('soon'); return; }
+    if(sec) sec.classList.remove('soon');
     const used=['A','B','C','D','E','F','G','H'].filter(g=> LIVE.teams.some(t=>t.group_name===g));
     const finalM=LIVE.matches.filter(m=>m.stage==='F'&&m.status==='finished'&&m.home_score!=null);
     let champ=null;
@@ -928,8 +935,8 @@
     const sec=document.getElementById('schedule'), host=document.getElementById('pubSchedule');
     if(!sec||!host) return;
     const sched=(LIVE.matches||[]).filter(m=>m.sched_date&&m.sched_time);
-    if(!sched.length){ sec.style.display='none'; return; }
-    sec.style.display='';
+    if(!sched.length){ sec.classList.add('soon'); return; }
+    sec.classList.remove('soon');
     const S=LIVE.settings||{};
     const maxP=Math.max(1, (S.pitches|0), ...sched.map(m=>m.pitch||1));
     const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
