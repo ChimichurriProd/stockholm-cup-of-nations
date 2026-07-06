@@ -984,6 +984,7 @@
 
   /* ---- Registration form -> sends an email to the organiser via FormSubmit (mailto as fallback) ---- */
   const REG_EMAIL='info@stockholmcupofnations.eu';
+  const REG_ENDPOINT='5057ab9d0e9ba0a1deb7a6d98f8fcdb0';   // FormSubmit-alias för REG_EMAIL (döljer adressen för bottar)
   const regForm = document.getElementById('regForm');
   if(regForm){
     regForm.addEventListener('submit', async e=>{
@@ -993,7 +994,7 @@
       const btn = regForm.querySelector('button[type="submit"]');
       btn.disabled=true; btn.textContent = sv?'Skickar…':'Sending…';
       try{
-        const r = await fetch('https://formsubmit.co/ajax/'+REG_EMAIL, {
+        const r = await fetch('https://formsubmit.co/ajax/'+REG_ENDPOINT, {
           method:'POST',
           headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
           body: JSON.stringify({
