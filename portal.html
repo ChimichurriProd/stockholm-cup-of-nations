@@ -241,6 +241,7 @@
       <div class="ttl">Arrangörsportal<small>Stockholm Cup of Nations · 25–26 juli <span id="yearLabel"></span> · Östermalms IP</small></div>
       <div class="spacer"></div>
       <span class="whoami" id="whoami"></span>
+      <button class="btn btn-gold btn-sm" id="publishBtn" style="display:none">🌐 Publicera på hemsidan</button>
       <button class="btn btn-ghost btn-sm" id="logoutBtn">Logga ut</button>
     </div>
   </header>
@@ -518,8 +519,27 @@
     normalizeDays();       // alltid exakt två speldagar: 25/7 (grupp) + 26/7 (slutspel)
     await autoAdvance();   // fill knockout placeholders from finished results
     renderTeams(); renderStandings(); renderGroupMatches(); renderOverview();
-    applySettingsToForm(); renderSchedule();
+    applySettingsToForm(); renderSchedule(); renderPublishBtn();
   }
+  // ---- publicering: publika sidan visar turneringen först när SETTINGS.published är satt ----
+  function renderPublishBtn(){
+    const btn=$('#publishBtn'); if(!btn) return;
+    btn.style.display='';
+    if(SETTINGS.published){ btn.className='btn btn-ghost btn-sm'; btn.textContent='🌐 Publicerad ✓'; btn.title='Turneringen visas på hemsidan. Klicka för att dölja den igen.'; }
+    else { btn.className='btn btn-gold btn-sm'; btn.textContent='🌐 Publicera på hemsidan'; btn.title='Hemsidan visar “publiceras snart” tills du klickar här.'; }
+  }
+  $('#publishBtn').addEventListener('click', async ()=>{
+    if(!SETTINGS.published && !(TEAMS.length && MATCHES.length)){ toast('Lotta turneringen först — det finns inget att publicera ännu.', true); return; }
+    const next=!SETTINGS.published;
+    if(!confirm(next
+      ? 'Publicera på hemsidan?\n\nGrupper, tabeller, slutspelsträd och spelschema blir synliga för alla besökare.'
+      : 'Dölj turneringen från hemsidan?\n\nBesökarna ser “publiceras snart” igen tills du publicerar på nytt.')) return;
+    SETTINGS.published=next;
+    const { error }=await sb.from('settings').upsert({ year:YEAR, data:SETTINGS });
+    if(error){ SETTINGS.published=!next; toast(error.message,true); return; }
+    renderPublishBtn();
+    toast(next ? 'Publicerad! Hemsidan visar nu turneringen live.' : 'Dold — hemsidan visar “publiceras snart” igen.');
+  });
   // Datumen är låsta till 25–26 juli; endast start/sluttider tas från sparade inställningar.
   function normalizeDays(){
     const cur = SETTINGS.days || [];

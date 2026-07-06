@@ -908,7 +908,7 @@
     const sec=document.getElementById('live-now');
     const grid=document.getElementById('liveGroups'), brk=document.getElementById('liveBracket'), ct=document.getElementById('liveChamp'), note=document.getElementById('liveNote');
     if(!grid||!brk) return;
-    if(!LIVE.teams.length){ if(sec) sec.classList.add('soon'); return; }
+    if(!LIVE.teams.length || !(LIVE.settings&&LIVE.settings.published)){ if(sec) sec.classList.add('soon'); return; }
     if(sec) sec.classList.remove('soon');
     const used=['A','B','C','D','E','F','G','H'].filter(g=> LIVE.teams.some(t=>t.group_name===g));
     const finalM=LIVE.matches.filter(m=>m.stage==='F'&&m.status==='finished'&&m.home_score!=null);
@@ -954,7 +954,7 @@
     const sec=document.getElementById('schedule'), host=document.getElementById('pubSchedule');
     if(!sec||!host) return;
     const sched=(LIVE.matches||[]).filter(m=>m.sched_date&&m.sched_time);
-    if(!sched.length){ sec.classList.add('soon'); return; }
+    if(!sched.length || !(LIVE.settings&&LIVE.settings.published)){ sec.classList.add('soon'); return; }
     sec.classList.remove('soon');
     const S=LIVE.settings||{};
     const maxP=Math.max(1, (S.pitches|0), ...sched.map(m=>m.pitch||1));
