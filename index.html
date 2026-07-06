@@ -156,6 +156,12 @@
   .about p.story.lead{font-size:19px;font-weight:600;color:var(--navy)}
   .video-wrap{position:relative;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;border:3px solid rgba(244,194,13,.55);box-shadow:0 26px 60px rgba(8,35,107,.25);background:#000}
   .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  .video-poster{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;cursor:pointer;background:#000;display:block}
+  .video-poster img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92}
+  .video-poster .playbtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:rgba(11,70,196,.92);color:#fff;font-size:26px;display:grid;place-items:center;box-shadow:0 12px 30px rgba(0,0,0,.4);transition:transform .15s ease;padding-left:6px}
+  .video-poster:hover .playbtn{transform:translate(-50%,-50%) scale(1.1)}
+  .yt-fallback{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none}
+  .yt-fallback:hover{text-decoration:underline}
   .about-highlights{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
   .hl-card{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #e6ebf5;border-radius:14px;padding:16px 18px}
   .hl-card img.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:top center;flex:0 0 58px;border:2px solid var(--gold);box-shadow:0 6px 16px rgba(8,35,107,.15)}
@@ -335,7 +341,12 @@
     .brand{font-size:13px}
     .brand img{height:38px}
     .hero-inner{grid-template-columns:1fr;gap:30px;padding:42px 22px 56px}
-    .stats .grid,.champs .grid,.gal-grid{grid-template-columns:repeat(2,1fr)}
+    .stats .grid,.champs .grid,.champ-grid,.gal-grid{grid-template-columns:repeat(2,1fr)}
+    .champ-grid{gap:12px}
+    .champ{padding:16px}
+    .champ .flag{font-size:32px;margin:6px 0}
+    .champ .win{font-size:17px}
+    .champ .yr{font-size:11px}
     .reg-card,.food .card,.results-grid,.foot-grid,.about .about-grid,.about-highlights{grid-template-columns:1fr}
     section{padding:56px 0}
     th,td{padding:9px 7px;font-size:13px}
@@ -381,7 +392,7 @@
       <p class="lede" data-en="A grassroots international football tournament uniting the city's cultures on the pitch — 32 nations, five continents, two days of football." data-sv="En internationell gräsrotsturnering i fotboll som förenar stadens kulturer på planen — 32 nationer, fem kontinenter, två dagar av fotboll.">A grassroots international football tournament uniting the city's cultures on the pitch — 32 nations, five continents, two days of football.</p>
 
       <div class="meta-row">
-        <div class="m"><b data-en="25–26 July 2026" data-sv="25–26 juli 2026">25–26 July 2026</b><span>Östermalms IP</span></div>
+        <div class="m"><b data-en="25–26 July 2026" data-sv="25–26 juli 2026">25–26 July 2026</b><span><a href="https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm" target="_blank" rel="noopener" style="color:inherit">Östermalms IP ↗</a></span></div>
         <div class="m"><b data-en="7 v 7" data-sv="7 mot 7">7 v 7</b><span data-en="Format" data-sv="Format">Format</span></div>
         <div class="m"><b>32</b><span data-en="Nations" data-sv="Nationer">Nations</span></div>
       </div>
@@ -452,6 +463,7 @@
       <label data-en="Phone" data-sv="Telefon">Phone</label>
       <input type="tel" name="phone" data-en-ph="+46 ..." data-sv-ph="+46 ..." placeholder="+46 ..." required />
       <button class="btn btn-gold" type="submit" data-en="Submit registration →" data-sv="Skicka anmälan →">Submit registration →</button>
+      <p style="font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5" data-en="The button opens your email app with the registration pre-filled to <b>info@stockholmcupofnations.eu</b> — just press send. Or email us directly at <a href='mailto:info@stockholmcupofnations.eu'>info@stockholmcupofnations.eu</a>." data-sv="Knappen öppnar din e-postapp med anmälan förifylld till <b>info@stockholmcupofnations.eu</b> — tryck bara skicka. Eller mejla oss direkt på <a href='mailto:info@stockholmcupofnations.eu'>info@stockholmcupofnations.eu</a>.">The button opens your email app with the registration pre-filled to <b>info@stockholmcupofnations.eu</b> — just press send. Or email us directly at <a href="mailto:info@stockholmcupofnations.eu">info@stockholmcupofnations.eu</a>.</p>
     </form>
   </div>
 </section>
@@ -483,8 +495,14 @@
           <span data-en="In the heart of Stockholm" data-sv="I hjärtat av Stockholm">In the heart of Stockholm</span>
         </div>
       </div>
-      <div class="video-wrap" id="video">
-        <iframe src="https://www.youtube.com/embed/MbopngPpax4?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=MbopngPpax4&amp;controls=1&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" title="Stockholm Cup of Nations 2026" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <div>
+        <div class="video-wrap" id="video">
+          <button class="video-poster" id="videoPoster" type="button" aria-label="Play video">
+            <img loading="lazy" src="https://i.ytimg.com/vi/MbopngPpax4/hqdefault.jpg" alt="Stockholm Cup of Nations 2026 — video" />
+            <span class="playbtn">▶</span>
+          </button>
+        </div>
+        <a class="yt-fallback" href="https://www.youtube.com/watch?v=MbopngPpax4" target="_blank" rel="noopener" data-en="▶ Watch on YouTube" data-sv="▶ Se på YouTube">▶ Watch on YouTube</a>
       </div>
     </div>
   </div>
@@ -528,10 +546,10 @@
       <p data-en="Four years, four champions — and every group and knockout result since 2022." data-sv="Fyra år, fyra mästare — och alla grupper och slutspel sedan 2022.">Four years, four champions — and every group and knockout result since 2022.</p>
     </div>
     <div class="grid champ-grid">
-      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag">🇦🇱</div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag">🇺🇦</div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag">🇹🇿</div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
       <div class="champ"><div class="yr">2025 · Östermalms IP</div><div class="flag">🇺🇾</div><div class="win">Uruguay</div><div class="venue" data-en="32 nations" data-sv="32 nationer">32 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag">🇹🇿</div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag">🇺🇦</div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag">🇦🇱</div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
     </div>
     <p class="everpresent" data-en="Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan" data-sv="Med sedan start: 🇸🇪 Sverige · 🇧🇷 Brasilien · 🇳🇬 Nigeria · 🇰🇿 Kazakstan · 🇰🇬 Kirgizistan">Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan</p>
     <div class="archive-divider"><span data-en="Browse every result" data-sv="Bläddra bland alla resultat">Browse every result</span></div>
@@ -586,7 +604,7 @@
         <span class="eyebrow" data-en="Food &amp; festival" data-sv="Mat &amp; fest">Food &amp; festival</span>
         <h3 data-en="More than a tournament — a celebration" data-sv="Mer än en turnering — en fest">More than a tournament — a celebration</h3>
         <p data-en="Both days, <b>El Rinconcito Azul</b> serves authentic Salvadoran food made with love. Bring the family, taste the world, and soak up the atmosphere at Östermalms IP." data-sv="Båda dagarna serverar <b>El Rinconcito Azul</b> äkta salvadoransk mat lagad med kärlek. Ta med familjen, smaka på världen och njut av stämningen på Östermalms IP.">Both days, <b>El Rinconcito Azul</b> serves authentic Salvadoran food made with love. Bring the family, taste the world, and soak up the atmosphere at Östermalms IP.</p>
-        <p style="margin-top:14px;color:var(--ink)" data-en="<b>📍 Östermalms IP, Stockholm</b> · Free entry for spectators" data-sv="<b>📍 Östermalms IP, Stockholm</b> · Fri entré för publik"><b>📍 Östermalms IP, Stockholm</b> · Free entry for spectators</p>
+        <p style="margin-top:14px;color:var(--ink)" data-en="<b>📍 <a href='https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm' target='_blank' rel='noopener' style='color:inherit'>Östermalms IP, Stockholm ↗</a></b> · Free entry for spectators" data-sv="<b>📍 <a href='https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm' target='_blank' rel='noopener' style='color:inherit'>Östermalms IP, Stockholm ↗</a></b> · Fri entré för publik"><b>📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm" target="_blank" rel="noopener" style="color:inherit">Östermalms IP, Stockholm ↗</a></b> · Free entry for spectators</p>
       </div>
     </div>
   </div>
@@ -601,8 +619,9 @@
       <p style="color:var(--muted)" data-en="Put your brand in front of thousands of players and fans from across the world. Sponsorship packages available." data-sv="Visa ditt varumärke för tusentals spelare och fans från hela världen. Sponsorpaket finns.">Put your brand in front of thousands of players and fans from across the world. Sponsorship packages available.</p>
     </div>
     <div class="partner-featured">
-      <div class="tag" data-en="Official partner" data-sv="Officiell partner">Official partner</div>
-      <img loading="lazy" src="img/korpen.png" alt="Korpen" />
+      <div class="tag" data-en="Member association" data-sv="Ansluten förening">Member association</div>
+      <img loading="lazy" src="img/korpen.png" alt="Korpen Svenska Motionsidrottsförbundet" />
+      <p style="margin:10px 0 0;font-size:13px;color:var(--muted)" data-en="Stockholm Cup of Nations IF is a member association of Korpen Svenska Motionsidrottsförbundet, part of the Swedish Sports Confederation (RF)." data-sv="Stockholm Cup of Nations IF är en ansluten förening till Korpen Svenska Motionsidrottsförbundet, en del av Riksidrottsförbundet (RF).">Stockholm Cup of Nations IF is a member association of Korpen Svenska Motionsidrottsförbundet, part of the Swedish Sports Confederation (RF).</p>
     </div>
     <div class="logo-row">
       <div class="logo-item"><img loading="lazy" src="img/academy-logo.png" alt="Stockholm United Sport Academy" /><span data-en="Organiser" data-sv="Arrangör">Organiser</span></div>
@@ -650,7 +669,7 @@
       </div>
       <div>
         <h4 data-en="Venue" data-sv="Arena">Venue</h4>
-        <a>Östermalms IP</a>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm" target="_blank" rel="noopener">Östermalms IP ↗</a>
         <a data-en="Stockholm, Sweden" data-sv="Stockholm, Sverige">Stockholm, Sweden</a>
         <a data-en="25–26 July 2026" data-sv="25–26 juli 2026">25–26 July 2026</a>
       </div>
@@ -743,10 +762,10 @@
         ['F',[['URU',3,0,'MEX']]]
       ]},
     '2024':{ champ:'TAN', note:true, groups:[
-        ['A',[['NIC','—',9],['POL','—',7],['TUR','—',3],['KGZ','—',0]]],
-        ['B',[['UZB','—',7],['TAN','—',6],['UKR','—',4],['ERI','—',0]]],
-        ['C',[['MEX','—',9],['KAZ','—',6],['GEO','—',3],['SEN','—',0]]],
-        ['D',[['BRA','—',9],['SWE','—',6],['NIG','—',3],['AZE','—',0]]]
+        ['A',[['NIC','17-4',9],['POL','15-3',7],['TUR','3-6',3],['KGZ','1-23',0]]],
+        ['B',[['UZB','8-1',7],['TAN','11-8',6],['UKR','6-5',4],['ERI','2-13',0]]],
+        ['C',[['MEX','14-4',9],['KAZ','12-3',6],['GEO','6-14',3],['SEN','4-15',0]]],
+        ['D',[['BRA','12-7',9],['SWE','4-5',6],['NIG','6-7',3],['AZE','2-5',0]]]
       ], ko:[
         ['QF',[['MEX',2,2,'SWE','4-3'],['BRA',3,1,'KAZ'],['NIC',0,3,'TAN'],['UZB',4,3,'POL']]],
         ['SF',[['BRA',1,2,'TAN'],['MEX',0,5,'UZB']]],
@@ -796,7 +815,7 @@
     const note=document.getElementById('archiveNote');
     if(note){
       note.innerHTML = data.note
-        ? (l==='sv'?'🔵 Topp 2 gick vidare · ⚠️ De officiella grupptabellerna för 2024 hade felaktiga målsiffror (kopierade från 2022); placeringar, slutspel och mästare stämmer.':'🔵 Top 2 advanced · ⚠️ The official 2024 group tables had incorrect goal figures (duplicated from 2022); positions, knockout and champion are correct.')
+        ? (l==='sv'?'🔵 Topp 2 gick vidare · Målsiffror enligt den officiella slutgrafiken 2024.':'🔵 Top 2 advanced · Goal figures per the official 2024 results graphic.')
         : (l==='sv'?'🔵 Topp 2 gick vidare till slutspel':'🔵 Top 2 advanced to the knockout stage');
     }
     brk.innerHTML=data.ko.map(([key,matches])=>
@@ -978,6 +997,15 @@
         (sv?'Telefon: ':'Phone: ')+(d.get('phone')||'')
       );
       window.location.href='mailto:info@stockholmcupofnations.eu?subject='+subject+'&body='+body;
+    });
+  }
+
+  /* ---- Video: click-to-play (avoids broken autoplay embeds; loads YouTube only on demand) ---- */
+  const vPoster=document.getElementById('videoPoster');
+  if(vPoster){
+    vPoster.addEventListener('click', ()=>{
+      const wrap=vPoster.closest('.video-wrap');
+      wrap.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/MbopngPpax4?autoplay=1&rel=0&playsinline=1" title="Stockholm Cup of Nations 2026" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>';
     });
   }
 
