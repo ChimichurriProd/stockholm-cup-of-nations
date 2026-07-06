@@ -220,21 +220,16 @@
   <form class="login-card" id="loginForm">
     <img src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" onerror="this.style.display='none'" />
     <h1>Arrangörsportal</h1>
-    <p>Logga in för att hantera lag och resultat för Stockholm Cup of Nations.</p>
+    <p>Ange PIN-koden för att hantera lag och resultat.</p>
     <div class="field">
-      <label for="email">E-post</label>
-      <input type="email" id="email" autocomplete="username" required />
-    </div>
-    <div class="field">
-      <label for="password">Lösenord</label>
-      <input type="password" id="password" autocomplete="current-password" required />
+      <label for="pin">PIN-kod</label>
+      <input type="password" id="pin" inputmode="numeric" autocomplete="current-password" placeholder="••••••" required style="text-align:center;font-size:1.4rem;letter-spacing:.4em" />
     </div>
     <button class="btn btn-blue" type="submit" id="loginBtn">Logga in</button>
     <div class="msg" id="loginMsg"></div>
     <div class="demo-sep"><span>eller</span></div>
     <button class="btn btn-ghost-blue" type="button" id="demoBtn" style="width:100%">🧪 Testa utan inloggning</button>
     <p style="font-size:.75rem;color:var(--muted);margin:10px 0 0">I demoläget kan du prova allt fritt — inget sparas i databasen.</p>
-    <p style="font-size:.72rem;color:var(--muted);margin:14px 0 0">Annat format än 32 lag? <a href="portal-avancerad.html">Avancerad portal</a></p>
   </form>
 </div>
 
@@ -246,7 +241,6 @@
       <div class="ttl">Arrangörsportal<small>Stockholm Cup of Nations · 25–26 juli <span id="yearLabel"></span> · Östermalms IP</small></div>
       <div class="spacer"></div>
       <span class="whoami" id="whoami"></span>
-      <a class="btn btn-ghost btn-sm" href="portal-avancerad.html" style="text-decoration:none" title="Skapa egna turneringar med alla inställningar">⚙️ Avancerat läge</a>
       <button class="btn btn-ghost btn-sm" id="logoutBtn">Logga ut</button>
     </div>
   </header>
@@ -396,6 +390,7 @@
   const YEAR = cfg.year || 2026;
   const GROUPS = ['A','B','C','D','E','F','G','H'];
   const NUM_TEAMS = 32;                                   // fast format: 32 lag, 8 grupper à 4, topp 2 vidare
+  const PORTAL_EMAIL = cfg.portalEmail || 'chimichurriprod@gmail.com';   // fast konto bakom PIN-inloggningen
   const DAY1 = YEAR+'-07-25', DAY2 = YEAR+'-07-26';        // lör: gruppspel · sön: slutspel (Östermalms IP)
   const STAGE_NAMES = { R16:'Åttondelsfinaler', QF:'Kvartsfinaler', SF:'Semifinaler', F:'Final' };
   const $ = s => document.querySelector(s);
@@ -442,9 +437,9 @@
     e.preventDefault();
     const btn=$('#loginBtn'), msg=$('#loginMsg');
     btn.disabled=true; btn.textContent='Loggar in…'; msg.className='msg';
-    const { error } = await sb.auth.signInWithPassword({ email:$('#email').value.trim(), password:$('#password').value });
+    const { error } = await sb.auth.signInWithPassword({ email:PORTAL_EMAIL, password:$('#pin').value });
     btn.disabled=false; btn.textContent='Logga in';
-    if(error){ msg.className='msg err'; msg.textContent = error.message.includes('Invalid')?'Fel e-post eller lösenord.':error.message; }
+    if(error){ msg.className='msg err'; msg.textContent = error.message.includes('Invalid')?'Fel PIN-kod. Försök igen.':error.message; }
   });
   $('#logoutBtn').addEventListener('click', async ()=>{
     if(DEMO){ DEMO=false; sb=realClient; $('#demoBanner').style.display='none'; showLogin(); return; }
@@ -505,7 +500,7 @@
   function showLogin(){ $('#app').style.display='none'; $('#login').style.display='grid'; }
   async function showApp(session){
     $('#login').style.display='none'; $('#app').style.display='block';
-    $('#whoami').textContent = session.user.email;
+    $('#whoami').textContent = session.user.email===PORTAL_EMAIL ? 'Inloggad arrangör' : session.user.email;
     await loadAll();
   }
 
