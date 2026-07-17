@@ -420,7 +420,7 @@
           <div class="u"><b id="m">—</b><span data-en="Min" data-sv="Min">Min</span></div>
           <div class="u"><b id="s">—</b><span data-en="Sec" data-sv="Sek">Sec</span></div>
         </div>
-        <div class="draw" data-en="🎲 Official group draw — 18 July 2026" data-sv="🎲 Officiell gruppdragning — 18 juli 2026">🎲 Official group draw — 18 July 2026</div>
+        <div class="draw" data-en="🎲 Official group draw — 23 July 2026" data-sv="🎲 Officiell gruppdragning — 23 juli 2026">🎲 Official group draw — 23 July 2026</div>
       </div>
     </div>
   </div>
@@ -521,7 +521,7 @@
       <h2 data-en="Live standings &amp; bracket" data-sv="Tabeller &amp; slutspel">Live standings &amp; bracket</h2>
       <p data-en="Group tables and the knockout tree — updated live during the tournament." data-sv="Grupptabeller och slutspelsträdet — uppdateras live under turneringen.">Group tables and the knockout tree — updated live during the tournament.</p>
     </div>
-    <div class="soon-box" data-en="🔒 The groups &amp; bracket are published here after the official draw — <b>18 July 2026</b>." data-sv="🔒 Grupperna &amp; slutspelsträdet publiceras här efter den officiella lottningen — <b>18 juli 2026</b>.">🔒 The groups &amp; bracket are published here after the official draw — <b>18 July 2026</b>.</div>
+    <div class="soon-box" data-en="🔒 The groups &amp; bracket are published here after the official draw — <b>23 July 2026</b>." data-sv="🔒 Grupperna &amp; slutspelsträdet publiceras här efter den officiella lottningen — <b>23 juli 2026</b>.">🔒 The groups &amp; bracket are published here after the official draw — <b>23 July 2026</b>.</div>
     <div id="liveChamp" class="champ-top"></div>
     <div id="liveGroups" class="groups-grid"></div>
     <p class="legend" id="liveNote"></p>
@@ -537,7 +537,7 @@
       <h2 data-en="Fixtures &amp; kick-off times" data-sv="Matcher &amp; avsparkstider">Fixtures &amp; kick-off times</h2>
       <p data-en="Dates, times and pitches for every match. Check when your nation plays." data-sv="Datum, tider och planer för varje match. Se när din nation spelar.">Dates, times and pitches for every match. Check when your nation plays.</p>
     </div>
-    <div class="soon-box" data-en="🔒 The match schedule is published here after the draw — <b>18 July 2026</b>." data-sv="🔒 Spelschemat publiceras här efter lottningen — <b>18 juli 2026</b>.">🔒 The match schedule is published here after the draw — <b>18 July 2026</b>.</div>
+    <div class="soon-box" data-en="🔒 The match schedule is published here after the draw — <b>23 July 2026</b>." data-sv="🔒 Spelschemat publiceras här efter lottningen — <b>23 juli 2026</b>.">🔒 The match schedule is published here after the draw — <b>23 July 2026</b>.</div>
     <div id="pubSchedule"></div>
   </div>
 </section>
@@ -878,7 +878,7 @@
 
   /* ---- Live tournament (from Supabase) ---- */
   // Tabeller & schema visas tidigast på lottningsdagen — även om portalen redan publicerat.
-  const PUBLISH_EARLIEST = new Date('2026-07-18T00:00:00+02:00');
+  const PUBLISH_EARLIEST = new Date('2026-07-23T00:00:00+02:00');
   const liveVisible = () => (LIVE.settings && LIVE.settings.published) && new Date() >= PUBLISH_EARLIEST;
   const liveTeam = id => LIVE.teams.find(t=>t.id===id);
   function liveLabel(t){ return t ? ((t.flag?t.flag+' ':'')+esc(t.name)) : '—'; }

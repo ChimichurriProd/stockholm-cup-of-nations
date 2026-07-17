@@ -532,7 +532,7 @@
     if(!SETTINGS.published && !(TEAMS.length && MATCHES.length)){ toast('Lotta turneringen först — det finns inget att publicera ännu.', true); return; }
     const next=!SETTINGS.published;
     if(!confirm(next
-      ? 'Publicera på hemsidan?\n\nGrupper, tabeller, slutspelsträd och spelschema blir synliga för alla besökare.\n\n(Obs: hemsidan visar turneringen tidigast lördag 18 juli — lottningsdagen. Publicerar du innan dess tänds den automatiskt den 18:e.)'
+      ? 'Publicera på hemsidan?\n\nGrupper, tabeller, slutspelsträd och spelschema blir synliga för alla besökare.\n\n(Obs: hemsidan visar turneringen tidigast torsdag 23 juli — lottningsdagen. Publicerar du innan dess tänds den automatiskt den 23:e.)'
       : 'Dölj turneringen från hemsidan?\n\nBesökarna ser “publiceras snart” igen tills du publicerar på nytt.')) return;
     SETTINGS.published=next;
     const { error }=await sb.from('settings').upsert({ year:YEAR, data:SETTINGS });
