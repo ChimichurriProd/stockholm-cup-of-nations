@@ -149,6 +149,15 @@
   .reg-form input:focus{outline:none;border-color:var(--blue)}
   .reg-form .btn{width:100%;justify-content:center;margin-top:20px}
   .pricetag{display:inline-flex;gap:8px;align-items:baseline;background:var(--gold);color:#3a2c00;padding:6px 14px;border-radius:999px;font-weight:900;font-size:14px;margin-bottom:8px}
+  /* registration closed / full banner */
+  .full-banner{position:relative;overflow:hidden;background:linear-gradient(135deg,#b3141a,#e0303c);color:#fff;border-radius:var(--radius);padding:clamp(30px,5vw,48px) clamp(22px,4vw,44px);text-align:center;box-shadow:0 30px 60px rgba(179,20,26,.32);border:2px solid rgba(255,255,255,.16)}
+  .full-banner::before{content:"";position:absolute;inset:0;background:var(--tex);opacity:.5;pointer-events:none}
+  .full-banner>*{position:relative}
+  .full-banner .fb-badge{display:inline-flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:7px 15px;border-radius:999px;margin-bottom:16px}
+  .full-banner h3{font-size:clamp(24px,3.6vw,34px);font-weight:900;line-height:1.12;margin:0 0 12px}
+  .full-banner p{font-size:15.5px;line-height:1.6;color:rgba(255,255,255,.94);max-width:460px;margin:0 auto}
+  .full-banner .btn{margin-top:24px;background:#fff;color:#b3141a}
+  .full-banner .btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.25)}
 
   /* about / om oss */
   .about .about-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}
@@ -360,6 +369,19 @@
     .stats .grid{grid-template-columns:1fr 1fr}
     .brand span{font-size:12px}
   }
+
+  /* ---- Format section ---- */
+  .fmt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:34px}
+  .fmt-card{background:var(--paper);border:1px solid #e6ebf5;border-radius:16px;padding:22px 20px;text-align:center}
+  .fmt-card b{font-family:"Sora","Inter",system-ui,sans-serif;display:block;font-size:clamp(24px,3.4vw,32px);font-weight:900;color:var(--navy);line-height:1.05}
+  .fmt-card span{display:block;margin-top:8px;font-size:13px;color:var(--muted);line-height:1.4}
+  .fmt-days{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .fmt-day{position:relative;border-radius:18px;padding:26px 24px;color:#fff;background:linear-gradient(150deg,var(--navy),var(--blue));box-shadow:0 20px 44px rgba(8,35,107,.18);overflow:hidden}
+  .fmt-day .tag{display:inline-block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--gold-2);margin-bottom:6px}
+  .fmt-day h3{font-family:"Sora","Inter",system-ui,sans-serif;font-size:22px;font-weight:900;margin:0 0 10px}
+  .fmt-day p{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.86);margin:0}
+  .fmt-day .step{margin-top:14px;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;display:inline-block}
+  @media(max-width:720px){ .fmt-grid{grid-template-columns:1fr 1fr} .fmt-days{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
@@ -373,6 +395,7 @@
     </a>
     <nav class="links">
       <a href="#about" data-en="About" data-sv="Om oss">About</a>
+      <a href="#format" data-en="Format" data-sv="Format">Format</a>
       <a href="#register" data-en="Register" data-sv="Anmälan">Register</a>
       <a href="#results" data-en="Results" data-sv="Resultat">Results</a>
       <a href="#nations" data-en="Nations" data-sv="Nationer">Nations</a>
@@ -441,7 +464,17 @@
 
 <!-- REGISTER -->
 <section class="reg" id="register">
-  <div class="wrap reg-card">
+  <div class="wrap" style="max-width:820px">
+    <div class="full-banner">
+      <span class="fb-badge" data-en="🔒 Registration closed" data-sv="🔒 Anmälan stängd">🔒 Registration closed</span>
+      <h3 data-en="The tournament is full" data-sv="Turneringen är fullbokad">The tournament is full</h3>
+      <p data-en="All 32 team spots for Stockholm Cup of Nations 2026 are filled. We are no longer accepting new registrations. Thank you to every nation that signed up. See you on the pitch on 25 and 26 July." data-sv="Alla 32 lagplatser till Stockholm Cup of Nations 2026 är fyllda. Vi tar inte längre emot nya anmälningar. Tack till alla nationer som anmält sig. Vi ses på planen 25 och 26 juli.">All 32 team spots for Stockholm Cup of Nations 2026 are filled. We are no longer accepting new registrations. Thank you to every nation that signed up. See you on the pitch on 25 and 26 July.</p>
+      <a href="https://api.whatsapp.com/send?phone=46722012733" class="btn" data-en="💬 Questions? WhatsApp us" data-sv="💬 Frågor? Skriv på WhatsApp">💬 Questions? WhatsApp us</a>
+    </div>
+  </div>
+
+  <!-- Anmälningsformuläret döljs medan turneringen är full. Ta bort style="display:none" nedan för att återöppna anmälan. -->
+  <div class="wrap reg-card" style="display:none" aria-hidden="true">
     <div>
       <span class="eyebrow" data-en="Registration 2026" data-sv="Anmälan 2026">Registration 2026</span>
       <h2 style="font-size:clamp(28px,4vw,40px);font-weight:900;margin:10px 0 6px;color:var(--navy)" data-en="Register your nation" data-sv="Anmäl din nation">Register your nation</h2>
@@ -508,6 +541,37 @@
           </button>
         </div>
         <a class="yt-fallback" href="https://www.youtube.com/watch?v=MbopngPpax4" target="_blank" rel="noopener" data-en="▶ Watch on YouTube" data-sv="▶ Se på YouTube">▶ Watch on YouTube</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMAT / SPELUPPLÄGG -->
+<section class="format js-collapse" id="format">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" data-en="How it works" data-sv="Så funkar det">How it works</span>
+      <h2 data-en="The format" data-sv="Formatet">The format</h2>
+      <p data-en="Fast, non-stop football over two days at Östermalms IP — group stage on Saturday, knockout to the Final on Sunday." data-sv="Snabb fotboll utan uppehåll under två dagar på Östermalms IP — gruppspel på lördag, slutspel till final på söndag.">Fast, non-stop football over two days at Östermalms IP — group stage on Saturday, knockout to the Final on Sunday.</p>
+    </div>
+    <div class="fmt-grid">
+      <div class="fmt-card"><b data-en="7 v 7" data-sv="7 mot 7">7 v 7</b><span data-en="On the pitch — max 16 players per squad" data-sv="På planen — max 16 spelare per lag">On the pitch — max 16 players per squad</span></div>
+      <div class="fmt-card"><b data-en="25 min" data-sv="25 min">25 min</b><span data-en="Per match — one straight period, no half-time break" data-sv="Per match — en rak period, ingen paus">Per match — one straight period, no half-time break</span></div>
+      <div class="fmt-card"><b>32</b><span data-en="Nations in 8 groups of 4 — top 2 advance" data-sv="Nationer i 8 grupper om 4 — topp 2 går vidare">Nations in 8 groups of 4 — top 2 advance</span></div>
+      <div class="fmt-card"><b data-en="2 days" data-sv="2 dagar">2 days</b><span data-en="25–26 July · Östermalms IP, Stockholm" data-sv="25–26 juli · Östermalms IP, Stockholm">25–26 July · Östermalms IP, Stockholm</span></div>
+    </div>
+    <div class="fmt-days">
+      <div class="fmt-day">
+        <span class="tag" data-en="Day 1 · Saturday 25 July" data-sv="Dag 1 · Lördag 25 juli">Day 1 · Saturday 25 July</span>
+        <h3 data-en="Group stage" data-sv="Gruppspel">Group stage</h3>
+        <p data-en="All 32 nations play their group matches. Eight groups of four — the top two from each group advance to Sunday's knockout stage." data-sv="Alla 32 nationer spelar sina gruppmatcher. Åtta grupper om fyra — de två bästa i varje grupp går vidare till söndagens slutspel.">All 32 nations play their group matches. Eight groups of four — the top two from each group advance to Sunday's knockout stage.</p>
+        <span class="step" data-en="16 teams qualify" data-sv="16 lag kvalificerar sig">16 teams qualify</span>
+      </div>
+      <div class="fmt-day">
+        <span class="tag" data-en="Day 2 · Sunday 26 July" data-sv="Dag 2 · Söndag 26 juli">Day 2 · Sunday 26 July</span>
+        <h3 data-en="Knockout to the Final" data-sv="Slutspel till final">Knockout to the Final</h3>
+        <p data-en="Single-elimination all the way: Round of 16 → Quarter-finals → Semi-finals → Final. One nation lifts the cup." data-sv="Utslagsspel hela vägen: åttondelsfinal → kvartsfinal → semifinal → final. En nation lyfter bucklan.">Single-elimination all the way: Round of 16 → Quarter-finals → Semi-finals → Final. One nation lifts the cup.</p>
+        <span class="step" data-en="Round of 16 → Final" data-sv="Åttondelsfinal → final">Round of 16 → Final</span>
       </div>
     </div>
   </div>
@@ -642,8 +706,8 @@
 <section class="band">
   <div class="wrap">
     <h2 data-en="Your nation belongs on the pitch." data-sv="Din nation hör hemma på planen.">Your nation belongs on the pitch.</h2>
-    <p data-en="Registration for Stockholm Cup of Nations 2026 is open." data-sv="Anmälan till Stockholm Cup of Nations 2026 är öppen.">Registration for Stockholm Cup of Nations 2026 is open.</p>
-    <a href="#register" class="btn btn-blue" data-en="Register your team →" data-sv="Anmäl ditt lag →">Register your team →</a>
+    <p data-en="Registration is now closed. All 32 nations are confirmed." data-sv="Anmälan är nu stängd. Alla 32 nationer är klara.">Registration is now closed. All 32 nations are confirmed.</p>
+    <a href="#schedule" class="btn btn-blue" data-en="Follow the tournament →" data-sv="Följ turneringen →">Follow the tournament →</a>
   </div>
 </section>
 
@@ -662,6 +726,7 @@
       <div>
         <h4 data-en="Explore" data-sv="Utforska">Explore</h4>
         <a href="#about" data-en="About us" data-sv="Om oss">About us</a>
+        <a href="#format" data-en="Format" data-sv="Format">Format</a>
         <a href="#register" data-en="Register 2026" data-sv="Anmälan 2026">Register 2026</a>
         <a href="#results" data-en="Results" data-sv="Resultat">Results</a>
         <a href="#nations" data-en="Nations" data-sv="Nationer">Nations</a>
