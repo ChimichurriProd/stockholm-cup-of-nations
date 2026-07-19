@@ -11,7 +11,7 @@
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
 <style>
   :root{
     --blue:#0b46c4;        /* royal crest blue */
@@ -33,7 +33,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{
-    font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:"Instrument Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;
     background-color:var(--paper);
     background-image:
@@ -46,8 +46,9 @@
     background-position:center top, 0 0, 82% 0, 0% 100%;
     background-attachment:scroll, fixed, fixed, fixed;
   }
-  h1,h2,h3,.brand,.stat b,.big46,.count .u b,.champ-top{font-family:"Sora","Inter",system-ui,sans-serif}
-  h1,h2,h3{line-height:1.05;letter-spacing:-.025em}
+  /* Display: Archivo med bredd-axel — expanded svärta = resultattavla/matchaffisch */
+  h1,h2,h3,.brand,.stat b,.big46,.count .u b,.champ-top{font-family:"Archivo","Instrument Sans",system-ui,sans-serif;font-stretch:112%}
+  h1,h2,h3{line-height:1.04;letter-spacing:-.015em}
   a{color:inherit;text-decoration:none}
   img{display:block;max-width:100%}
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
@@ -376,15 +377,125 @@
   /* ---- Format section ---- */
   .fmt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:34px}
   .fmt-card{background:var(--paper);border:1px solid #e6ebf5;border-radius:16px;padding:22px 20px;text-align:center}
-  .fmt-card b{font-family:"Sora","Inter",system-ui,sans-serif;display:block;font-size:clamp(24px,3.4vw,32px);font-weight:900;color:var(--navy);line-height:1.05}
+  .fmt-card b{font-family:"Archivo",system-ui,sans-serif;font-stretch:118%;display:block;font-size:clamp(24px,3.4vw,32px);font-weight:900;color:var(--navy);line-height:1.05}
   .fmt-card span{display:block;margin-top:8px;font-size:13px;color:var(--muted);line-height:1.4}
   .fmt-days{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .fmt-day{position:relative;border-radius:18px;padding:26px 24px;color:#fff;background:linear-gradient(150deg,var(--navy),var(--blue));box-shadow:0 20px 44px rgba(8,35,107,.18);overflow:hidden}
   .fmt-day .tag{display:inline-block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--gold-2);margin-bottom:6px}
-  .fmt-day h3{font-family:"Sora","Inter",system-ui,sans-serif;font-size:22px;font-weight:900;margin:0 0 10px}
+  .fmt-day h3{font-family:"Archivo",system-ui,sans-serif;font-stretch:112%;font-size:22px;font-weight:900;margin:0 0 10px}
   .fmt-day p{font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.86);margin:0}
   .fmt-day .step{margin-top:14px;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;display:inline-block}
   @media(max-width:720px){ .fmt-grid{grid-template-columns:1fr 1fr} .fmt-days{grid-template-columns:1fr} }
+
+  /* ============================================================
+     DESIGNPASS 2026 — "matchdag & resultattavla"
+     Signatur: score bug-etiketter (navy chip + guld mono) och
+     Archivo Expanded för allt som är rubrik eller siffra.
+     Utility-typsnitt: IBM Plex Mono för etiketter/metadata.
+     Lagret ligger sist och vinner därför över tidigare regler.
+     ============================================================ */
+  :root{--radius:14px;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+        --card-line:#d9e1f0;
+        --shadow-1:0 1px 2px rgba(8,35,107,.06),0 8px 20px rgba(8,35,107,.07);
+        --shadow-2:0 2px 4px rgba(8,35,107,.07),0 18px 38px rgba(8,35,107,.10)}
+
+  /* Score bug: sektionsetiketten är sidans återkommande signaturelement */
+  .eyebrow{font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.16em;
+    color:var(--gold);background:var(--navy);display:inline-flex;align-items:center;
+    padding:5px 11px 4px;border-radius:4px;border-left:3px solid var(--gold)}
+  .band .eyebrow{background:var(--navy);color:var(--gold)}
+
+  /* Sektionshuvuden: vänsterställda, redaktionella — inte mall-centrerade */
+  .sec-head{text-align:left;max-width:none;margin:0 0 36px}
+  .sec-head h2{font-weight:900;letter-spacing:-.01em;margin:12px 0 8px}
+  .sec-head p{max-width:640px}
+  .sec-head-toggle{padding-right:52px}
+  .sponsors .sec-head,.band{text-align:center}
+  .sponsors .sec-head p{margin-left:auto;margin-right:auto}
+
+  /* Knappar: kvadratiska, versaler, tavel-typografi i stället för piller */
+  .btn{border-radius:10px;font-family:"Archivo",sans-serif;font-stretch:106%;
+    text-transform:uppercase;letter-spacing:.07em;font-size:13.5px;font-weight:800;padding:15px 26px}
+  .btn-gold{box-shadow:0 3px 0 var(--gold-deep),0 12px 22px rgba(244,194,13,.28)}
+  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--gold-deep),0 16px 28px rgba(244,194,13,.32)}
+  .btn-ghost{background:#fff;border-color:var(--card-line);color:var(--navy)}
+  .btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+  .nav-cta{padding:10px 18px;font-size:12px}
+  .nav-cta.btn-gold{box-shadow:0 6px 14px rgba(244,194,13,.3)}
+  .nav-cta.btn-gold:hover{box-shadow:0 8px 18px rgba(244,194,13,.35)}
+  .lang{border-radius:8px}
+  .lang .lng{border-radius:6px;font-family:var(--mono);font-weight:600;font-size:11.5px}
+
+  /* Kort & paneler: krispa linjer, korta skuggor, stramare radier */
+  .js-collapse > .wrap{border-radius:16px;border-color:var(--card-line);box-shadow:var(--shadow-1);padding:40px 38px}
+  .sec-toggle{border-radius:10px;border-color:var(--card-line);box-shadow:none}
+  .champ,.table-card,.gcard,.hl-card,.sthlm,.reg-form,.food .card,.logo-item,.nat-card,.bm-row,.match,.partner-featured{border-color:var(--card-line)}
+  .champ{border-radius:14px;box-shadow:none}
+  .champ:hover,.nat-card:hover{box-shadow:var(--shadow-2)}
+  .gcard,.table-card{border-radius:12px;box-shadow:var(--shadow-1)}
+  .reg-form{border-radius:14px;box-shadow:var(--shadow-2);border:1px solid var(--card-line)}
+  .reg-form input{border-radius:9px}
+  .food .card{border-radius:14px;box-shadow:var(--shadow-1)}
+  .gal-grid figure{border-radius:12px;box-shadow:var(--shadow-1)}
+  .hero-art img{border-radius:14px;box-shadow:0 24px 54px rgba(6,26,79,.35)}
+  .video-wrap{border-radius:14px}
+  .count-card{border-radius:12px}
+  .count .u{border-radius:8px}
+  .fmt-card{border-radius:12px;border-color:var(--card-line)}
+  .fmt-day{border-radius:14px}
+  .soon-box{border-radius:12px}
+  .full-banner{border-radius:14px}
+
+  /* Hero: affischrubrik + biljettremsa för metadata */
+  .hero h1{font-weight:900;font-stretch:108%;letter-spacing:-.02em;line-height:1.02;
+    font-size:clamp(40px,5.6vw,66px)}
+  .hero p.lede{color:#41507a}
+  .meta-row{gap:0;margin:30px 0 32px;border-top:1px solid #c9d4ea;border-bottom:1px solid #c9d4ea}
+  .meta-row .m{padding:14px 26px 14px 0;margin-right:26px;border-right:1px solid #c9d4ea}
+  .meta-row .m:last-child{border-right:0;margin-right:0}
+  .meta-row .m b{font-family:"Archivo",sans-serif;font-stretch:112%;font-size:20px;font-weight:900}
+  .meta-row .m span{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.14em}
+  .motto{border-left:3px solid var(--gold);font-size:14px}
+
+  /* Siffror är innehåll: tavel-typografi för countdown, statistik, format */
+  .count .u b{font-stretch:118%;font-size:28px}
+  .count .u span,.draw{font-family:var(--mono)}
+  .count .u span{font-size:9.5px;letter-spacing:.12em}
+  .stat b{font-stretch:120%}
+  .stat span{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  .big46 small{font-family:var(--mono)}
+
+  /* Tabeller & spelschema: mono-huvuden som i ett tryckt spelschema */
+  th,.gcard th,.sched-sec th{font-family:var(--mono);font-weight:600;letter-spacing:.1em}
+  .sched-sec th{font-weight:600}
+  .sched-sec td.time,.bm-row .stage{font-family:var(--mono)}
+  .qualify-note,.legend,.archive-divider,.everpresent{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em}
+  .round h4{font-family:var(--mono);font-weight:600;letter-spacing:.14em}
+  .year-tab{border-radius:9px;font-family:var(--mono);font-weight:600;font-size:13px;padding:8px 16px}
+  .champ-top{border-radius:12px}
+
+  /* Mästarkort: årtal som mono-etikett, vinnare i tavelversaler */
+  .champ .yr{font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.1em;color:var(--blue)}
+  .champ .win{font-family:"Archivo",sans-serif;font-stretch:112%;font-weight:900}
+  .champ::before{background:var(--gold)}
+  .champ .venue{font-size:12.5px}
+
+  /* Etiketter i mörka/övriga kort */
+  .fmt-day .tag,.partner-featured .tag,.count-card h3,.org-badge span,.sthlm span,
+  .fmt-day .step,.pricetag,.table-card .top .pill,.full-banner .fb-badge{font-family:var(--mono);font-weight:600}
+  .fmt-day .step{border-radius:8px}
+  .pricetag{border-radius:8px}
+
+  /* Nav & sidfot: små justeringar, samma stomme */
+  nav.links{font-size:14px;font-weight:600}
+  .brand{font-stretch:110%}
+  footer h4{font-family:var(--mono);font-weight:600;letter-spacing:.14em}
+  .foot-bottom{font-family:var(--mono);font-size:11px}
+
+  @media(max-width:960px){
+    .meta-row .m{padding:12px 16px 12px 0;margin-right:16px}
+    .js-collapse > .wrap{padding:28px 20px}
+  }
 </style>
 </head>
 <body>
