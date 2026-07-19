@@ -80,6 +80,9 @@
   th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
   th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
   td .fl{font-size:1.15rem;margin-right:6px}
+  /* SVG-flaggor: storleken följer textens storlek (1em = radhöjden där flaggan står) */
+  .flagimg{width:1.38em;height:1.05em;object-fit:cover;border-radius:.15em;
+    box-shadow:0 0 0 1px rgba(12,26,58,.14);vertical-align:-.14em;display:inline-block}
   .pill{display:inline-block;font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:999px;background:#eef2fb;color:var(--navy)}
   .pill.live{background:#fde8e6;color:var(--danger)}
   .pill.over{background:#fdecea;color:var(--danger)}
@@ -260,19 +263,26 @@
     <section class="panel active" id="panel-create">
       <div class="card">
         <h2>Turneringsformat</h2>
-        <div class="sub">Fast format för Stockholm Cup of Nations 2026 · 25–26 juli · Östermalms IP.</div>
-        <div class="ov-stats">
-          <div class="ov-stat"><b>32</b><span>lag</span></div>
-          <div class="ov-stat"><b>8 × 4</b><span>grupper</span></div>
-          <div class="ov-stat"><b>Topp 2</b><span>vidare</span></div>
-          <div class="ov-stat"><b>63</b><span>matcher</span></div>
-          <div class="ov-stat"><b>4</b><span>planer</span></div>
+        <div class="sub">Välj hur turneringen ska spelas · 25–26 juli · Östermalms IP. Standard är 32 lag i 8 grupper; backup-varianter finns om ni landar på färre lag. <b>Byter du format måste du lotta om.</b></div>
+        <div class="row" style="align-items:flex-end;gap:14px;flex-wrap:wrap">
+          <div class="field grow" style="min-width:300px"><label>Format</label>
+            <select id="fmtSelect">
+              <option value="g32">32 lag · 8 grupper à 4 · topp 2 vidare</option>
+              <option value="g28">28 lag · 7 grupper à 4 · topp 2 + 2 bästa 3:orna</option>
+              <option value="league">Champions League · en gemensam tabell · topp 16</option>
+            </select>
+          </div>
+          <div class="field" id="leagueTeamsField" style="min-width:120px"><label>Antal lag</label>
+            <input id="fmtLeagueTeams" type="number" min="16" max="32" value="28"></div>
+          <div class="field" id="leagueGamesField" style="min-width:150px"><label>Matcher per lag</label>
+            <input id="fmtLeagueGames" type="number" min="1" max="8" value="3"></div>
         </div>
-        <div class="hint"><b>Lördag 25 juli:</b> gruppspel — 48 matcher. <b>Söndag 26 juli:</b> slutspel — åttondelsfinal → kvartsfinal → semifinal → final (15 matcher). Tider, matchlängd och pauser ställs in under fliken “Spelschema”.</div>
+        <div class="ov-stats" id="fmtStats" style="margin-top:14px"></div>
+        <div class="hint" id="fmtHint"></div>
       </div>
 
       <div class="card">
-        <h2><span class="step">1</span>Lägg till de 32 lagen <span class="pill" id="wzCount">0 / 32</span></h2>
+        <h2><span class="step">1</span>Lägg till lagen <span class="pill" id="wzCount">0 / 32</span></h2>
         <div class="sub">Sök landslag (flagga hämtas automatiskt) eller lägg till egna lag, ett i taget. Du behöver inte fylla alla platser innan du lottar — tomma platser är ok, fyll på senare.</div>
         <div class="combo" id="wzCombo">
           <span class="ico">🔎</span>
@@ -290,7 +300,7 @@
 
       <div class="card">
         <h2><span class="step">2</span>Lotta turneringen</h2>
-        <div class="sub">Delar in de 32 lagen i 8 grupper à 4, skapar alla 48 gruppmatcher, bygger slutspelsträdet (åttondelsfinal → final) och lägger spelschemat. Tomma platser fylls med <b>tillfälliga platshållare</b> (⏳ “Lag N”) så alla grupper blir fulla — lägg till riktiga lag senare så ersätter de platshållarna automatiskt.</div>
+        <div class="sub" id="drawDesc"></div>
         <button class="btn btn-gold" id="drawAllBtn" style="font-size:1rem;padding:13px 22px">🎲 Lotta turneringen</button>
         <div class="hint">Slutspelsträdet skapas med platshållare (“Etta grupp A”, “Vinnare QF-1”…) som fylls i automatiskt när resultaten matas in. Detta skriver över befintliga grupper, matcher och schema.</div>
         <div id="drawResult"></div>
@@ -389,8 +399,23 @@
   "use strict";
   const cfg = window.SCON_SUPABASE || {};
   const YEAR = cfg.year || 2026;
-  const GROUPS = ['A','B','C','D','E','F','G','H'];
-  const NUM_TEAMS = 32;                                   // fast format: 32 lag, 8 grupper à 4, topp 2 vidare
+  const ALL_GROUPS = ['A','B','C','D','E','F','G','H'];
+  // ---- Turneringsformat (väljs i portalen under "Lag & lottning", sparas i settings.format) ----
+  const FORMATS = {
+    g32:    { key:'g32',    kind:'group',  teams:32, groups:8, qual:'two',    label:'32 lag · 8 grupper à 4 · topp 2 vidare',
+              short:'8 grupper à 4', qtext:'topp 2 i varje grupp går vidare (16 lag)' },
+    g28:    { key:'g28',    kind:'group',  teams:28, groups:7, qual:'thirds', label:'28 lag · 7 grupper à 4 · topp 2 + 2 bästa 3:orna',
+              short:'7 grupper à 4', qtext:'topp 2 + de 2 bästa grupptreorna går vidare (16 lag)' },
+    league: { key:'league', kind:'league', qual:'seed16',                     label:'Champions League · en gemensam tabell · topp 16 vidare',
+              short:'en gemensam tabell', qtext:'de 16 bästa i tabellen går vidare' },
+  };
+  function activeFormat(){ return FORMATS[SETTINGS && SETTINGS.format] || FORMATS.g32; }
+  function isLeague(){ return activeFormat().kind==='league'; }
+  function numTeams(){ const f=activeFormat(); return f.kind==='league' ? (+SETTINGS.leagueTeams||28) : f.teams; }
+  function leagueGames(){ return Math.max(1, +SETTINGS.leagueGames||3); }
+  function activeGroups(){ const f=activeFormat(); return f.kind==='league' ? [] : ALL_GROUPS.slice(0,f.groups); }
+  const isPow2 = n => n>0 && (n&(n-1))===0;
+  const nextPow2 = n => { let p=1; while(p<n) p*=2; return p; };
   const PORTAL_EMAIL = cfg.portalEmail || 'chimichurriprod@gmail.com';   // fast konto bakom PIN-inloggningen
   const DAY1 = YEAR+'-07-25', DAY2 = YEAR+'-07-26';        // lör: gruppspel · sön: slutspel (Östermalms IP)
   const STAGE_NAMES = { R16:'Åttondelsfinaler', QF:'Kvartsfinaler', SF:'Semifinaler', F:'Final' };
@@ -426,6 +451,7 @@
   let DEMO = false;
   let TEAMS = [], MATCHES = [];
   const DEFAULT_SETTINGS = {
+    format:'g32', leagueTeams:28, leagueGames:3,          // turneringsformat (g32 = nuvarande standard)
     days: [{ date:DAY1, start:'09:00', end:'18:00' }, { date:DAY2, start:'09:00', end:'18:00' }],
     halves:2, halfMin:10, koHalfMin:10, halftimeMin:2, changeoverMin:5,
     pitches:4, restMin:25, koRestMin:30, breaks:[]
@@ -518,7 +544,7 @@
     if(sRes && !sRes.error && sRes.data && sRes.data.data) SETTINGS = Object.assign({}, DEFAULT_SETTINGS, sRes.data.data);
     normalizeDays();       // alltid exakt två speldagar: 25/7 (grupp) + 26/7 (slutspel)
     await autoAdvance();   // fill knockout placeholders from finished results
-    renderTeams(); renderStandings(); renderGroupMatches(); renderOverview();
+    renderFormatUI(); renderTeams(); renderStandings(); renderGroupMatches(); renderOverview();
     applySettingsToForm(); renderSchedule(); renderPublishBtn();
   }
   // ---- publicering: publika sidan visar turneringen först när SETTINGS.published är satt ----
@@ -550,7 +576,16 @@
     }));
   }
   const teamById = id => TEAMS.find(t=>t.id===id);
-  const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
+  // Flaggor renderas som SVG-bilder (img/flags/svg/) i stället för emojis.
+  // Absolut URL så att bilderna även fungerar i PDF-exportens popup-fönster.
+  const FLAG_BASE = new URL('img/flags/svg/', location.href).href;
+  function flagImg(code, fallback){
+    const c=(code||'').toLowerCase().replace(/[^a-z-]/g,'');
+    if(c) return '<img class="flagimg" src="'+FLAG_BASE+c+'.svg" alt="" onerror="this.remove()">';
+    return fallback ? escapeHtml(fallback) : '';
+  }
+  const teamFlag = t => t ? flagImg(t.code, t.flag||'') : '';
+  const teamLabel = t => t ? (teamFlag(t)+' '+escapeHtml(t.name)) : '—';
 
   // ---------- NATIONS (name + ISO2 for auto flag) ----------
   function flagEmoji(iso2){
@@ -589,7 +624,7 @@
     ['IR','Iran','Iran'],['IQ','Irak','Iraq'],['IE','Irland','Ireland'],
     ['IL','Israel','Israel'],['IT','Italien','Italy'],['JM','Jamaica','Jamaica'],
     ['JP','Japan','Japan'],['JO','Jordanien','Jordan'],['KZ','Kazakstan','Kazakhstan'],
-    ['KE','Kenya','Kenya'],['XK','Kosovo','Kosovo'],['KW','Kuwait','Kuwait'],
+    ['KE','Kenya','Kenya'],['XK','Kosovo','Kosovo'],['KURDISTAN','Kurdistan','Kurdistan'],['KW','Kuwait','Kuwait'],
     ['KG','Kirgizistan','Kyrgyzstan'],['LA','Laos','Laos'],['LV','Lettland','Latvia'],
     ['LB','Libanon','Lebanon'],['LS','Lesotho','Lesotho'],['LR','Liberia','Liberia'],
     ['LY','Libyen','Libya'],['LT','Litauen','Lithuania'],['LU','Luxemburg','Luxembourg'],
@@ -625,7 +660,7 @@
 
   // ---------- TEAMS: searchable nation picker (reusable) ----------
   function normalize(s){ return (s||'').toLowerCase().replace(/[åäà]/g,'a').replace(/[öó]/g,'o').replace(/é/g,'e'); }
-  function teamLimit(){ return NUM_TEAMS; }
+  function teamLimit(){ return numTeams(); }
   const TEMP_FLAG='⏳';
   const isTemp = t => t && t.flag===TEMP_FLAG;
   async function addTeam(rec){
@@ -659,7 +694,7 @@
       active = matches.length ? 0 : -1;
       if(!q){ list.classList.remove('open'); list.innerHTML=''; return; }
       list.innerHTML = matches.length
-        ? matches.map((n,i)=>'<div class="combo-opt'+(i===active?' active':'')+'" data-i="'+i+'"><span class="fl">'+(n.flag||'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
+        ? matches.map((n,i)=>'<div class="combo-opt'+(i===active?' active':'')+'" data-i="'+i+'"><span class="fl">'+flagImg(n.iso,'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
         : '<div class="combo-none">Ingen träff. Prova annat namn (svenska eller engelska).</div>';
       list.classList.add('open');
     }
@@ -681,7 +716,10 @@
     const nameEl=$(nameSel), flagEl=$(flagSel), btn=$(btnSel);
     if(!btn) return;
     const add=async()=>{ const name=(nameEl.value||'').trim(); if(!name){ toast('Skriv ett lagnamn.',true); return; }
-      if(await addTeam({ code:null, name, flag:(flagEl&&flagEl.value.trim())||null })){ nameEl.value=''; if(flagEl) flagEl.value=''; toast(name+' tillagt'); await loadAll(); nameEl.focus(); } };
+      // 'iso:XX' = landsflagga (SVG-bild via code), annars specialsymbol som sparas i flag-fältet
+      const v=(flagEl&&flagEl.value.trim())||'';
+      const rec = v.slice(0,4)==='iso:' ? { code:v.slice(4), name, flag:null } : { code:null, name, flag:v||null };
+      if(await addTeam(rec)){ nameEl.value=''; if(flagEl) flagEl.value=''; toast(name+' tillagt'); await loadAll(); nameEl.focus(); } };
     btn.addEventListener('click', add);
     nameEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
   }
@@ -691,22 +729,22 @@
   function fillFlagSelect(){
     const sel=$('#wzCustomFlag'); if(!sel) return;
     const special=[['','— ingen flagga —'],['🏳️','Vit flagga'],['🏴','Svart flagga'],['🏁','Målflagga'],['🚩','Röd flagga'],['🏳️‍🌈','Regnbågsflagga'],['🏴‍☠️','Piratflagga'],['⚽','Fotboll']];
-    const countries=NATIONS_DB.filter(n=>n.flag).slice().sort((a,b)=>a.sv.localeCompare(b.sv,'sv'));
+    const countries=NATIONS_DB.slice().sort((a,b)=>a.sv.localeCompare(b.sv,'sv'));
     sel.innerHTML =
       '<optgroup label="Special">'+special.map(([v,l])=>'<option value="'+v+'">'+(v?v+' ':'')+l+'</option>').join('')+'</optgroup>'+
-      '<optgroup label="Länder">'+countries.map(n=>'<option value="'+n.flag+'">'+n.flag+' '+escapeHtml(n.sv)+'</option>').join('')+'</optgroup>';
+      '<optgroup label="Länder">'+countries.map(n=>'<option value="iso:'+n.iso+'">'+escapeHtml(n.sv)+'</option>').join('')+'</optgroup>';
   }
   fillFlagSelect();
 
   function renderTeams(){
-    const target = NUM_TEAMS;
+    const target = numTeams();
     document.querySelectorAll('#teamCount,#wzCount').forEach(el=>{ el.textContent = target ? (TEAMS.length+' / '+target) : String(TEAMS.length); el.classList.toggle('over', !!target && TEAMS.length>target); });
-    const opts = g => ['<option value="">— grupp —</option>'].concat(GROUPS.map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
+    const opts = g => ['<option value="">— grupp —</option>'].concat(activeGroups().map(x=>'<option value="'+x+'"'+(g===x?' selected':'')+'>Grupp '+x+'</option>')).join('');
     const anyGroups = TEAMS.some(t=>t.group_name);
     const over = !!target && TEAMS.length>target;
     const filledChip = (t,i) =>
       '<div class="teamchip'+(isTemp(t)?' temp':'')+(over && i>=target?' excess':'')+'" data-id="'+t.id+'">'+
-        '<span class="fl">'+(t.flag||'🏳️')+'</span>'+
+        '<span class="fl">'+flagImg(t.code, t.flag||'🏳️')+'</span>'+
         '<span class="nm">'+escapeHtml(t.name)+'</span>'+
         '<span class="gsel">'+(anyGroups?'<select class="teamGroup">'+opts(t.group_name)+'</select>':'')+
         '<button class="rm delTeam" title="Ta bort">✕</button></span>'+
@@ -753,17 +791,35 @@
   // ================= BRACKET (fast slutspelsträd) =================
   // 8 grupper, topp 2 vidare → 16 lag: R16 korsas 1A–2B, 1B–2C … sedan W-referenser upp till finalen.
   const STAGE_BY_MATCHES = { 8:'R16', 4:'QF', 2:'SF', 1:'F' };
-  function buildBracketPlan(){
-    const G=GROUPS.length;
-    const matches=[]; let prevCodes=[];
-    GROUPS.forEach((g,i)=>{ const code='R16-'+(i+1);
-      matches.push({ code, stage:'R16', home_src:'1'+g, away_src:'2'+GROUPS[(i+1)%G] }); prevCodes.push(code); });
-    let n=G/2;
-    while(n>=1){ const codes=[]; for(let i=0;i<n;i++){ const code=STAGE_BY_MATCHES[n]+'-'+(i+1);
-      matches.push({ code, stage:STAGE_BY_MATCHES[n], home_src:'W:'+prevCodes[2*i], away_src:'W:'+prevCodes[2*i+1] }); codes.push(code); }
-      prevCodes=codes; n=n/2; }
-    return { matches, size:2*G };
+  // Slutspelsträd för gruppformat. mode: 'two' (topp 2) | 'thirds' (topp 2 + bästa 3:orna).
+  function buildBracketPlan(groups, mode){
+    const G=groups.length;
+    const firsts=groups.map(g=>'1'+g), seconds=groups.map(g=>'2'+g);
+    let quals, thirds=0, size;
+    if(mode==='thirds'){ size=nextPow2(2*G); thirds=size-2*G; quals=firsts.concat(seconds); for(let k=1;k<=thirds;k++) quals.push('T'+k); }
+    else { size=2*G; quals=firsts.concat(seconds); }
+    const stageOf=nm=> STAGE_BY_MATCHES[nm] || ('RD'+nm);
+    let roundSrc=[];
+    if(mode!=='thirds' && size===2*G){ for(let i=0;i<G;i++) roundSrc.push([firsts[i], seconds[(i+1)%G]]); }
+    else { for(let i=0;i<size/2;i++) roundSrc.push([quals[i], quals[size-1-i]]); }
+    const matches=[]; let prevCodes=[]; let n=size/2;
+    roundSrc.forEach((pair,i)=>{ const code=stageOf(n)+'-'+(i+1); matches.push({code,stage:stageOf(n),home_src:pair[0],away_src:pair[1]}); prevCodes.push(code); });
+    n=n/2;
+    while(n>=1){ const codes=[]; for(let i=0;i<n;i++){ const code=stageOf(n)+'-'+(i+1);
+      matches.push({code,stage:stageOf(n),home_src:'W:'+prevCodes[2*i],away_src:'W:'+prevCodes[2*i+1]}); codes.push(code); } prevCodes=codes; n=n/2; }
+    return { matches, size };
   }
+  // Slutspelsträd för ligaformat: 16 seedade platser (S1..S16) ur den gemensamma tabellen.
+  const SEED16=[[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
+  function leagueBracketPlan(){
+    const matches=[]; let prev=[];
+    SEED16.forEach((pr,i)=>{ const code='R16-'+(i+1); matches.push({code,stage:'R16',home_src:'S'+pr[0],away_src:'S'+pr[1]}); prev.push(code); });
+    let n=4;
+    while(n>=1){ const codes=[]; for(let i=0;i<n;i++){ const code=STAGE_BY_MATCHES[n]+'-'+(i+1);
+      matches.push({code,stage:STAGE_BY_MATCHES[n],home_src:'W:'+prev[2*i],away_src:'W:'+prev[2*i+1]}); codes.push(code); } prev=codes; n=n/2; }
+    return { matches, size:16 };
+  }
+  function activeBracketPlan(){ return isLeague() ? leagueBracketPlan() : buildBracketPlan(activeGroups(), activeFormat().qual); }
   function winnerOfMatch(m){
     if(!m||!m.home_id||!m.away_id||m.status!=='finished'||m.home_score==null||m.away_score==null) return null;
     if(m.home_score>m.away_score) return m.home_id;
@@ -773,9 +829,15 @@
   }
   function groupFinished(g){ const gm=MATCHES.filter(m=>m.stage==='group'&&m.group_name===g); return gm.length>0 && gm.every(m=>m.status==='finished'); }
   function allGroupsFinished(){ const gs=[...new Set(TEAMS.map(t=>t.group_name).filter(Boolean))]; return gs.length>0 && gs.every(groupFinished); }
+  function leagueFinished(){ const gm=MATCHES.filter(m=>m.stage==='group'); return gm.length>0 && gm.every(m=>m.status==='finished'); }
   function resolveSrcToId(src){
     if(!src) return null;
     if(src[0]==='W'){ const m=MATCHES.find(x=>x.code===src.slice(2)); return m?winnerOfMatch(m):null; }
+    if(src[0]==='S'){ // seed #k i den gemensamma ligatabellen (topp 16 → slutspel)
+      if(!leagueFinished()) return null;
+      const rows=computeStandings(TEAMS);
+      const k=+src.slice(1); return rows[k-1] ? rows[k-1].team.id : null;
+    }
     if(src[0]==='T'){ // best 3rd-placed team #k across all groups
       if(!allGroupsFinished()) return null;
       const gs=[...new Set(TEAMS.map(t=>t.group_name).filter(Boolean))].sort();
@@ -805,21 +867,26 @@
   function srcLabel(src){
     if(!src) return '<span style="color:var(--muted)">?</span>';
     if(src[0]==='W'){ return '<span style="color:var(--muted)">Vinnare '+prettyCode(src.slice(2))+'</span>'; }
+    if(src[0]==='S'){ return '<span style="color:var(--muted)">Plats '+src.slice(1)+' i tabellen</span>'; }
     if(src[0]==='T'){ return '<span style="color:var(--muted)">Bästa 3:a #'+src.slice(1)+'</span>'; }
     const pos=+src[0], g=src.slice(1);
     return '<span style="color:var(--muted)">'+(pos===1?'Etta':pos===2?'Tvåa':pos+':a')+' grupp '+g+'</span>';
   }
   function prettyCode(code){ const p=code.split('-'); const nm={R16:'åttondel',QF:'kvartsfinal',SF:'semifinal',F:'final'}[p[0]]||p[0]; return p[1]?nm+' '+p[1]:nm; }
 
-  // ================= LOTTNING (fast format: 32 lag → 8 grupper à 4) =================
+  // ================= LOTTNING (format väljs under "Lag & lottning") =================
   async function drawWholeTournament(){
-    if(TEAMS.length>NUM_TEAMS){ toast('Du har '+TEAMS.length+' lag — turneringen spelas med '+NUM_TEAMS+'. Ta bort '+(TEAMS.length-NUM_TEAMS)+' lag först.', true); return; }
-    const plan=buildBracketPlan();
-    const need=NUM_TEAMS-TEAMS.length;
-    if(!confirm('Lotta hela turneringen?\n\n'+NUM_TEAMS+' lag'+(need>0?' ('+TEAMS.length+' riktiga + '+need+' platshållare)':'')+' → 8 grupper à 4 → åttondelsfinaler → final.\n\nDetta skriver över nuvarande grupper, matcher och schema.')) return;
+    const N=numTeams(), f=activeFormat();
+    if(TEAMS.length>N){ toast('Du har '+TEAMS.length+' lag — det här formatet spelas med '+N+'. Ta bort '+(TEAMS.length-N)+' lag först.', true); return; }
+    const plan=activeBracketPlan();
+    const need=N-TEAMS.length;
+    const struct = isLeague()
+      ? (N+' lag → en gemensam tabell ('+leagueGames()+' matcher per lag) → topp 16 → åttondelsfinaler → final.')
+      : (N+' lag → '+f.short+' → åttondelsfinaler → final.');
+    if(!confirm('Lotta hela turneringen?\n\n'+(need>0?TEAMS.length+' riktiga + '+need+' platshållare\n':'')+struct+'\n\nDetta skriver över nuvarande grupper, matcher och schema.')) return;
     const res=$('#drawResult'); res.innerHTML='<div class="hint">Lottar…</div>';
     normalizeDays();
-    // 1) pad with temporary placeholder teams up to 32
+    // 1) fyll ut med tillfälliga platshållarlag upp till N
     if(need>0){
       const startN=TEAMS.length, temps=[];
       for(let k=0;k<need;k++) temps.push({ year:YEAR, name:'Lag '+(startN+k+1), flag:TEMP_FLAG, code:null, group_name:null });
@@ -827,20 +894,32 @@
       if(ins.error){ toast(ins.error.message,true); return; }
       const tr=await sb.from('teams').select('*').eq('year',YEAR); TEAMS=tr.data||[];
     }
-    // 2) shuffle + assign groups (A–H, 4 lag per grupp)
+    // 2) blanda lagen slumpmässigt
     const shuffled=[...TEAMS];
     for(let i=shuffled.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
-    await Promise.all(shuffled.map((t,i)=> sb.from('teams').update({ group_name:GROUPS[i%GROUPS.length], sort_order:Math.floor(i/GROUPS.length) }).eq('id',t.id)));
-    // reload teams so group_name is set for match generation
+    const groups=activeGroups();
+    if(isLeague()){
+      // ligaformat: ingen grupp, alla i en gemensam tabell (sort_order = seedordning)
+      await Promise.all(shuffled.map((t,i)=> sb.from('teams').update({ group_name:null, sort_order:i }).eq('id',t.id)));
+    } else {
+      await Promise.all(shuffled.map((t,i)=> sb.from('teams').update({ group_name:groups[i%groups.length], sort_order:Math.floor(i/groups.length) }).eq('id',t.id)));
+    }
+    // ladda om lagen så group_name/sort_order är satta för matchgenereringen
     const tRes=await sb.from('teams').select('*').eq('year',YEAR);
     TEAMS=tRes.data||[];
-    // 3) group matches (round robin, 6 per grupp = 48 matcher)
-    await sb.from('matches').delete().eq('year',YEAR);   // clear all matches (groups + old KO)
-    const gRows=[]; let order=0;
-    GROUPS.forEach(g=>{ const ts=TEAMS.filter(t=>t.group_name===g);
-      for(let i=0;i<ts.length;i++) for(let j=i+1;j<ts.length;j++) gRows.push({ year:YEAR, stage:'group', group_name:g, home_id:ts[i].id, away_id:ts[j].id, status:'scheduled', sort_order:order++ }); });
+    // 3) gruppmatcher (round robin per grupp) ELLER ligamatcher (N omgångar av cirkelmetoden)
+    await sb.from('matches').delete().eq('year',YEAR);   // rensa alla matcher (grupp + gammalt slutspel)
+    let gRows=[]; let order=0;
+    if(isLeague()){
+      const ids=[...TEAMS].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(t=>t.id);
+      circleRounds(ids).slice(0, leagueGames()).forEach(rd=> rd.forEach(([h,a])=>
+        gRows.push({ year:YEAR, stage:'group', group_name:null, home_id:h, away_id:a, status:'scheduled', sort_order:order++ })));
+    } else {
+      groups.forEach(g=>{ const ts=TEAMS.filter(t=>t.group_name===g);
+        for(let i=0;i<ts.length;i++) for(let j=i+1;j<ts.length;j++) gRows.push({ year:YEAR, stage:'group', group_name:g, home_id:ts[i].id, away_id:ts[j].id, status:'scheduled', sort_order:order++ }); });
+    }
     if(gRows.length){ const {error}=await sb.from('matches').insert(gRows); if(error){ toast(error.message,true); return; } }
-    // 4) knockout bracket (placeholders)
+    // 4) slutspelsträd (platshållare)
     const koRows=plan.matches.map((m,i)=>({ year:YEAR, stage:m.stage, code:m.code, home_src:m.home_src, away_src:m.away_src, status:'scheduled', sort_order:i }));
     const koIns=await sb.from('matches').insert(koRows);
     if(koIns.error){ toast(koIns.error.message,true); return; }
@@ -851,12 +930,56 @@
     await Promise.all(MATCHES.map(m=>{ const a=sched.assign[m.id];
       return sb.from('matches').update({ sched_date:a?a.date:null, sched_time:a?a.time:null, pitch:a?a.pitch:null }).eq('id',m.id); }));
     await sb.from('settings').upsert({ year:YEAR, data:SETTINGS });
-    res.innerHTML='<div class="warn ok">✓ Klart! 8 grupper, '+gRows.length+' gruppmatcher, slutspelsträd (16 lag) och spelschema skapade.'+
+    const madeTxt = isLeague()
+      ? ('En gemensam tabell ('+numTeams()+' lag), '+gRows.length+' ligamatcher, slutspelsträd (topp 16) och spelschema skapade.')
+      : (activeGroups().length+' grupper, '+gRows.length+' gruppmatcher, slutspelsträd (16 lag) och spelschema skapade.');
+    res.innerHTML='<div class="warn ok">✓ Klart! '+madeTxt+
       (sched.overflow.length? ' ⚠️ '+sched.overflow.length+' matcher fick inte plats i tiden — justera under Spelschema.':'')+'</div>';
     toast('Turneringen är lottad!');
     await loadAll();
     const gt=document.querySelector('.tab[data-panel="groups"]'); if(gt) gt.click();   // hoppa till översikten
   }
+  // ---- Formatväljare (uppdaterar SETTINGS.format + ligaparametrar, sparas i settings) ----
+  function fmtGroupMatchCount(){
+    if(isLeague()) return Math.floor(numTeams()*leagueGames()/2);
+    const gs=activeGroups().length||1, s=numTeams()/gs;
+    return Math.round(gs*s*(s-1)/2);
+  }
+  function fmtGroupDayCapacity(){
+    const days=SETTINGS.days||[]; const gd=new Set((days.length>1?days.slice(0,-1):days).map(d=>d.date));
+    return makeWaves(SETTINGS, groupMatchMin(SETTINGS)).filter(w=>gd.has(w.date)).length*Math.max(1,SETTINGS.pitches|0);
+  }
+  function renderFormatUI(){
+    const f=activeFormat();
+    const sel=$('#fmtSelect'); if(sel) sel.value=f.key;
+    const lt=$('#fmtLeagueTeams'), lg=$('#fmtLeagueGames');
+    if(lt) lt.value=numTeams(); if(lg) lg.value=leagueGames();
+    const show=isLeague();
+    ['#leagueTeamsField','#leagueGamesField'].forEach(s=>{ const el=$(s); if(el) el.style.display=show?'':'none'; });
+    const gmc=fmtGroupMatchCount(), total=gmc+15;
+    const stat=(n,l)=>'<div class="ov-stat"><b>'+n+'</b><span>'+l+'</span></div>';
+    const struct = isLeague()? stat('1','tabell') : stat(activeGroups().length+' × '+(numTeams()/activeGroups().length),'grupper');
+    const qual = isLeague()? stat('Topp 16','vidare') : stat(f.qual==='thirds'?'Topp 2 + 3:or':'Topp 2','vidare');
+    const st=$('#fmtStats'); if(st) st.innerHTML = stat(numTeams(),'lag')+struct+qual+stat(total,'matcher')+stat(SETTINGS.pitches||4,'planer');
+    const cap=fmtGroupDayCapacity(), dayLabel=isLeague()?'ligafas':'gruppspel';
+    let hint='<b>Lördag 25 juli:</b> '+dayLabel+' — '+gmc+' matcher. <b>Söndag 26 juli:</b> slutspel — 15 matcher (åttondelsfinal → final). '+f.qtext+'. Tider, matchlängd och pauser ställs in under fliken “Spelschema”.';
+    if(cap>0 && gmc>cap) hint='⚠️ '+gmc+' '+dayLabel+'-matcher ryms troligen inte på lördagen (~'+cap+' platser med nuvarande tider och planer). Förläng dag 1 eller lägg till en plan under Spelschema.<br>'+hint;
+    const h=$('#fmtHint'); if(h) h.innerHTML=hint;
+    const d=$('#drawDesc');
+    if(d) d.innerHTML = isLeague()
+      ? ('Lägger '+numTeams()+' lag i en gemensam tabell, skapar '+gmc+' ligamatcher ('+leagueGames()+' per lag), bygger slutspelsträdet (topp 16 → final) och lägger spelschemat. Tomma platser fylls med <b>tillfälliga platshållare</b> (⏳ “Lag N”) — lägg till riktiga lag senare så ersätter de platshållarna automatiskt.')
+      : ('Delar in '+numTeams()+' lag i '+f.short+', skapar alla '+gmc+' gruppmatcher, bygger slutspelsträdet (åttondelsfinal → final) och lägger spelschemat. Tomma platser fylls med <b>tillfälliga platshållare</b> (⏳ “Lag N”) så alla grupper blir fulla — lägg till riktiga lag senare så ersätter de platshållarna automatiskt.');
+  }
+  async function saveFormat(){
+    const sel=$('#fmtSelect'); if(sel) SETTINGS.format=sel.value;
+    SETTINGS.leagueTeams=Math.min(32,Math.max(2,+($('#fmtLeagueTeams')||{}).value||28));
+    SETTINGS.leagueGames=Math.max(1,+($('#fmtLeagueGames')||{}).value||3);
+    renderFormatUI(); renderTeams();
+    try{ await sb.from('settings').upsert({ year:YEAR, data:SETTINGS }); }catch(e){ /* demo/inte inloggad */ }
+  }
+  $('#fmtSelect') && $('#fmtSelect').addEventListener('change', saveFormat);
+  $('#fmtLeagueTeams') && $('#fmtLeagueTeams').addEventListener('change', saveFormat);
+  $('#fmtLeagueGames') && $('#fmtLeagueGames').addEventListener('change', saveFormat);
   $('#drawAllBtn').addEventListener('click', drawWholeTournament);
 
   // ---------- STANDINGS ----------
@@ -873,20 +996,25 @@
       });
     return Object.values(tbl).sort((x,y)=> y.Pts-x.Pts || (y.GF-y.GA)-(x.GF-x.GA) || y.GF-x.GF || x.team.name.localeCompare(y.team.name));
   }
-  function standingsCardHtml(g){
-    const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
-    return '<div class="gcard"><h3>Grupp '+g+'</h3><table class="standings">'+
+  function standingsTableHtml(rows, title, qualifyN){
+    return '<div class="gcard"><h3>'+title+'</h3><table class="standings">'+
       '<colgroup><col class="c-num"><col><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-gf"><col class="c-gd"><col class="c-num"></colgroup>'+
       '<thead><tr>'+
       '<th>#</th><th>Lag</th><th>S</th><th>V</th><th>O</th><th>F</th><th>MÅL</th><th>±</th><th>P</th></tr></thead><tbody>'+
-      rows.map((r,i)=>'<tr class="'+(i<2?'qualify':'')+'"><td>'+(i+1)+'</td>'+
-        '<td><span class="fl">'+(r.team.flag||'')+'</span>'+escapeHtml(r.team.name)+'</td>'+
+      rows.map((r,i)=>'<tr class="'+(i<qualifyN?'qualify':'')+'"><td>'+(i+1)+'</td>'+
+        '<td><span class="fl">'+teamFlag(r.team)+'</span>'+escapeHtml(r.team.name)+'</td>'+
         '<td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td>'+
         '<td>'+r.GF+'-'+r.GA+'</td><td>'+(r.GF-r.GA>0?'+':'')+(r.GF-r.GA)+'</td><td><b>'+r.Pts+'</b></td></tr>').join('')+
       '</tbody></table></div>';
   }
+  function standingsCardHtml(g){ return standingsTableHtml(computeStandings(TEAMS.filter(t=>t.group_name===g)), 'Grupp '+g, 2); }
+  function leagueTableHtml(){ return standingsTableHtml(computeStandings(TEAMS), 'Gemensam tabell · topp 16 vidare', 16); }
   function renderStandings(){
-    const used = GROUPS.filter(g=> TEAMS.some(t=>t.group_name===g));
+    if(isLeague()){
+      if(!TEAMS.length){ $('#standings').innerHTML='<div class="empty">Ingen tabell än. Lotta turneringen under fliken “✨ Lag &amp; lottning”.</div>'; return; }
+      $('#standings').innerHTML = leagueTableHtml(); return;
+    }
+    const used = activeGroups().filter(g=> TEAMS.some(t=>t.group_name===g));
     if(!used.length){ $('#standings').innerHTML='<div class="empty">Inga grupper än. Lotta turneringen under fliken “✨ Lag &amp; lottning”.</div>'; return; }
     $('#standings').innerHTML = used.map(standingsCardHtml).join('');
   }
@@ -897,11 +1025,11 @@
     const st = m.status==='finished'?'<span class="pill done">Klar</span>':m.status==='live'?'<span class="pill live">Live</span>':'<span class="pill sched">Ej spelad</span>';
     const meta = showMeta ? '<span class="matchmeta">'+(m.sched_time||'')+(m.pitch?' · Plan '+m.pitch:'')+(m.group_name?' · Grp '+m.group_name:'')+'</span>' : '';
     return '<div class="match-row" data-id="'+m.id+'">'+meta+
-      '<span class="side"><span class="fl">'+(h&&h.flag||'')+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
+      '<span class="side"><span class="fl">'+teamFlag(h)+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
       '<input class="sc mHome" type="number" min="0" inputmode="numeric" value="'+(m.home_score??'')+'" />'+
       '<span class="dash">–</span>'+
       '<input class="sc mAway" type="number" min="0" inputmode="numeric" value="'+(m.away_score??'')+'" />'+
-      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+(a&&a.flag||'')+'</span></span>'+
+      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+teamFlag(a)+'</span></span>'+
       '<button class="btn btn-blue btn-sm saveScore">Spara</button>'+st+
     '</div>';
   }
@@ -922,8 +1050,10 @@
       }).join('');
     } else {
       const gm=all.filter(m=>m.stage==='group'), ko=all.filter(m=>m.stage!=='group');
-      const used = GROUPS.filter(g=> gm.some(m=>m.group_name===g));
-      let html = used.map(g=> '<div class="stage-block"><h3>Grupp '+g+'</h3>'+ gm.filter(m=>m.group_name===g).map(m=>scoreRow(m,false)).join('') +'</div>').join('');
+      const used = activeGroups().filter(g=> gm.some(m=>m.group_name===g));
+      let html = isLeague()
+        ? '<div class="stage-block"><h3>Ligafas</h3>'+ gm.map(m=>scoreRow(m,false)).join('') +'</div>'
+        : used.map(g=> '<div class="stage-block"><h3>Grupp '+g+'</h3>'+ gm.filter(m=>m.group_name===g).map(m=>scoreRow(m,false)).join('') +'</div>').join('');
       KO_STAGES.filter(s=>ko.some(m=>m.stage===s)).forEach(s=>{ html+='<div class="stage-block"><h3>'+STAGE_NAMES[s]+'</h3>'+ ko.filter(m=>m.stage===s).map(koRow).join('')+'</div>'; });
       $('#groupMatches').innerHTML = html;
     }
@@ -934,8 +1064,8 @@
   function koRow(m){
     const h=teamById(m.home_id), a=teamById(m.away_id);
     const st = m.status==='finished'?'<span class="pill done">Klar</span>':'<span class="pill sched">Ej spelad</span>';
-    const hSide = h ? '<span class="fl">'+(h.flag||'')+'</span>'+escapeHtml(h.name) : srcLabel(m.home_src);
-    const aSide = a ? escapeHtml(a.name)+'<span class="fl">'+(a.flag||'')+'</span>' : srcLabel(m.away_src);
+    const hSide = h ? '<span class="fl">'+teamFlag(h)+'</span>'+escapeHtml(h.name) : srcLabel(m.home_src);
+    const aSide = a ? escapeHtml(a.name)+'<span class="fl">'+teamFlag(a)+'</span>' : srcLabel(m.away_src);
     const ready = h && a;
     const meta = (m.sched_time?m.sched_time+(m.pitch?' · Plan '+m.pitch:''):'')+(m.code?'  ·  '+m.code:'');
     return '<div class="match-row" data-id="'+m.id+'">'+
@@ -954,7 +1084,7 @@
   function koLabel(m, side){
     const id = side==='h'?m.home_id:m.away_id, src = side==='h'?m.home_src:m.away_src;
     const t = teamById(id);
-    return t ? ((t.flag?t.flag+' ':'')+escapeHtml(t.name)) : srcLabel(src);
+    return t ? (teamFlag(t)+' '+escapeHtml(t.name)) : srcLabel(src);
   }
   function bracketReadOnly(){
     const has = KO_STAGES.filter(s=> MATCHES.some(m=>m.stage===s));
@@ -979,8 +1109,10 @@
     const days=[...new Set(sched.map(m=>m.sched_date))];
     const played=MATCHES.filter(m=>m.status==='finished').length;
     const stat=(n,l)=>'<div class="ov-stat"><b>'+n+'</b><span>'+l+'</span></div>';
-    let html='<div class="ov-stats">'+stat(TEAMS.length,'lag')+stat(groups.length,'grupper')+stat(MATCHES.length,'matcher')+stat(played,'spelade')+stat(days.length,'dagar')+'</div>';
-    if(groups.length){ html+='<h3 class="sched-h">Tabeller</h3><div class="grid2">'+groups.map(standingsCardHtml).join('')+'</div>'; }
+    const structStat = isLeague() ? stat(1,'tabell') : stat(groups.length,'grupper');
+    let html='<div class="ov-stats">'+stat(TEAMS.length,'lag')+structStat+stat(MATCHES.length,'matcher')+stat(played,'spelade')+stat(days.length,'dagar')+'</div>';
+    if(isLeague()){ html+='<h3 class="sched-h">Gemensam tabell</h3><div class="grid2">'+leagueTableHtml()+'</div>'; }
+    else if(groups.length){ html+='<h3 class="sched-h">Tabeller</h3><div class="grid2">'+groups.map(standingsCardHtml).join('')+'</div>'; }
     const brk=bracketReadOnly();
     if(brk){ html+='<h3 class="sched-h">Slutspelsträd</h3>'+brk; }
     host.innerHTML=html;
@@ -989,6 +1121,7 @@
   function srcText(src){
     if(!src) return '?';
     if(src[0]==='W') return 'Vinnare '+prettyCode(src.slice(2));
+    if(src[0]==='S') return 'Plats '+src.slice(1)+' i tabellen';
     if(src[0]==='T') return 'Bästa 3:a #'+src.slice(1);
     const pos=+src[0], g=src.slice(1);
     return (pos===1?'Etta':pos===2?'Tvåa':pos+':a')+' grupp '+g;
@@ -998,7 +1131,7 @@
     if(!sched.length){ toast('Inget schema att exportera — lotta turneringen först.', true); return; }
     const maxP=Math.max(SETTINGS.pitches|0, Math.max(1, ...sched.map(m=>m.pitch||1)));
     const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
-    const nm=t=> t?((t.flag?t.flag+' ':'')+escapeHtml(t.name)):'';
+    const nm=t=> t?(teamFlag(t)+' '+escapeHtml(t.name)):'';
     const cell=m=>{
       const h=teamById(m.home_id), a=teamById(m.away_id);
       const tag=m.stage==='group'?'Grupp '+(m.group_name||''):(STAGE_SHORT[m.stage]||m.stage);
@@ -1031,6 +1164,7 @@
       'td.tm,th.tm{width:56px;white-space:nowrap;font-weight:700;color:#08236b}'+
       '.tag{font-size:9px;font-weight:800;color:#5a6b8c;text-transform:uppercase}.mt{margin-top:1px}.sc{color:#0b46c4}'+
       'tr.brk td{background:#fff7e0;color:#7a5c00;font-weight:700;text-align:center}'+
+      '.flagimg{width:15px;height:11px;object-fit:cover;border-radius:2px;vertical-align:-2px;box-shadow:0 0 0 .5px #cdd7ea}'+
       '@media print{body{margin:12mm}h2{page-break-after:avoid}table{page-break-inside:auto}tr{page-break-inside:avoid}}';
     const html='<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>Spelschema '+YEAR+'</title><style>'+css+'</style></head><body>'+
       '<h1>Stockholm Cup of Nations '+YEAR+'</h1><p class="meta">Spelschema · Östermalms IP · '+dates.length+' dag(ar) · '+sched.length+' matcher</p>'+body+
@@ -1085,6 +1219,8 @@
   }
   function orderedGroupMatchRows(){
     const gms=MATCHES.filter(m=>m.stage==='group');
+    // Ligaformat: matcherna är redan lagda i omgångsordning (sort_order) vid lottningen.
+    if(isLeague()) return gms.slice().sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
     const byGroup={}; gms.forEach(m=>{ (byGroup[m.group_name||'?']=byGroup[m.group_name||'?']||[]).push(m); });
     const groups=Object.keys(byGroup).sort();
     const groupRounds={}; let maxR=0;

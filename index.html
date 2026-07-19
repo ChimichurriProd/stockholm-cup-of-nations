@@ -103,6 +103,9 @@
             mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
   .flag-track{display:flex;gap:26px;width:max-content;animation:flagscroll 60s linear infinite}
   .flag-track span{font-size:30px;line-height:1}
+  /* SVG-flaggor: 1em hög = följer alltid textstorleken där flaggan används */
+  .flagimg{width:1.38em;height:1.05em;object-fit:cover;border-radius:.15em;
+    box-shadow:0 0 0 1px rgba(8,35,107,.14);vertical-align:-.14em;display:inline-block}
   .flagstrip:hover .flag-track{animation-play-state:paused}
   @keyframes flagscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @media(prefers-reduced-motion:reduce){.flag-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}}
@@ -404,8 +407,8 @@
       <a href="#register" class="btn btn-gold nav-cta" data-en="Register a team" data-sv="Anmäl lag">Register a team</a>
     </nav>
     <div class="lang" id="langBtn" role="group" aria-label="Language / Språk" title="Switch language / Byt språk">
-      <span class="lng" data-set="en">🇬🇧 EN</span>
-      <span class="lng" data-set="sv">🇸🇪 SV</span>
+      <span class="lng" data-set="en"><img class="flagimg" src="img/flags/svg/gb.svg" alt=""> EN</span>
+      <span class="lng" data-set="sv"><img class="flagimg" src="img/flags/svg/se.svg" alt=""> SV</span>
     </div>
     <span class="burger" role="button" tabindex="0" aria-label="Menu" aria-expanded="false">☰</span>
   </div>
@@ -605,12 +608,12 @@
       <p data-en="Four years, four champions — and every group and knockout result since 2022." data-sv="Fyra år, fyra mästare — och alla grupper och slutspel sedan 2022.">Four years, four champions — and every group and knockout result since 2022.</p>
     </div>
     <div class="grid champ-grid">
-      <div class="champ"><div class="yr">2025 · Östermalms IP</div><div class="flag">🇺🇾</div><div class="win">Uruguay</div><div class="venue" data-en="32 nations" data-sv="32 nationer">32 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag">🇹🇿</div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag">🇺🇦</div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
-      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag">🇦🇱</div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2025 · Östermalms IP</div><div class="flag"><img class="flagimg" src="img/flags/svg/uy.svg" alt="Uruguay"></div><div class="win">Uruguay</div><div class="venue" data-en="32 nations" data-sv="32 nationer">32 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2024 · Hallonbergen</div><div class="flag"><img class="flagimg" src="img/flags/svg/tz.svg" alt="Tanzania"></div><div class="win">Tanzania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2023 · Örvallen</div><div class="flag"><img class="flagimg" src="img/flags/svg/ua.svg" alt="Ukraina"></div><div class="win" data-en="Ukraine" data-sv="Ukraina">Ukraine</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
+      <div class="champ"><div class="yr">2022 · Bergshamra IP</div><div class="flag"><img class="flagimg" src="img/flags/svg/al.svg" alt="Albanien"></div><div class="win" data-en="Albania" data-sv="Albanien">Albania</div><div class="venue" data-en="16 nations" data-sv="16 nationer">16 nations</div><div class="cup">🏆</div></div>
     </div>
-    <p class="everpresent" data-en="Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan" data-sv="Med sedan start: 🇸🇪 Sverige · 🇧🇷 Brasilien · 🇳🇬 Nigeria · 🇰🇿 Kazakstan · 🇰🇬 Kirgizistan">Ever-present since day one: 🇸🇪 Sweden · 🇧🇷 Brazil · 🇳🇬 Nigeria · 🇰🇿 Kazakhstan · 🇰🇬 Kyrgyzstan</p>
+    <p class="everpresent" data-en="Ever-present since day one: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sweden · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brazil · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakhstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kyrgyzstan" data-sv="Med sedan start: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sverige · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brasilien · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kirgizistan">Ever-present since day one: <img class="flagimg" src="img/flags/svg/se.svg" alt=""> Sweden · <img class="flagimg" src="img/flags/svg/br.svg" alt=""> Brazil · <img class="flagimg" src="img/flags/svg/ng.svg" alt=""> Nigeria · <img class="flagimg" src="img/flags/svg/kz.svg" alt=""> Kazakhstan · <img class="flagimg" src="img/flags/svg/kg.svg" alt=""> Kyrgyzstan</p>
     <div class="archive-divider"><span data-en="Browse every result" data-sv="Bläddra bland alla resultat">Browse every result</span></div>
     <div class="year-tabs" id="yearTabs">
       <button class="year-tab" type="button" data-year="2025">2025</button>
@@ -787,23 +790,27 @@
   }
 
   /* ---- Results archive (2022–2025) ---- */
+  /* Flaggor: SVG-bilder ur img/flags/svg/ (första fältet = iso-kod), inte emojis */
+  const FLAG_DIR='img/flags/svg/';
+  const fimg = iso => iso ? '<img class="flagimg" src="'+FLAG_DIR+iso+'.svg" alt="" onerror="this.remove()">' : '';
+  const tflag = t => t ? (t.code ? fimg(String(t.code).toLowerCase().replace(/[^a-z-]/g,'')) : (t.flag?esc(t.flag):'')) : '';
   const NATIONS = {
-    ALB:['🇦🇱','Albania','Albanien'], AZE:['🇦🇿','Azerbaijan','Azerbajdzjan'], TUN:['🇹🇳','Tunisia','Tunisien'],
-    KAZ:['🇰🇿','Kazakhstan','Kazakstan'], ITA:['🇮🇹','Italy','Italien'], GRE:['🇬🇷','Greece','Grekland'],
-    NIG:['🇳🇬','Nigeria','Nigeria'], FRA:['🇫🇷','France','Frankrike'], URU:['🇺🇾','Uruguay','Uruguay'],
-    BRA:['🇧🇷','Brazil','Brasilien'], COL:['🇨🇴','Colombia','Colombia'], KYR:['🇰🇬','Kyrgyzstan','Kirgizistan'],
-    KGZ:['🇰🇬','Kyrgyzstan','Kirgizistan'], SWE:['🇸🇪','Sweden','Sverige'], CRO:['🇭🇷','Croatia','Kroatien'],
-    ARG:['🇦🇷','Argentina','Argentina'], EGY:['🇪🇬','Egypt','Egypten'], LAT:['🇱🇻','Latvia','Lettland'],
-    UZB:['🇺🇿','Uzbekistan','Uzbekistan'], EST:['🇪🇪','Estonia','Estland'], ECU:['🇪🇨','Ecuador','Ecuador'],
-    BOS:['🇧🇦','Bosnia & H.','Bosnien'], GEO:['🇬🇪','Georgia','Georgien'], POL:['🇵🇱','Poland','Polen'],
-    UKR:['🇺🇦','Ukraine','Ukraina'], NIC:['🇳🇮','Nicaragua','Nicaragua'], TUR:['🇹🇷','Turkey','Turkiet'],
-    TAN:['🇹🇿','Tanzania','Tanzania'], ERI:['🇪🇷','Eritrea','Eritrea'], MEX:['🇲🇽','Mexico','Mexiko'],
-    SEN:['🇸🇳','Senegal','Senegal'], AFG:['🇦🇫','Afghanistan','Afghanistan'], SYD:['🇸🇸','South Sudan','Sydsudan'],
-    MAL:['🇲🇾','Malaysia','Malaysia'], GHA:['🇬🇭','Ghana','Ghana'], MOL:['🇲🇩','Moldova','Moldavien'],
-    ETI:['🇪🇹','Ethiopia','Etiopien'], SYR:['🇸🇾','Syria','Syrien'], GAM:['🇬🇲','Gambia','Gambia'],
-    ROM:['🇷🇴','Romania','Rumänien'], DRC:['🇨🇩','DR Congo','DR Kongo'], PAK:['🇵🇰','Pakistan','Pakistan'],
-    IRQ:['🇮🇶','Iraq','Irak'], BNG:['🇧🇩','Bangladesh','Bangladesh'], SUD:['🇸🇩','Sudan','Sudan'],
-    IND:['🇮🇩','Indonesia','Indonesien'], CBV:['🇨🇻','Cape Verde','Kap Verde'], SER:['🇷🇸','Serbia','Serbien']
+    ALB:['al','Albania','Albanien'], AZE:['az','Azerbaijan','Azerbajdzjan'], TUN:['tn','Tunisia','Tunisien'],
+    KAZ:['kz','Kazakhstan','Kazakstan'], ITA:['it','Italy','Italien'], GRE:['gr','Greece','Grekland'],
+    NIG:['ng','Nigeria','Nigeria'], FRA:['fr','France','Frankrike'], URU:['uy','Uruguay','Uruguay'],
+    BRA:['br','Brazil','Brasilien'], COL:['co','Colombia','Colombia'], KYR:['kg','Kyrgyzstan','Kirgizistan'],
+    KGZ:['kg','Kyrgyzstan','Kirgizistan'], SWE:['se','Sweden','Sverige'], CRO:['hr','Croatia','Kroatien'],
+    ARG:['ar','Argentina','Argentina'], EGY:['eg','Egypt','Egypten'], LAT:['lv','Latvia','Lettland'],
+    UZB:['uz','Uzbekistan','Uzbekistan'], EST:['ee','Estonia','Estland'], ECU:['ec','Ecuador','Ecuador'],
+    BOS:['ba','Bosnia & H.','Bosnien'], GEO:['ge','Georgia','Georgien'], POL:['pl','Poland','Polen'],
+    UKR:['ua','Ukraine','Ukraina'], NIC:['ni','Nicaragua','Nicaragua'], TUR:['tr','Turkey','Turkiet'],
+    TAN:['tz','Tanzania','Tanzania'], ERI:['er','Eritrea','Eritrea'], MEX:['mx','Mexico','Mexiko'],
+    SEN:['sn','Senegal','Senegal'], AFG:['af','Afghanistan','Afghanistan'], SYD:['ss','South Sudan','Sydsudan'],
+    MAL:['my','Malaysia','Malaysia'], GHA:['gh','Ghana','Ghana'], MOL:['md','Moldova','Moldavien'],
+    ETI:['et','Ethiopia','Etiopien'], SYR:['sy','Syria','Syrien'], GAM:['gm','Gambia','Gambia'],
+    ROM:['ro','Romania','Rumänien'], DRC:['cd','DR Congo','DR Kongo'], PAK:['pk','Pakistan','Pakistan'],
+    IRQ:['iq','Iraq','Irak'], BNG:['bd','Bangladesh','Bangladesh'], SUD:['sd','Sudan','Sudan'],
+    IND:['id','Indonesia','Indonesien'], CBV:['cv','Cape Verde','Kap Verde'], SER:['rs','Serbia','Serbien']
   };
   const RT = { R16:['Round of 16','Åttondelsfinal'], QF:['Quarter-finals','Kvartsfinaler'], SF:['Semi-finals','Semifinaler'], F:['Final','Final'] };
   const YEARS = {
@@ -853,7 +860,7 @@
         ['F',[['ALB',2,1,'BRA']]]
       ]}
   };
-  function nm(code,l){ const t=NATIONS[code]; return t ? t[0]+' '+t[l==='sv'?2:1] : code; }
+  function nm(code,l){ const t=NATIONS[code]; return t ? fimg(t[0])+' '+t[l==='sv'?2:1] : code; }
   function renderMatch(m,l){
     const h=m[0],sh=m[1],sa=m[2],a=m[3],pens=m[4];
     let hw=sh>sa, aw=sa>sh, pline='';
@@ -904,9 +911,9 @@
   function renderNations(l){
     const grid=document.getElementById('nationsGrid'); if(!grid) return;
     grid.innerHTML = ALL_NATIONS.map(([code,cnt,yrs])=>{
-      const t=NATIONS[code]||['🏳️',code,code];
+      const t=NATIONS[code]||['',code,code];
       return '<div class="nat-card'+(cnt>1?' multi':'')+'">'+
-        '<span class="fl">'+t[0]+'</span>'+
+        '<span class="fl">'+fimg(t[0])+'</span>'+
         '<div class="info"><div class="nm">'+t[l==='sv'?2:1]+'</div><div class="yrs">'+yrs+'</div></div>'+
         '<span class="cnt" title="'+(l==='sv'?'deltaganden':'appearances')+'">'+cnt+'</span></div>';
     }).join('');
@@ -936,7 +943,7 @@
   const PUBLISH_EARLIEST = new Date('2026-07-23T00:00:00+02:00');
   const liveVisible = () => (LIVE.settings && LIVE.settings.published) && new Date() >= PUBLISH_EARLIEST;
   const liveTeam = id => LIVE.teams.find(t=>t.id===id);
-  function liveLabel(t){ return t ? ((t.flag?t.flag+' ':'')+esc(t.name)) : '—'; }
+  function liveLabel(t){ return t ? (tflag(t)+' '+esc(t.name)) : '—'; }
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
   function liveStandings(groupTeams){
@@ -1023,7 +1030,7 @@
     const S=LIVE.settings||{};
     const maxP=Math.max(1, (S.pitches|0), ...sched.map(m=>m.pitch||1));
     const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
-    const lbl=t=> t ? ((t.flag?t.flag+' ':'')+esc(t.name)) : '?';
+    const lbl=t=> t ? (tflag(t)+' '+esc(t.name)) : '?';
     host.innerHTML = dates.map(date=>{
       const dm=sched.filter(m=>m.sched_date===date);
       const times=[...new Set(dm.map(m=>m.sched_time))];
@@ -1105,8 +1112,8 @@
   /* ---- Infinite flag marquee (all nations, all-time) ---- */
   function renderFlagMarquee(){
     const track=document.getElementById('flagTrack'); if(!track) return;
-    const flags = ALL_NATIONS.map(([code])=> (NATIONS[code]&&NATIONS[code][0]) || '🏳️');
-    const one = flags.map(f=>'<span>'+f+'</span>').join('');
+    const flags = ALL_NATIONS.map(([code])=> (NATIONS[code]&&NATIONS[code][0]) || '');
+    const one = flags.map(f=>'<span>'+fimg(f)+'</span>').join('');
     track.innerHTML = one + one;   // duplicated so the -50% scroll loops seamlessly
   }
   renderFlagMarquee();
