@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup — Turneringsposter (färg) · Stockholm Cup of Nations</title>
+<style>
+/* ============================================================================
+   FÄRGMOCKUP — radiell turneringsposter (slutspelshjul + grupptabeller).
+   Exempellag med flaggor, komplett lottat exempel hela vägen till mästare.
+
+   ►►► BYT FÄRGER HÄR ◄◄◄  Hela temat sitter i :root nedan. Ändra på ett ställe.
+   Strukturen är data-driven (se <script>) och redo för animation i nästa steg.
+   ============================================================================ */
+:root{
+  /* ---- MARKÄNTA / bakgrund ---- */
+  --bg-1:#0b3aa0;            /* poster ytterkant */
+  --bg-2:#061a4f;            /* poster mitt (mörkast) */
+  --bg-edge:#04122f;
+
+  /* ---- varumärkesfärger ---- */
+  --royal:#0b46c4;
+  --navy:#08236b;
+  --gold:#f4c20d;
+  --gold-2:#ffd84a;
+  --ink:#0c1a3a;
+  --paper:#ffffff;
+  --frost:rgba(255,255,255,.94);
+
+  /* ---- resultatmarkörer (V / O / F) ---- */
+  --win:#37c980;
+  --draw:#f0c020;
+  --loss:#ef5f72;
+
+  /* ---- hjulets ringar (opacitet ökar inåt = närmare titeln) ---- */
+  --ring-a:.09;  --ring-a2:.14;   /* åttondel  */
+  --ring-b:.17;  --ring-b2:.22;   /* kvart     */
+  --ring-c:.26;  --ring-c2:.32;   /* semi      */
+  --ring-d:.40;  --ring-d2:.46;   /* final     */
+
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg-edge);color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;
+}
+.page{max-width:1280px;margin:0 auto;padding:22px}
+
+/* ============ POSTER ============ */
+.stage{
+  position:relative;border-radius:22px;overflow:hidden;
+  padding:30px clamp(16px,3vw,40px) 40px;
+  background:
+    radial-gradient(120% 90% at 50% 8%, var(--bg-1) 0%, var(--bg-2) 46%, var(--bg-edge) 100%);
+  box-shadow:0 40px 90px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+/* fin kornig textur */
+.stage::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+.stage > *{position:relative}
+
+/* ---- rubrik / logo ---- */
+.masthead{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:8px;text-align:center}
+.masthead img{height:92px;width:auto;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4))}
+.masthead .kick{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.masthead h1{margin:0;color:#fff;font-size:clamp(20px,3vw,30px);font-weight:900;letter-spacing:.02em}
+.masthead .sub{color:rgba(255,255,255,.7);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase}
+
+/* ---- 3-kolumnsgrid ---- */
+.grid{display:grid;grid-template-columns:minmax(220px,1fr) minmax(360px,1.35fr) minmax(220px,1fr);
+      gap:clamp(10px,2vw,22px);align-items:center;margin-top:10px}
+.col{display:flex;flex-direction:column;gap:12px}
+.wheelwrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+#wheel{width:100%;max-width:580px;height:auto;display:block;filter:drop-shadow(0 20px 44px rgba(0,0,0,.4))}
+
+/* ---- gruppkort ---- */
+.gc{display:flex;align-items:stretch;gap:9px;background:var(--frost);
+    border-radius:13px;padding:8px;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.gc .badge{flex:0 0 34px;display:grid;place-items:center;border-radius:9px;
+    background:linear-gradient(160deg,var(--gold-2),var(--gold));color:var(--navy);
+    font-weight:900;font-size:22px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+.gc .teams{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.trow{display:flex;align-items:center;gap:8px;padding:4px 5px;border-radius:7px;min-width:0}
+.trow.adv{background:linear-gradient(90deg,rgba(244,194,13,.22),rgba(244,194,13,.06))}
+.col.right .trow.adv{background:linear-gradient(270deg,rgba(244,194,13,.22),rgba(244,194,13,.06))}
+.trow .fl{flex:0 0 auto;line-height:0;filter:drop-shadow(0 1px 1px rgba(0,0,0,.15))}
+.trow .fl img{width:19px;height:14px;object-fit:cover;border-radius:2.5px;
+  box-shadow:0 0 0 1px rgba(12,26,58,.15);display:inline-block}
+.trow .nm{flex:1;font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .res{flex:0 0 auto;display:flex;gap:3px}
+.trow .chip{display:inline-flex;align-items:center;gap:3px;background:#eef2f9;border-radius:4px;padding:1px 4px;
+  font-size:8.5px;font-weight:800;color:#4a566c;font-variant-numeric:tabular-nums}
+.trow .chip i{width:5px;height:5px;border-radius:50%;flex:0 0 auto}
+.trow .chip.W i{background:var(--win)} .trow .chip.D i{background:var(--draw)} .trow .chip.L i{background:var(--loss)}
+.trow .pts{flex:0 0 auto;font-weight:900;font-size:13px;color:var(--navy);min-width:18px;text-align:center}
+.trow .res{flex:0 0 auto;display:flex;gap:3px}
+.chip{display:inline-flex;align-items:center;gap:3px;background:#eef2f9;border-radius:5px;padding:1px 4px;font-size:9.5px;font-weight:800;color:#4a566c}
+.chip i{width:6px;height:6px;border-radius:50%}
+.chip.W i{background:var(--win)} .chip.D i{background:var(--draw)} .chip.L i{background:var(--loss)}
+/* höger kolumn speglad: bricka utåt, flagga mot mitten */
+.col.right .gc{flex-direction:row-reverse}
+.col.right .trow{flex-direction:row-reverse}
+
+/* ---- hjul-legend + mästarbanner ---- */
+.wheel-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 12px;font-size:11px;color:rgba(255,255,255,.72)}
+.wheel-legend b{color:#fff} .wheel-legend .dot{color:var(--gold)}
+.champ-banner{display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(120deg,var(--gold),var(--gold-2));color:var(--navy);
+  font-weight:900;border-radius:999px;padding:8px 18px;font-size:14px;
+  box-shadow:0 14px 30px rgba(244,194,13,.35)}
+.champ-banner .fl{line-height:0}
+.champ-banner .fl img{width:27px;height:20px;object-fit:cover;border-radius:3px;
+  box-shadow:0 0 0 1px rgba(12,26,58,.2);display:inline-block;vertical-align:middle}
+.champ-banner small{font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75;font-size:10px}
+
+/* ---- mockup-notis ---- */
+.mock-note{color:rgba(255,255,255,.55);font-size:12px;text-align:center;margin:16px auto 4px;max-width:70ch}
+.mock-note code{background:rgba(255,255,255,.1);border-radius:5px;padding:1px 6px;color:rgba(255,255,255,.8)}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .wheelwrap{order:1}
+  .col{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .col.left{order:2}.col.right{order:3}
+  .col .gc{width:min(330px,47%)}
+}
+@media(max-width:560px){ .col .gc{width:100%} }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="stage">
+    <div class="masthead">
+      <img src="./img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations">
+      <div class="kick">Slutresultat · Slutspel &amp; grupper</div>
+      <h1>Stockholm Cup of Nations 2025</h1>
+      <div class="sub">32 nationer</div>
+    </div>
+
+    <div class="grid">
+      <div class="col left"  id="colL"></div>
+      <div class="wheelwrap">
+        <svg id="wheel" viewBox="0 0 660 660" role="img" aria-label="Slutspelshjul"></svg>
+        <div class="wheel-legend">
+          <b>Utifrån &amp; in:</b> Åttondel (16) <span class="dot">·</span> Kvart (8)
+          <span class="dot">·</span> Semi (4) <span class="dot">·</span> Final (2)
+          <span class="dot">·</span> <b>Mästare</b>
+        </div>
+        <div class="champ-banner"><small>Mästare</small> <span class="fl"><img src="img/flags/svg/uy.svg" alt=""></span> Uruguay 🏆</div>
+      </div>
+      <div class="col right" id="colR"></div>
+    </div>
+  </div>
+
+  <p class="mock-note">
+    Mockup · färgversion med riktiga resultat från Stockholm Cup of Nations 2025 (Uruguay mästare).
+    Gruppernas matchchips är rekonstruerade från sluttabellerna · 2026 visas riktiga matcher.
+    Er palett är bara utgångspunkt — hela temat byts på ett ställe högst upp i filen (<code>:root</code>).
+  </p>
+</div>
+
+<script>
+/* ================= DATA — Stockholm Cup of Nations 2025 (Uruguay mästare) ================= */
+/* första fältet = iso-kod → SVG-flagga i img/flags/svg/ (inga emojis) */
+const FLAG_DIR='img/flags/svg/';
+const T = {
+  TAN:['tz','Tanzania'],  AFG:['af','Afghanistan'], SWE:['se','Sverige'],    BRA:['br','Brasilien'],
+  SYD:['ss','Sydsudan'],  UZB:['uz','Uzbekistan'],  UKR:['ua','Ukraina'],     MAL:['my','Malaysia'],
+  GHA:['gh','Ghana'],     MOL:['md','Moldavien'],   ETI:['et','Etiopien'],    GEO:['ge','Georgien'],
+  MEX:['mx','Mexiko'],    SYR:['sy','Syrien'],      GAM:['gm','Gambia'],      ROM:['ro','Rumänien'],
+  FRA:['fr','Frankrike'], DRC:['cd','DR Kongo'],    PAK:['pk','Pakistan'],    IRQ:['iq','Irak'],
+  BNG:['bd','Bangladesh'],ALB:['al','Albanien'],    SUD:['sd','Sudan'],       KYR:['kg','Kirgizistan'],
+  IND:['id','Indonesien'],KAZ:['kz','Kazakstan'],   CBV:['cv','Kap Verde'],   CRO:['hr','Kroatien'],
+  NIG:['ng','Nigeria'],   URU:['uy','Uruguay'],     SER:['rs','Serbien'],     TUR:['tr','Turkiet'],
+};
+const flagUrl = iso => FLAG_DIR+iso+'.svg';
+// grupper: [kod, 'GF-GA', poäng] — ordnade efter slutplacering, topp 2 (guld) gick vidare
+// Gruppmatcher: rekonstruerade så att de exakt summerar till sluttabellerna.
+const GM = {
+ A:[["TAN","AFG",2,0],["TAN","SWE",5,0],["TAN","BRA",2,4],["AFG","SWE",2,1],["AFG","BRA",2,1],["SWE","BRA",5,1]],
+ B:[["SYD","UZB",3,0],["SYD","UKR",0,3],["SYD","MAL",9,0],["UZB","UKR",1,0],["UZB","MAL",9,0],["UKR","MAL",3,0]],
+ C:[["GHA","MOL",2,0],["GHA","ETI",1,0],["GHA","GEO",12,2],["MOL","ETI",6,2],["MOL","GEO",3,0],["ETI","GEO",1,0]],
+ D:[["MEX","SYR",1,0],["MEX","GAM",2,0],["MEX","ROM",10,1],["SYR","GAM",4,2],["SYR","ROM",2,1],["GAM","ROM",4,3]],
+ E:[["FRA","DRC",3,2],["FRA","PAK",1,0],["FRA","IRQ",19,3],["DRC","PAK",6,5],["DRC","IRQ",1,0],["PAK","IRQ",2,0]],
+ F:[["BNG","ALB",1,0],["BNG","SUD",2,1],["BNG","KYR",5,0],["ALB","SUD",3,0],["ALB","KYR",7,0],["SUD","KYR",2,0]],
+ G:[["IND","KAZ",0,0],["IND","CBV",2,0],["IND","CRO",5,3],["KAZ","CBV",3,3],["KAZ","CRO",3,0],["CBV","CRO",2,0]],
+ H:[["NIG","URU",0,0],["NIG","SER",2,1],["NIG","TUR",2,1],["URU","SER",0,0],["URU","TUR",5,0],["SER","TUR",9,5]],
+};
+const GROUPS = {
+  A:[['TAN','9-4',6],['AFG','4-4',6],['SWE','6-8',3],['BRA','6-9',3]],
+  B:[['SYD','12-3',6],['UZB','10-3',6],['UKR','6-1',6],['MAL','0-21',0]],
+  C:[['GHA','15-2',9],['MOL','9-4',6],['ETI','3-7',3],['GEO','2-16',0]],
+  D:[['MEX','13-1',9],['SYR','6-4',6],['GAM','6-9',3],['ROM','5-16',0]],
+  E:[['FRA','23-5',9],['DRC','9-8',6],['PAK','7-7',3],['IRQ','3-22',0]],
+  F:[['BNG','8-1',9],['ALB','10-1',6],['SUD','3-5',3],['KYR','0-14',0]],
+  G:[['IND','7-3',7],['KAZ','6-3',5],['CBV','5-5',4],['CRO','3-10',0]],
+  H:[['NIG','4-2',7],['URU','5-0',5],['SER','10-7',4],['TUR','6-16',0]],
+};
+
+// slutspel 2025 — lag i bracket-ordning så hjulet spiralar rätt (grupperna korsas parvis A↔B, C↔D …)
+const R16 = ['TAN','UZB','MEX','MOL','FRA','ALB','NIG','KAZ','SYD','AFG','GHA','SYR','BNG','DRC','IND','URU'];
+const QF  = ['TAN','MEX','ALB','NIG','SYD','GHA','BNG','URU'];    // åttondelsvinnare
+const SF  = ['MEX','NIG','GHA','URU'];                            // kvartsvinnare
+const FIN = ['MEX','URU'];                                        // semivinnare
+const CHAMP='URU';
+const SC_R16=['2–1','5–2','1–5','0–0','1–1','4–0','5–0','0–3']; const PEN_R16={3:'3–2',4:'3–2'};
+const SC_QF =['0–0','1–1','1–2','0–1'];                          const PEN_QF ={0:'5–6',1:'2–3'};
+const SC_SF =['0–0','0–2'];                                       const PEN_SF ={0:'3–2'};
+const SC_FIN=['0–3'];                                             const PEN_FIN={};
+
+/* ============================ GRUPPKORT ============================ */
+function chipsFor(letter,code){
+  return '<span class="res">'+GM[letter].filter(m=>m[0]===code||m[1]===code).map(m=>{
+    const home=m[0]===code, x=home?m[2]:m[3], y=home?m[3]:m[2];
+    const o=x>y?'W':x<y?'L':'D';
+    return '<span class="chip '+o+'"><i></i>'+x+':'+y+'</span>';
+  }).join('')+'</span>';
+}
+function card(letter,teams){
+  const rows=teams.map((t,idx)=>{
+    const [code,goals,pts]=t, [flag,name]=T[code];
+    const adv=idx<2?' adv':'';
+    return '<div class="trow'+adv+'"><span class="fl"><img src="'+flagUrl(flag)+'" alt=""></span><span class="nm">'+name+'</span>'+
+           chipsFor(letter,code)+'<span class="pts">'+pts+'</span></div>';
+  }).join('');
+  return '<div class="gc"><div class="badge">'+letter+'</div><div class="teams">'+rows+'</div></div>';
+}
+document.getElementById('colL').innerHTML=['A','B','C','D'].map(g=>card(g,GROUPS[g])).join('');
+document.getElementById('colR').innerHTML=['E','F','G','H'].map(g=>card(g,GROUPS[g])).join('');
+
+/* ============================ HJULET (SVG) ============================ */
+(function(){
+  const NS='http://www.w3.org/2000/svg', cx=330, cy=330, START=-90;
+  const css=getComputedStyle(document.documentElement);
+  const gold=css.getPropertyValue('--gold').trim()||'#f4c20d';
+  const navy=css.getPropertyValue('--navy').trim()||'#08236b';
+  const stroke=css.getPropertyValue('--bg-2').trim()||'#061a4f';
+  const op=k=>parseFloat(css.getPropertyValue('--'+k))||.1;
+
+  function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+  function polar(r,d){const a=d*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  function annular(r0,r1,a0,a1){
+    const[xo0,yo0]=polar(r1,a0),[xo1,yo1]=polar(r1,a1),[xi1,yi1]=polar(r0,a1),[xi0,yi0]=polar(r0,a0);
+    const big=(a1-a0)>180?1:0;
+    return `M${xo0} ${yo0} A${r1} ${r1} 0 ${big} 1 ${xo1} ${yo1} L${xi1} ${yi1} A${r0} ${r0} 0 ${big} 0 ${xi0} ${yi0} Z`;
+  }
+  const svg=document.getElementById('wheel');
+  const G=(cls)=>{const g=el('g',{class:cls});svg.appendChild(g);return g;};
+
+  const rings=[
+    {teams:R16,r0:240,r1:320,fs:18,o:op('ring-a'), o2:op('ring-a2'), gold:false},
+    {teams:QF, r0:168,r1:240,fs:23,o:op('ring-b'), o2:op('ring-b2'), gold:false},
+    {teams:SF, r0:108,r1:168,fs:29,o:op('ring-c'), o2:op('ring-c2'), gold:false},
+    {teams:FIN,r0:52, r1:108,fs:33,o:op('ring-d'), o2:op('ring-d2'), gold:true },
+  ];
+
+  rings.forEach((ring,ri)=>{
+    const g=G('ring r'+ri), n=ring.teams.length, seg=360/n, rmid=(ring.r0+ring.r1)/2;
+    for(let i=0;i<n;i++){
+      const a0=START+i*seg,a1=a0+seg,am=a0+seg/2;
+      const fill=`rgba(255,255,255,${i%2?ring.o2:ring.o})`;
+      g.appendChild(el('path',{d:annular(ring.r0,ring.r1,a0,a1),fill,
+        stroke,'stroke-width':2.6,'stroke-linejoin':'round'}));
+      const [fx,fy]=polar(rmid,am);
+      const fw=ring.fs*1.4, fh=ring.fs*1.05;   // flaggbild ~ samma yta som emojin hade
+      g.appendChild(el('image',{href:flagUrl(T[ring.teams[i]][0]),x:fx-fw/2,y:fy-fh/2,
+        width:fw,height:fh,preserveAspectRatio:'xMidYMid slice'}));
+    }
+    if(ring.gold){
+      g.appendChild(el('circle',{cx,cy,r:ring.r1,fill:'none',stroke:gold,'stroke-width':2,opacity:.5}));
+    }
+  });
+
+  // resultat-chips på gränsen mellan varje par (per ring)
+  const scoresByRing=[SC_R16,SC_QF,SC_SF,SC_FIN], pensByRing=[PEN_R16,PEN_QF,PEN_SF,PEN_FIN];
+  const gs=G('scores');
+  rings.forEach((ring,ri)=>{
+    const n=ring.teams.length, seg=360/n, rmid=(ring.r0+ring.r1)/2, matches=n/2;
+    for(let k=0;k<matches;k++){
+      const ab=START+(2*k+1)*seg, [px,py]=polar(rmid,ab);
+      const pen=pensByRing[ri][k];
+      const w=30,h=pen?20:15;
+      gs.appendChild(el('rect',{x:px-w/2,y:py-h/2,width:w,height:h,rx:5,fill:navy,
+        stroke:gold,'stroke-width':1.2}));
+      const t=el('text',{x:px,y:pen?py-3:py,'text-anchor':'middle','dominant-baseline':'central',
+        'font-size':10,'font-weight':800,fill:'#fff'});
+      t.textContent=scoresByRing[ri][k]; gs.appendChild(t);
+      if(pen){
+        const p=el('text',{x:px,y:py+6,'text-anchor':'middle','dominant-baseline':'central',
+          'font-size':7.5,'font-weight':700,fill:gold});
+        p.textContent='('+pen+')'; gs.appendChild(p);
+      }
+    }
+  });
+
+  // navet: mästare
+  const gc=G('champ');
+  gc.appendChild(el('circle',{cx,cy,r:52,fill:'url(#goldgrad)',stroke:'#fff','stroke-width':3}));
+  const defs=el('defs',{});
+  const lg=el('radialGradient',{id:'goldgrad'});
+  lg.appendChild(el('stop',{offset:'0%','stop-color':'#ffe27a'}));
+  lg.appendChild(el('stop',{offset:'100%','stop-color':gold}));
+  defs.appendChild(lg); svg.insertBefore(defs,svg.firstChild);
+  gc.appendChild(el('image',{href:flagUrl(T[CHAMP][0]),x:cx-21,y:cy-9-15,
+    width:42,height:30,preserveAspectRatio:'xMidYMid slice'}));
+  const ce=el('text',{x:cx,y:cy+17,'text-anchor':'middle','dominant-baseline':'central','font-size':18});
+  ce.textContent='🏆'; gc.appendChild(ce);
+
+  // ringrubriker längs toppspoken
+  const gl=G('labels');
+  [['Åttondelsfinal',280],['Kvartsfinal',204],['Semifinal',138],['Final',80]].forEach(([txt,rmid])=>{
+    const y=cy-rmid, w=txt.length*6.4+16;
+    gl.appendChild(el('rect',{x:cx-w/2,y:y-9,width:w,height:18,rx:9,fill:navy,stroke:gold,'stroke-width':1,opacity:.96}));
+    const t=el('text',{x:cx,y:y,'text-anchor':'middle','dominant-baseline':'central','font-size':9.5,
+      'font-weight':800,fill:gold,'letter-spacing':'.4'});
+    t.textContent=txt; gl.appendChild(t);
+  });
+})();
+</script>
+</body>
+</html>
