@@ -80,6 +80,9 @@
   th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
   th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
   td .fl{font-size:1.15rem;margin-right:6px}
+  /* SVG-flaggor: storleken följer textens storlek (1em = radhöjden där flaggan står) */
+  .flagimg{width:1.38em;height:1.05em;object-fit:cover;border-radius:.15em;
+    box-shadow:0 0 0 1px rgba(12,26,58,.14);vertical-align:-.14em;display:inline-block}
   .pill{display:inline-block;font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:999px;background:#eef2fb;color:var(--navy)}
   .pill.live{background:#fde8e6;color:var(--danger)}
   .pill.over{background:#fdecea;color:var(--danger)}
@@ -548,7 +551,16 @@
     wzShowStep2(TEAMS.length>0);   // open step 2 if teams already exist
   }
   const teamById = id => TEAMS.find(t=>t.id===id);
-  const teamLabel = t => t ? ((t.flag?t.flag+' ':'')+t.name) : '—';
+  // Flaggor renderas som SVG-bilder (img/flags/svg/) i stället för emojis.
+  // Absolut URL så att bilderna även fungerar i PDF-exportens popup-fönster.
+  const FLAG_BASE = new URL('img/flags/svg/', location.href).href;
+  function flagImg(code, fallback){
+    const c=(code||'').toLowerCase().replace(/[^a-z-]/g,'');
+    if(c) return '<img class="flagimg" src="'+FLAG_BASE+c+'.svg" alt="" onerror="this.remove()">';
+    return fallback ? escapeHtml(fallback) : '';
+  }
+  const teamFlag = t => t ? flagImg(t.code, t.flag||'') : '';
+  const teamLabel = t => t ? (teamFlag(t)+' '+escapeHtml(t.name)) : '—';
 
   // ---------- NATIONS (name + ISO2 for auto flag) ----------
   function flagEmoji(iso2){
@@ -587,7 +599,7 @@
     ['IR','Iran','Iran'],['IQ','Irak','Iraq'],['IE','Irland','Ireland'],
     ['IL','Israel','Israel'],['IT','Italien','Italy'],['JM','Jamaica','Jamaica'],
     ['JP','Japan','Japan'],['JO','Jordanien','Jordan'],['KZ','Kazakstan','Kazakhstan'],
-    ['KE','Kenya','Kenya'],['XK','Kosovo','Kosovo'],['KW','Kuwait','Kuwait'],
+    ['KE','Kenya','Kenya'],['XK','Kosovo','Kosovo'],['KURDISTAN','Kurdistan','Kurdistan'],['KW','Kuwait','Kuwait'],
     ['KG','Kirgizistan','Kyrgyzstan'],['LA','Laos','Laos'],['LV','Lettland','Latvia'],
     ['LB','Libanon','Lebanon'],['LS','Lesotho','Lesotho'],['LR','Liberia','Liberia'],
     ['LY','Libyen','Libya'],['LT','Litauen','Lithuania'],['LU','Luxemburg','Luxembourg'],
@@ -657,7 +669,7 @@
       active = matches.length ? 0 : -1;
       if(!q){ list.classList.remove('open'); list.innerHTML=''; return; }
       list.innerHTML = matches.length
-        ? matches.map((n,i)=>'<div class="combo-opt'+(i===active?' active':'')+'" data-i="'+i+'"><span class="fl">'+(n.flag||'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
+        ? matches.map((n,i)=>'<div class="combo-opt'+(i===active?' active':'')+'" data-i="'+i+'"><span class="fl">'+flagImg(n.iso,'🏳️')+'</span><span>'+escapeHtml(n.sv)+'</span><span class="iso">'+n.iso+'</span></div>').join('')
         : '<div class="combo-none">Ingen träff. Prova annat namn (svenska eller engelska).</div>';
       list.classList.add('open');
     }
@@ -679,7 +691,10 @@
     const nameEl=$(nameSel), flagEl=$(flagSel), btn=$(btnSel);
     if(!btn) return;
     const add=async()=>{ const name=(nameEl.value||'').trim(); if(!name){ toast('Skriv ett lagnamn.',true); return; }
-      if(await addTeam({ code:null, name, flag:(flagEl&&flagEl.value.trim())||null })){ nameEl.value=''; if(flagEl) flagEl.value=''; toast(name+' tillagt'); await loadAll(); nameEl.focus(); } };
+      // 'iso:XX' = landsflagga (SVG-bild via code), annars specialsymbol som sparas i flag-fältet
+      const v=(flagEl&&flagEl.value.trim())||'';
+      const rec = v.slice(0,4)==='iso:' ? { code:v.slice(4), name, flag:null } : { code:null, name, flag:v||null };
+      if(await addTeam(rec)){ nameEl.value=''; if(flagEl) flagEl.value=''; toast(name+' tillagt'); await loadAll(); nameEl.focus(); } };
     btn.addEventListener('click', add);
     nameEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
   }
@@ -689,10 +704,10 @@
   function fillFlagSelect(){
     const sel=$('#wzCustomFlag'); if(!sel) return;
     const special=[['','— ingen flagga —'],['🏳️','Vit flagga'],['🏴','Svart flagga'],['🏁','Målflagga'],['🚩','Röd flagga'],['🏳️‍🌈','Regnbågsflagga'],['🏴‍☠️','Piratflagga'],['⚽','Fotboll']];
-    const countries=NATIONS_DB.filter(n=>n.flag).slice().sort((a,b)=>a.sv.localeCompare(b.sv,'sv'));
+    const countries=NATIONS_DB.slice().sort((a,b)=>a.sv.localeCompare(b.sv,'sv'));
     sel.innerHTML =
       '<optgroup label="Special">'+special.map(([v,l])=>'<option value="'+v+'">'+(v?v+' ':'')+l+'</option>').join('')+'</optgroup>'+
-      '<optgroup label="Länder">'+countries.map(n=>'<option value="'+n.flag+'">'+n.flag+' '+escapeHtml(n.sv)+'</option>').join('')+'</optgroup>';
+      '<optgroup label="Länder">'+countries.map(n=>'<option value="iso:'+n.iso+'">'+escapeHtml(n.sv)+'</option>').join('')+'</optgroup>';
   }
   fillFlagSelect();
 
@@ -704,7 +719,7 @@
     const over = !!target && TEAMS.length>target;
     const filledChip = (t,i) =>
       '<div class="teamchip'+(isTemp(t)?' temp':'')+(over && i>=target?' excess':'')+'" data-id="'+t.id+'">'+
-        '<span class="fl">'+(t.flag||'🏳️')+'</span>'+
+        '<span class="fl">'+flagImg(t.code, t.flag||'🏳️')+'</span>'+
         '<span class="nm">'+escapeHtml(t.name)+'</span>'+
         '<span class="gsel">'+(anyGroups?'<select class="teamGroup">'+opts(t.group_name)+'</select>':'')+
         '<button class="rm delTeam" title="Ta bort">✕</button></span>'+
@@ -976,7 +991,7 @@
       '<thead><tr>'+
       '<th>#</th><th>Lag</th><th>S</th><th>V</th><th>O</th><th>F</th><th>MÅL</th><th>±</th><th>P</th></tr></thead><tbody>'+
       rows.map((r,i)=>'<tr class="'+(i<2?'qualify':'')+'"><td>'+(i+1)+'</td>'+
-        '<td><span class="fl">'+(r.team.flag||'')+'</span>'+escapeHtml(r.team.name)+'</td>'+
+        '<td><span class="fl">'+teamFlag(r.team)+'</span>'+escapeHtml(r.team.name)+'</td>'+
         '<td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td>'+
         '<td>'+r.GF+'-'+r.GA+'</td><td>'+(r.GF-r.GA>0?'+':'')+(r.GF-r.GA)+'</td><td><b>'+r.Pts+'</b></td></tr>').join('')+
       '</tbody></table></div>';
@@ -993,11 +1008,11 @@
     const st = m.status==='finished'?'<span class="pill done">Klar</span>':m.status==='live'?'<span class="pill live">Live</span>':'<span class="pill sched">Ej spelad</span>';
     const meta = showMeta ? '<span class="matchmeta">'+(m.sched_time||'')+(m.pitch?' · Plan '+m.pitch:'')+(m.group_name?' · Grp '+m.group_name:'')+'</span>' : '';
     return '<div class="match-row" data-id="'+m.id+'">'+meta+
-      '<span class="side"><span class="fl">'+(h&&h.flag||'')+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
+      '<span class="side"><span class="fl">'+teamFlag(h)+'</span>'+escapeHtml(h?h.name:'—')+'</span>'+
       '<input class="sc mHome" type="number" min="0" inputmode="numeric" value="'+(m.home_score??'')+'" />'+
       '<span class="dash">–</span>'+
       '<input class="sc mAway" type="number" min="0" inputmode="numeric" value="'+(m.away_score??'')+'" />'+
-      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+(a&&a.flag||'')+'</span></span>'+
+      '<span class="side away">'+escapeHtml(a?a.name:'—')+'<span class="fl">'+teamFlag(a)+'</span></span>'+
       '<button class="btn btn-blue btn-sm saveScore">Spara</button>'+st+
     '</div>';
   }
@@ -1030,8 +1045,8 @@
   function koRow(m){
     const h=teamById(m.home_id), a=teamById(m.away_id);
     const st = m.status==='finished'?'<span class="pill done">Klar</span>':'<span class="pill sched">Ej spelad</span>';
-    const hSide = h ? '<span class="fl">'+(h.flag||'')+'</span>'+escapeHtml(h.name) : srcLabel(m.home_src);
-    const aSide = a ? escapeHtml(a.name)+'<span class="fl">'+(a.flag||'')+'</span>' : srcLabel(m.away_src);
+    const hSide = h ? '<span class="fl">'+teamFlag(h)+'</span>'+escapeHtml(h.name) : srcLabel(m.home_src);
+    const aSide = a ? escapeHtml(a.name)+'<span class="fl">'+teamFlag(a)+'</span>' : srcLabel(m.away_src);
     const ready = h && a;
     const meta = (m.sched_time?m.sched_time+(m.pitch?' · Plan '+m.pitch:''):'')+(m.code?'  ·  '+m.code:'');
     return '<div class="match-row" data-id="'+m.id+'">'+
@@ -1050,7 +1065,7 @@
   function koLabel(m, side){
     const id = side==='h'?m.home_id:m.away_id, src = side==='h'?m.home_src:m.away_src;
     const t = teamById(id);
-    return t ? ((t.flag?t.flag+' ':'')+escapeHtml(t.name)) : srcLabel(src);
+    return t ? (teamFlag(t)+' '+escapeHtml(t.name)) : srcLabel(src);
   }
   function bracketReadOnly(){
     const has = KO_STAGES.filter(s=> MATCHES.some(m=>m.stage===s));
@@ -1094,7 +1109,7 @@
     if(!sched.length){ toast('Inget schema att exportera — lotta turneringen först.', true); return; }
     const maxP=Math.max(SETTINGS.pitches|0, Math.max(1, ...sched.map(m=>m.pitch||1)));
     const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
-    const nm=t=> t?((t.flag?t.flag+' ':'')+escapeHtml(t.name)):'';
+    const nm=t=> t?(teamFlag(t)+' '+escapeHtml(t.name)):'';
     const cell=m=>{
       const h=teamById(m.home_id), a=teamById(m.away_id);
       const tag=m.stage==='group'?'Grupp '+(m.group_name||''):(STAGE_SHORT[m.stage]||m.stage);
@@ -1127,6 +1142,7 @@
       'td.tm,th.tm{width:56px;white-space:nowrap;font-weight:700;color:#08236b}'+
       '.tag{font-size:9px;font-weight:800;color:#5a6b8c;text-transform:uppercase}.mt{margin-top:1px}.sc{color:#0b46c4}'+
       'tr.brk td{background:#fff7e0;color:#7a5c00;font-weight:700;text-align:center}'+
+      '.flagimg{width:15px;height:11px;object-fit:cover;border-radius:2px;vertical-align:-2px;box-shadow:0 0 0 .5px #cdd7ea}'+
       '@media print{body{margin:12mm}h2{page-break-after:avoid}table{page-break-inside:auto}tr{page-break-inside:avoid}}';
     const html='<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>Spelschema '+YEAR+'</title><style>'+css+'</style></head><body>'+
       '<h1>Stockholm Cup of Nations '+YEAR+'</h1><p class="meta">Spelschema · '+dates.length+' dag(ar) · '+sched.length+' matcher</p>'+body+
