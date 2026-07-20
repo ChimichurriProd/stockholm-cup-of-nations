@@ -103,9 +103,11 @@ nav.links a:hover{color:var(--gold)}
 @keyframes noticePulse{50%{box-shadow:0 0 0 6px rgba(244,194,13,.14)}}
 .notice p{font-size:13.5px;line-height:1.45}
 .notice p b{color:var(--gold-hi)}
+.notice .actions{flex:0 0 auto;display:inline-flex;gap:8px}
 .notice a.go{flex:0 0 auto;font-family:var(--disp);font-stretch:106%;font-weight:800;font-size:11px;
   letter-spacing:.08em;text-transform:uppercase;background:var(--gold);color:#241a00;
-  border-radius:7px;padding:9px 13px}
+  border-radius:7px;padding:9px 13px;white-space:nowrap}
+.notice a.go.wa-go{background:#25d366;color:#06301a}
 .notice button.x{flex:0 0 auto;background:none;border:0;color:var(--dim);font-size:16px;cursor:pointer;
   padding:4px 6px;line-height:1}
 .notice button.x:hover{color:#fff}
@@ -367,6 +369,32 @@ section[id]{scroll-margin-top:90px}
   font-family:var(--disp);font-stretch:110%;font-weight:900;text-transform:uppercase;letter-spacing:.04em;
   border-radius:10px;padding:12px;text-align:center;font-size:13px}
 
+/* ============================== NATIONER GENOM ÅREN & GALLERI ============================== */
+.nat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.nat-card{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;background:rgba(255,255,255,.025);min-width:0;transition:transform .2s,border-color .2s}
+.nat-card:hover{transform:translateY(-2px);border-color:rgba(244,194,13,.4)}
+.nat-card img.fl{width:34px;height:25px;object-fit:cover;border-radius:4px;flex:0 0 auto;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.nat-card .info{min-width:0}
+.nat-card .nm{font-family:var(--disp);font-stretch:106%;font-weight:800;font-size:13px;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nat-card .yrs{font-family:var(--mono);font-size:8.5px;color:var(--dim);letter-spacing:.04em;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nat-card .cnt{margin-left:auto;flex:0 0 auto;font-family:var(--mono);font-weight:600;font-size:10.5px;
+  color:#241a00;background:linear-gradient(180deg,var(--gold-hi),var(--gold));border-radius:999px;
+  min-width:22px;height:22px;display:grid;place-items:center;padding:0 6px}
+.nat-card.once .cnt{background:none;border:1px solid var(--line-2);color:var(--dim)}
+.everpresent{margin-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim)}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.gal-grid figure{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line-2)}
+.gal-grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:3/4;transition:transform .4s}
+.gal-grid figure:hover img{transform:scale(1.05)}
+.gal-grid figcaption{position:absolute;left:0;right:0;bottom:0;padding:14px;font-family:var(--mono);
+  font-weight:600;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-hi);
+  background:linear-gradient(0deg,rgba(4,11,32,.92),transparent)}
+
 /* ============================== MAT & PARTNERS ============================== */
 .food-card{display:grid;grid-template-columns:.8fr 1.2fr;gap:0;border:1px solid var(--line-2);
   border-radius:16px;overflow:hidden;background:linear-gradient(160deg,var(--night-2),#0a1a4d)}
@@ -444,6 +472,7 @@ footer a:hover{color:var(--gold)}
   nav.links.open a{padding:13px 0;border-bottom:1px solid var(--line)}
   .nations-grid{grid-template-columns:repeat(3,1fr)}
   .honour-grid{grid-template-columns:repeat(2,1fr)}
+  .nat-grid{grid-template-columns:repeat(3,1fr)}
   .reg-grid,.about-grid{grid-template-columns:1fr;gap:36px}
   .ed-groups,.ed-ko{grid-template-columns:repeat(2,1fr)}
   .foot-grid{grid-template-columns:1fr 1fr}
@@ -456,6 +485,8 @@ footer a:hover{color:var(--gold)}
   .stat{padding:34px 14px}
   .days{grid-template-columns:1fr}
   .nations-grid{grid-template-columns:repeat(2,1fr)}
+  .nat-grid{grid-template-columns:repeat(2,1fr)}
+  .gal-grid{grid-template-columns:1fr 1fr;gap:10px}
   section{padding:80px 0}
   .food-card{grid-template-columns:1fr}
   .hl-cards{grid-template-columns:1fr}
@@ -493,7 +524,8 @@ footer a:hover{color:var(--gold)}
     bottom:14px;width:92vw;max-width:92vw;padding:12px 14px}
   .notice p{font-size:12.5px;line-height:1.4;min-width:0}
   .notice .tag{font-size:9px;padding:4px 7px}
-  .notice a.go{grid-column:1 / -1;justify-content:center;display:inline-flex;padding:10px}
+  .notice .actions{grid-column:1 / -1;display:flex;gap:8px}
+  .notice a.go{flex:1;justify-content:center;display:inline-flex;padding:10px}
   .notice button.x{padding:2px 4px}
 
   /* ---- Sektioner & kort ---- */
@@ -549,11 +581,14 @@ footer a:hover{color:var(--gold)}
   </div>
 </header>
 
-<!-- Notis: en plats kvar -->
+<!-- Notis: turneringen är fullbokad -->
 <div class="notice" id="notice" role="status">
-  <span class="tag" data-en="Hurry" data-sv="Skynda">Hurry</span>
-  <p data-en="<b>Only one spot left</b> for 2026 — secure your nation's place now." data-sv="<b>Bara en plats kvar</b> till 2026 — säkra din nations plats nu."><b>Only one spot left</b> for 2026 — secure your nation's place now.</p>
-  <a class="go" href="#register" id="noticeGo" data-en="Register" data-sv="Anmäl">Register</a>
+  <span class="tag" data-en="Fully booked" data-sv="Fullbokad">Fullbokad</span>
+  <p data-en="<b>The 2026 tournament is fully booked</b> — all 32 spots are taken. Questions or waiting list? Get in touch." data-sv="<b>Turneringen 2026 är fullbokad</b> — alla 32 platser är tagna. Frågor eller väntelista? Hör av dig."><b>Turneringen 2026 är fullbokad</b> — alla 32 platser är tagna. Frågor eller väntelista? Hör av dig.</p>
+  <span class="actions">
+    <a class="go" href="mailto:info@stockholmcupofnations.eu" data-en="✉ Email" data-sv="✉ E-post">✉ E-post</a>
+    <a class="go wa-go" href="https://api.whatsapp.com/send?phone=46722012733" target="_blank" rel="noopener">💬 WhatsApp</a>
+  </span>
   <button class="x" id="noticeX" aria-label="Close">✕</button>
 </div>
 
@@ -738,6 +773,35 @@ footer a:hover{color:var(--gold)}
   </div>
 </section>
 
+<!-- ============================== 46 NATIONER GENOM ÅREN ============================== -->
+<section id="alltime">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kicker" data-en="A global celebration" data-sv="En global fotbollsfest">En global fotbollsfest</span>
+      <h2 data-en="46 nations.<br><span class='foil'>One city.</span>" data-sv="46 nationer.<br><span class='foil'>En stad.</span>">46 nationer.<br><span class="foil">En stad.</span></h2>
+      <p data-en="Since its inception, the Stockholm Cup of Nations has grown into a celebration of football, diversity and cultural integration. A grand total of 46 unique nations have stepped onto our pitches — here they all are, with their number of appearances and the years they played." data-sv="Sedan starten har Stockholm Cup of Nations vuxit till en fest för fotboll, mångfald och integration. Totalt 46 unika nationer har spelat på våra planer — här är alla, med antal deltaganden och åren de var med.">Sedan starten har Stockholm Cup of Nations vuxit till en fest för fotboll, mångfald och integration. Totalt 46 unika nationer har spelat på våra planer — här är alla, med antal deltaganden och åren de var med.</p>
+    </div>
+    <div class="nat-grid" id="natGrid"></div>
+    <div class="everpresent rv" data-en="Ever-present since day one: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sweden · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brazil · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakhstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kyrgyzstan" data-sv="Med sedan start: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sverige · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brasilien · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kirgizistan">Med sedan start: 🇸🇪 🇧🇷 🇳🇬 🇰🇿 🇰🇬</div>
+  </div>
+</section>
+
+<!-- ============================== GALLERI ============================== -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kicker" data-en="The atmosphere" data-sv="Stämningen">Stämningen</span>
+      <h2 data-en="Built on honor<br><span class='foil'>and integrity.</span>" data-sv="Byggt på heder<br><span class='foil'>och integritet.</span>">Byggt på heder<br><span class="foil">och integritet.</span></h2>
+      <p data-en="Where the world meets in the heart of Stockholm — flags, fans, food and football." data-sv="Där världen möts i hjärtat av Stockholm — flaggor, fans, mat och fotboll.">Där världen möts i hjärtat av Stockholm — flaggor, fans, mat och fotboll.</p>
+    </div>
+    <div class="gal-grid rv">
+      <figure><img loading="lazy" src="img/gallery-original.jpg" alt="The Original — Stockholm Cup of Nations" /><figcaption data-en="The Original — 2026" data-sv="Originalet — 2026">Originalet — 2026</figcaption></figure>
+      <figure><img loading="lazy" src="img/gallery-champions.jpg" alt="" /><figcaption data-en="One goal — all united" data-sv="Ett mål — alla förenade">Ett mål — alla förenade</figcaption></figure>
+      <figure><img loading="lazy" src="img/gallery-players.jpg" alt="" /><figcaption data-en="25–26 July · Östermalms IP" data-sv="25–26 juli · Östermalms IP">25–26 juli · Östermalms IP</figcaption></figure>
+    </div>
+  </div>
+</section>
+
 <!-- ============================== MAT & FEST ============================== -->
 <section id="festival">
   <div class="wrap">
@@ -840,7 +904,7 @@ function applyLang(lang){
   });
   document.querySelectorAll('#langBtn .lng').forEach(el=>
     el.classList.toggle('active',el.getAttribute('data-set')===lang));
-  renderNations(lang); renderTicker(lang); renderHonour(lang);
+  renderNations(lang); renderTicker(lang); renderHonour(lang); renderAlltime(lang);
   try{ localStorage.setItem('scon_lang',lang); }catch(e){}
 }
 let curLang='en';
@@ -893,7 +957,7 @@ navLinks.addEventListener('click',e=>{ if(e.target.tagName==='A') navLinks.class
   if(!dismissed) setTimeout(()=>n.classList.add('show'),1400);
   const hide=()=>{ n.classList.remove('show'); try{ sessionStorage.setItem('scon_notice','x'); }catch(e){} };
   document.getElementById('noticeX').addEventListener('click',hide);
-  document.getElementById('noticeGo').addEventListener('click',hide);
+  n.querySelectorAll('.go').forEach(a=>a.addEventListener('click',hide));
 })();
 
 /* ================= DE 32 — preliminär laguppställning 2026 ================= */
@@ -991,6 +1055,31 @@ const YEARS={
     ]}
 };
 const fimg=iso=>'<img class="flagimg" src="img/flags/svg/'+iso+'.svg" alt="">';
+/* Alla nationer genom åren (46 st) — [kod, deltaganden, år] från gamla sajten */
+const ALLTIME=[
+  ['AFG',1,'2025'],['ALB',3,'2022, 2023, 2025'],['ARG',1,'2022'],['AZE',2,'2022, 2024'],
+  ['BNG',1,'2025'],['BOS',1,'2023'],['BRA',4,'2022, 2023, 2024, 2025'],['CBV',1,'2025'],
+  ['COL',2,'2022, 2023'],['CRO',3,'2022, 2023, 2025'],['DRC',1,'2025'],['ECU',2,'2023, 2024'],
+  ['EGY',1,'2022'],['EST',1,'2023'],['ETI',1,'2025'],['FRA',2,'2022, 2025'],
+  ['GAM',1,'2025'],['GEO',3,'2023, 2024, 2025'],['GHA',1,'2025'],['GRE',1,'2022'],
+  ['IND',1,'2025'],['IRQ',1,'2025'],['ITA',1,'2022'],['KAZ',4,'2022, 2023, 2024, 2025'],
+  ['KYR',4,'2022, 2023, 2024, 2025'],['LAT',1,'2023'],['MAL',1,'2025'],['MEX',2,'2024, 2025'],
+  ['MOL',1,'2025'],['NIC',1,'2024'],['NIG',4,'2022, 2023, 2024, 2025'],['PAK',1,'2025'],
+  ['POL',2,'2023, 2024'],['ROM',1,'2025'],['SEN',1,'2024'],['SER',1,'2025'],
+  ['SYD',1,'2025'],['SUD',1,'2025'],['SWE',4,'2022, 2023, 2024, 2025'],['SYR',1,'2025'],
+  ['TAN',2,'2024, 2025'],['TUN',1,'2022'],['TUR',2,'2024, 2025'],['UKR',3,'2023, 2024, 2025'],
+  ['URU',2,'2022, 2025'],['UZB',3,'2023, 2024, 2025']
+];
+function renderAlltime(l){
+  const host=document.getElementById('natGrid'); if(!host) return;
+  host.innerHTML=ALLTIME.map(([code,cnt,yrs])=>{
+    const t=NAT3[code]; if(!t) return '';
+    return '<div class="nat-card'+(cnt<2?' once':'')+' rv in">'+
+      '<img class="fl" src="img/flags/svg/'+t[0]+'.svg" alt="">'+
+      '<div class="info"><div class="nm">'+(l==='sv'?t[2]:t[1])+'</div><div class="yrs">'+yrs+'</div></div>'+
+      '<span class="cnt" title="'+(l==='sv'?'deltaganden':'appearances')+'">'+cnt+'</span></div>';
+  }).join('');
+}
 const natName=(code,l)=>{ const t=NAT3[code]; return t?(l==='sv'?t[2]:t[1]):code; };
 const natFlag=code=>{ const t=NAT3[code]; return t?fimg(t[0]):''; };
 
