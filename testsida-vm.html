@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TESTSIDA — Stockholm Cup of Nations 2026 · VM-design</title>
+<title>Stockholm Cup of Nations 2026</title>
 <link rel="icon" href="img/cup-of-nations-logo.png" />
 <meta name="robots" content="noindex,nofollow" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,30 +55,31 @@ img{display:block;max-width:100%}
 
 /* ============================== NAV ============================== */
 header.nav{position:fixed;top:0;left:0;right:0;z-index:80;transition:background .35s,border-color .35s;
-  border-bottom:1px solid transparent}
-header.nav.solid{background:rgba(4,11,32,.88);backdrop-filter:blur(14px);border-color:var(--line)}
+  border-bottom:1px solid transparent;
+  background:linear-gradient(180deg,rgba(4,11,32,.82),rgba(4,11,32,0))}
+header.nav.solid{background:rgba(4,11,32,.92);backdrop-filter:blur(14px);border-color:var(--line)}
 .nav-inner{display:flex;align-items:center;gap:16px;height:76px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand img{height:44px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
 .brand b{font-family:var(--disp);font-stretch:115%;font-weight:900;font-size:15px;letter-spacing:.04em}
 .brand b small{display:block;font-family:var(--mono);font-weight:500;font-size:9px;
   letter-spacing:.3em;color:var(--gold)}
-nav.links{margin-left:auto;display:flex;gap:24px;font-family:var(--mono);font-size:12px;
-  letter-spacing:.12em;text-transform:uppercase;align-items:center}
-nav.links a{color:var(--dim);transition:color .2s;white-space:nowrap}
+nav.links{margin-left:auto;display:flex;gap:24px;font-family:var(--mono);font-size:12.5px;
+  letter-spacing:.1em;text-transform:uppercase;align-items:center}
+nav.links a{color:#e4eafb;text-shadow:0 1px 10px rgba(0,0,0,.65);transition:color .2s;white-space:nowrap}
 nav.links a:hover{color:var(--gold)}
 .lang{display:inline-flex;gap:2px;border:1px solid var(--line-2);border-radius:8px;padding:3px;cursor:pointer}
 .lang .lng{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;
-  font-family:var(--mono);font-weight:600;font-size:11px;color:var(--dim);transition:.15s;white-space:nowrap}
+  font-family:var(--mono);font-weight:600;font-size:11px;color:#d6ddf2;transition:.15s;white-space:nowrap}
 .lang .lng.active{background:var(--gold);color:#241a00}
 .lang .lng:not(.active):hover{color:var(--text)}
 .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--disp);font-stretch:108%;
-  font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:800;font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;
   padding:14px 26px;border-radius:8px;cursor:pointer;border:1px solid transparent;
   transition:transform .18s,box-shadow .18s,background .18s}
 .btn:hover{transform:translateY(-2px)}
-.btn-gold{background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,#d9a90a);color:#241a00;
-  box-shadow:0 10px 30px rgba(244,194,13,.25)}
+.btn-gold{background:linear-gradient(180deg,#ffdf7a,var(--gold) 60%,#e0ad0a);color:#120c00;
+  font-weight:900;box-shadow:0 10px 30px rgba(244,194,13,.25)}
 .btn-gold:hover{box-shadow:0 16px 40px rgba(244,194,13,.35)}
 .btn-line{border-color:var(--line-2);color:var(--text)}
 .btn-line:hover{border-color:var(--gold);color:var(--gold)}
@@ -86,7 +87,7 @@ nav.links a:hover{color:var(--gold)}
 .live-dot{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:0 0 auto;
   animation:liveGlow 1.8s infinite}
 @keyframes liveGlow{50%{box-shadow:0 0 0 6px rgba(244,194,13,.15)}}
-.nav-cta{padding:10px 16px;font-size:11.5px}
+.nav-cta{padding:10px 16px;font-size:12px}
 .burger{display:none;margin-left:auto;font-size:26px;color:var(--text);cursor:pointer;background:none;border:0}
 
 /* ============================== NOTIS (en plats kvar) ============================== */
@@ -115,23 +116,35 @@ nav.links a:hover{color:var(--gold)}
   animation:heroZoom 26s ease-out forwards}
 @keyframes heroZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
 .hero-shade{position:absolute;inset:0;background:
-  linear-gradient(180deg,rgba(4,11,32,.66) 0%,rgba(4,11,32,.18) 34%,rgba(4,11,32,.52) 66%,var(--night) 97%),
+  radial-gradient(62% 58% at 50% 46%,rgba(4,11,32,.58),transparent 72%),
+  linear-gradient(180deg,rgba(4,11,32,.78) 0%,rgba(4,11,32,.42) 34%,rgba(4,11,32,.6) 66%,var(--night) 97%),
   radial-gradient(120% 90% at 50% 110%,rgba(11,70,196,.35),transparent 60%)}
 .hero-grain{position:absolute;inset:0;opacity:.5;pointer-events:none;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")}
-.hero-inner{position:relative;z-index:2;flex:1;display:flex;align-items:flex-end;width:100%;
-  max-width:var(--max);margin:0 auto;padding:150px 26px 40px}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.9fr);gap:40px;align-items:end;width:100%}
-.hero h1{font-family:var(--disp);font-weight:900;font-stretch:120%;text-transform:uppercase;
-  font-size:clamp(44px,6.6vw,92px);line-height:.92;letter-spacing:-.01em;margin:18px 0 22px}
+.hero-inner{position:relative;z-index:2;flex:1;display:flex;align-items:center;justify-content:center;
+  width:100%;max-width:var(--max);margin:0 auto;padding:120px 26px 44px}
+/* Allt byggs runt logotypen: centrerad komposition */
+.hero-center{display:flex;flex-direction:column;align-items:center;text-align:center;
+  max-width:900px;margin:0 auto;width:100%}
+.hero-crest{height:clamp(110px,17vh,180px);width:auto;
+  filter:drop-shadow(0 14px 44px rgba(0,0,0,.65));margin-bottom:20px}
+.hero .badge-chip{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--gold);border:1px solid rgba(244,194,13,.4);border-radius:6px;
+  padding:6px 12px;background:rgba(4,11,32,.5);margin-bottom:18px}
+.hero h1{font-family:var(--disp);font-weight:900;font-stretch:118%;text-transform:uppercase;
+  font-size:clamp(38px,5.6vw,80px);line-height:.94;letter-spacing:-.005em;margin:6px 0 18px;
+  text-shadow:0 3px 30px rgba(0,0,0,.55)}
 .hero h1 .row{display:block}
-.hero p.lede{max-width:560px;font-size:17.5px;color:#c2cdea;text-wrap:balance}
-.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
-.hero .motto{margin-top:26px;font-style:italic;color:var(--dim);font-size:13.5px;
-  border-left:3px solid var(--gold);padding-left:14px;max-width:420px}
+.hero p.tagline{font-size:clamp(17px,1.8vw,22px);font-weight:600;color:#fff;
+  text-shadow:0 2px 18px rgba(0,0,0,.6);text-wrap:balance}
+.hero p.lede{max-width:620px;font-size:16px;color:#ccd6ef;margin-top:10px;text-wrap:balance;
+  text-shadow:0 2px 14px rgba(0,0,0,.55)}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px;justify-content:center}
+.hero .motto{margin-top:22px;font-style:italic;color:#aab7da;font-size:13.5px;
+  text-shadow:0 1px 10px rgba(0,0,0,.6)}
 /* Broadcast-modul: nedräkning som sändningsgrafik */
-.kickoff{justify-self:end;width:100%;max-width:340px;min-width:0;border:1px solid var(--line-2);border-radius:12px;
-  background:rgba(4,11,32,.55);backdrop-filter:blur(10px);overflow:hidden}
+.kickoff{width:100%;max-width:360px;min-width:0;margin:26px auto 0;border:1px solid var(--line-2);border-radius:12px;
+  background:rgba(4,11,32,.62);backdrop-filter:blur(10px);overflow:hidden}
 .kickoff .bar{display:flex;align-items:center;gap:8px;padding:9px 14px;white-space:nowrap;
   background:linear-gradient(90deg,var(--gold),var(--gold-hi));color:#241a00;
   font-family:var(--mono);font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
@@ -410,9 +423,6 @@ footer a:hover{color:var(--gold)}
   border-radius:50%;display:grid;place-items:center;font-size:26px;
   box-shadow:0 10px 30px rgba(37,211,102,.45);transition:transform .2s}
 .wa:hover{transform:scale(1.08)}
-.testbadge{position:fixed;left:16px;bottom:16px;z-index:85;font-family:var(--mono);font-size:10px;
-  letter-spacing:.2em;text-transform:uppercase;color:#241a00;background:var(--gold);
-  border-radius:6px;padding:6px 10px;box-shadow:0 8px 20px rgba(0,0,0,.4)}
 
 /* ============================== RESPONSIVT ============================== */
 @media(max-width:1080px){
@@ -424,8 +434,6 @@ footer a:hover{color:var(--gold)}
   nav.links.open a{padding:13px 0;border-bottom:1px solid var(--line)}
   .nations-grid{grid-template-columns:repeat(3,1fr)}
   .honour-grid{grid-template-columns:repeat(2,1fr)}
-  .hero-grid{grid-template-columns:1fr;gap:30px}
-  .kickoff{justify-self:start;width:100%;max-width:420px}
   .reg-grid,.about-grid{grid-template-columns:1fr;gap:36px}
   .ed-groups,.ed-ko{grid-template-columns:repeat(2,1fr)}
   .foot-grid{grid-template-columns:1fr 1fr}
@@ -459,13 +467,11 @@ footer a:hover{color:var(--gold)}
 </head>
 <body>
 
-<div class="testbadge">Testsida · ej publik</div>
-
 <header class="nav" id="nav">
   <div class="wrap nav-inner">
     <a class="brand" href="#top">
       <img src="img/cup-of-nations-logo.png" alt="" />
-      <b>STOCKHOLM CUP<small>OF NATIONS · 2026</small></b>
+      <b>STOCKHOLM CUP OF NATIONS<small>2026 · ÖSTERMALMS IP</small></b>
     </a>
     <nav class="links" id="navLinks">
       <a href="#format" data-en="Format" data-sv="Format">Format</a>
@@ -498,20 +504,19 @@ footer a:hover{color:var(--gold)}
   <div class="hero-shade"></div>
   <div class="hero-grain"></div>
   <div class="hero-inner">
-    <div class="hero-grid">
-      <div>
-        <span class="kicker" data-en="Stockholm · 25–26 July 2026 · Östermalms IP" data-sv="Stockholm · 25–26 juli 2026 · Östermalms IP">Stockholm · 25–26 July 2026 · Östermalms IP</span>
-        <h1 data-en="<span class='row'>The city's</span><span class='row foil'>own World Cup.</span>" data-sv="<span class='row'>Stadens</span><span class='row foil'>eget VM.</span>">
-          <span class="row">The city's</span>
-          <span class="row foil">own World Cup.</span>
-        </h1>
-        <p class="lede" data-en="32 nations. Five continents. Two days of football — where Stockholm's cultures meet on the pitch and one nation lifts the cup." data-sv="32 nationer. Fem kontinenter. Två dagar av fotboll — där Stockholms kulturer möts på planen och en nation lyfter bucklan.">32 nations. Five continents. Two days of football — where Stockholm's cultures meet on the pitch and one nation lifts the cup.</p>
-        <div class="hero-cta">
-          <a class="btn btn-gold" href="#register" data-en="Register your nation →" data-sv="Anmäl din nation →">Register your nation →</a>
-          <a class="btn btn-line" href="#format" data-en="Tournament format" data-sv="Turneringsformat">Tournament format</a>
-          <a class="btn btn-line" href="slutspel-scroll.html"><span class="live-dot"></span><span data-en="Results 2026" data-sv="Resultat 2026">Results 2026</span></a>
-        </div>
-        <p class="motto">"Only Football. No Politics. Respect the Game."</p>
+    <div class="hero-center">
+      <span class="badge-chip" data-en="The Original · 5th Edition" data-sv="Originalet · 5:e upplagan">The Original · 5th Edition</span>
+      <img class="hero-crest" src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" />
+      <h1>
+        <span class="row">Stockholm</span>
+        <span class="row foil">Cup of Nations</span>
+      </h1>
+      <p class="tagline" data-en="Where the world meets in the heart of Stockholm." data-sv="Där världen möts i hjärtat av Stockholm.">Where the world meets in the heart of Stockholm.</p>
+      <p class="lede" data-en="A grassroots international football tournament uniting the city's cultures on the pitch — 32 nations, five continents, two days of football. 25–26 July 2026 at Östermalms IP." data-sv="En internationell gräsrotsturnering i fotboll som förenar stadens kulturer på planen — 32 nationer, fem kontinenter, två dagar av fotboll. 25–26 juli 2026 på Östermalms IP.">A grassroots international football tournament uniting the city's cultures on the pitch — 32 nations, five continents, two days of football. 25–26 July 2026 at Östermalms IP.</p>
+      <div class="hero-cta">
+        <a class="btn btn-gold" href="#register" data-en="Register your team →" data-sv="Anmäl ditt lag →">Register your team →</a>
+        <a class="btn btn-line" href="#format" data-en="Tournament format" data-sv="Turneringsformat">Tournament format</a>
+        <a class="btn btn-line" href="slutspel-scroll.html"><span class="live-dot"></span><span data-en="Results 2026" data-sv="Resultat 2026">Results 2026</span></a>
       </div>
       <div class="kickoff" aria-label="Countdown">
         <div class="bar"><i></i> <span data-en="Kickoff · Matchday 1" data-sv="Avspark · Matchdag 1">Kickoff · Matchday 1</span></div>
@@ -523,6 +528,7 @@ footer a:hover{color:var(--gold)}
         </div>
         <div class="meta" data-en="Official group draw — <b>23 July 2026</b>" data-sv="Officiell gruppdragning — <b>23 juli 2026</b>">Official group draw — <b>23 July 2026</b></div>
       </div>
+      <p class="motto">"Only Football. No Politics. Respect the Game."</p>
     </div>
   </div>
   <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
@@ -531,10 +537,10 @@ footer a:hover{color:var(--gold)}
 <!-- ============================== STATS ============================== -->
 <section class="stats" style="padding:0">
   <div class="grid">
-    <div class="stat rv"><b class="foil">32</b><span data-en="Nations" data-sv="Nationer">Nations</span></div>
-    <div class="stat rv d1"><b class="foil">05</b><span data-en="Continents" data-sv="Kontinenter">Continents</span></div>
-    <div class="stat rv d2"><b class="foil">63</b><span data-en="Matches" data-sv="Matcher">Matches</span></div>
-    <div class="stat rv d3"><b class="foil">02</b><span data-en="Days" data-sv="Dagar">Days</span></div>
+    <div class="stat rv"><b class="foil">32</b><span data-en="Nations in 2026" data-sv="Nationer 2026">Nations in 2026</span></div>
+    <div class="stat rv d1"><b class="foil">05</b><span data-en="Continents represented" data-sv="Kontinenter representerade">Continents represented</span></div>
+    <div class="stat rv d2"><b class="foil">04</b><span data-en="Editions since 2022" data-sv="Upplagor sedan 2022">Editions since 2022</span></div>
+    <div class="stat rv d3"><b class="foil">01</b><span data-en="Talent to a pro academy ✱" data-sv="Talang till en proffsakademi ✱">Talent to a pro academy ✱</span></div>
   </div>
 </section>
 
@@ -542,8 +548,8 @@ footer a:hover{color:var(--gold)}
 <section id="format">
   <div class="wrap">
     <div class="sec-head rv">
-      <span class="kicker" data-en="Tournament format" data-sv="Turneringsformat">Tournament format</span>
-      <h2 data-en="Two matchdays.<br><span class='foil'>One champion.</span>" data-sv="Två matchdagar.<br><span class='foil'>En mästare.</span>">Two matchdays.<br><span class="foil">One champion.</span></h2>
+      <span class="kicker" data-en="How it works" data-sv="Så funkar det">How it works</span>
+      <h2 data-en="The <span class='foil'>format.</span>" data-sv="<span class='foil'>Formatet.</span>">The <span class="foil">format.</span></h2>
       <p data-en="Fast, non-stop 7-a-side football at Östermalms IP — 25-minute matches, group stage on Saturday, knockout all the way to the final on Sunday. Max 16 players per squad. Free entry for spectators." data-sv="Snabb 7-mot-7-fotboll utan uppehåll på Östermalms IP — 25-minutersmatcher, gruppspel på lördagen, slutspel hela vägen till final på söndagen. Max 16 spelare per trupp. Fri entré för publik.">Fast, non-stop 7-a-side football at Östermalms IP — 25-minute matches, group stage on Saturday, knockout all the way to the final on Sunday. Max 16 players per squad. Free entry for spectators.</p>
     </div>
     <div class="days">
@@ -662,9 +668,9 @@ footer a:hover{color:var(--gold)}
 <section id="honour">
   <div class="wrap">
     <div class="sec-head rv">
-      <span class="kicker" data-en="Roll of honour" data-sv="Mästarlistan">Roll of honour</span>
-      <h2 data-en="Four years.<br><span class='foil'>Four champions.</span>" data-sv="Fyra år.<br><span class='foil'>Fyra mästare.</span>">Four years.<br><span class="foil">Four champions.</span></h2>
-      <p data-en="Click a champion to expand the full tournament — every group and every knockout result." data-sv="Klicka på en mästare för att fälla ut hela turneringen — varje grupp och varje slutspelsresultat.">Click a champion to expand the full tournament — every group and every knockout result.</p>
+      <span class="kicker" data-en="Champions &amp; archive" data-sv="Mästare &amp; arkiv">Champions &amp; archive</span>
+      <h2 data-en="Past <span class='foil'>editions.</span>" data-sv="Tidigare <span class='foil'>upplagor.</span>">Past <span class="foil">editions.</span></h2>
+      <p data-en="Four years, four champions — click a champion to expand every group and knockout result since 2022." data-sv="Fyra år, fyra mästare — klicka på en mästare för att fälla ut alla grupp- och slutspelsresultat sedan 2022.">Four years, four champions — click a champion to expand every group and knockout result since 2022.</p>
     </div>
     <div class="honour-grid" id="honourGrid"></div>
   </div>
@@ -677,7 +683,7 @@ footer a:hover{color:var(--gold)}
       <div class="img"><img loading="lazy" src="img/food.png" alt="El Rinconcito Azul" /></div>
       <div class="copy">
         <span class="kicker" data-en="Food &amp; festival" data-sv="Mat &amp; fest">Food &amp; festival</span>
-        <h3 data-en="More than football —<br><span class='foil'>a celebration.</span>" data-sv="Mer än fotboll —<br><span class='foil'>en folkfest.</span>">More than football —<br><span class="foil">a celebration.</span></h3>
+        <h3 data-en="More than a tournament —<br><span class='foil'>a celebration.</span>" data-sv="Mer än en turnering —<br><span class='foil'>en fest.</span>">More than a tournament —<br><span class="foil">a celebration.</span></h3>
         <p data-en="Both days, <b>El Rinconcito Azul</b> serves authentic Salvadoran food made with love. Bring the family, taste the world, and soak up the atmosphere at Östermalms IP." data-sv="Båda dagarna serverar <b>El Rinconcito Azul</b> äkta salvadoransk mat lagad med kärlek. Ta med familjen, smaka på världen och njut av stämningen på Östermalms IP.">Both days, <b>El Rinconcito Azul</b> serves authentic Salvadoran food made with love. Bring the family, taste the world, and soak up the atmosphere at Östermalms IP.</p>
         <div class="loc">📍 <a href="https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm" target="_blank" rel="noopener">Östermalms IP ↗</a> · <span data-en="Free entry for spectators" data-sv="Fri entré för publik">Free entry for spectators</span></div>
       </div>
