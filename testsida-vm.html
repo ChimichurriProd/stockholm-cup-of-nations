@@ -126,13 +126,18 @@ nav.links a:hover{color:var(--gold)}
 /* Allt byggs runt logotypen: centrerad komposition */
 .hero-center{display:flex;flex-direction:column;align-items:center;text-align:center;
   max-width:900px;margin:0 auto;width:100%}
-/* Stor snurrande crest — myntsnurr med spegelvänd baksida så vapnet alltid läses rätt */
+/* Stor snurrande crest i 3D — extruderad tjocklek av staplade lager (mörk kant),
+   rättvänd fram- och baksida, lätt lutad snurraxel. OBS: inga filter på .crest-spinner
+   (filter plattar till preserve-3d). */
 .crest-stage{perspective:1200px;margin-bottom:28px}
 .crest-spinner{position:relative;transform-style:preserve-3d;animation:crestSpin 10s linear infinite}
 .hero-crest{height:clamp(170px,30vh,300px);width:auto;backface-visibility:hidden;
+  transform:translateZ(8px);
   filter:drop-shadow(0 18px 54px rgba(0,0,0,.65))}
-.hero-crest.back{position:absolute;top:0;left:0;transform:rotateY(180deg)}
-@keyframes crestSpin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
+.hero-crest.back{position:absolute;top:0;left:0;transform:rotateY(180deg) translateZ(8px)}
+.hero-crest.edge{position:absolute;top:0;left:0;backface-visibility:visible;
+  filter:brightness(.35) saturate(.7)}
+@keyframes crestSpin{from{transform:rotateX(-8deg) rotateY(0deg)}to{transform:rotateX(-8deg) rotateY(360deg)}}
 .hero .badge-chip{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.28em;
   text-transform:uppercase;color:var(--gold);border:1px solid rgba(244,194,13,.4);border-radius:6px;
   padding:6px 12px;background:rgba(4,11,32,.5);margin-bottom:24px}
@@ -512,7 +517,7 @@ footer a:hover{color:var(--gold)}
   <div class="hero-inner">
     <div class="hero-center">
       <span class="badge-chip" data-en="The Original · 5th Edition" data-sv="Originalet · 5:e upplagan">The Original · 5th Edition</span>
-      <div class="crest-stage"><div class="crest-spinner">
+      <div class="crest-stage"><div class="crest-spinner" id="crestSpinner">
         <img class="hero-crest" src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" />
         <img class="hero-crest back" src="img/cup-of-nations-logo.png" alt="" aria-hidden="true" />
       </div></div>
@@ -801,6 +806,19 @@ addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:
 const burger=document.getElementById('burger'), navLinks=document.getElementById('navLinks');
 burger.addEventListener('click',()=>navLinks.classList.toggle('open'));
 navLinks.addEventListener('click',e=>{ if(e.target.tagName==='A') navLinks.classList.remove('open'); });
+
+/* ================= CREST: extruderingslager (tjockleken mellan fram- och baksida) ================= */
+(function(){
+  const sp=document.getElementById('crestSpinner'); if(!sp) return;
+  const N=9, step=16/(N-1);   // 16px total tjocklek, front/back ligger på ±8px
+  for(let i=0;i<N;i++){
+    const im=document.createElement('img');
+    im.src='img/cup-of-nations-logo.png'; im.alt=''; im.setAttribute('aria-hidden','true');
+    im.className='hero-crest edge';
+    im.style.transform='translateZ('+(-8+i*step).toFixed(2)+'px)';
+    sp.insertBefore(im,sp.firstChild);
+  }
+})();
 
 /* ================= NEDRÄKNING ================= */
 (function(){
