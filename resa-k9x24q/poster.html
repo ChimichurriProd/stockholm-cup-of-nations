@@ -84,7 +84,13 @@ body{
 .gc .badge{flex:0 0 34px;display:grid;place-items:center;border-radius:9px;
     background:linear-gradient(160deg,var(--gold-2),var(--gold));color:var(--navy);
     font-weight:900;font-size:22px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
-.gc .teams{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.gc .gbody{flex:1;min-width:0;display:flex;flex-direction:column}
+.gc .teams{display:flex;flex-direction:column;gap:3px;min-width:0}
+/* gruppens sex matcher: vilka som möttes, inte bara form */
+.gmwrap{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-top:6px;padding-top:6px;border-top:1px solid #e6ebf4}
+.gmm{display:flex;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700;color:#55617a}
+.gmm img{width:15px;height:11px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px rgba(12,26,58,.12)}
+.gmm b{color:var(--navy);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .trow{display:flex;align-items:center;gap:8px;padding:4px 5px;border-radius:7px;min-width:0}
 .trow.adv{background:linear-gradient(90deg,rgba(244,194,13,.22),rgba(244,194,13,.06))}
 .col.right .trow.adv{background:linear-gradient(270deg,rgba(244,194,13,.22),rgba(244,194,13,.06))}
@@ -221,6 +227,12 @@ function chipsFor(letter,code){
     return '<span class="chip '+o+'"><i></i>'+x+':'+y+'</span>';
   }).join('')+'</span>';
 }
+function matchesFor(letter){
+  return '<div class="gmwrap">'+GM[letter].map(m=>{
+    const [a,b,x,y]=m;
+    return '<div class="gmm"><img src="'+flagUrl(T[a][0])+'" alt=""><b>'+x+'–'+y+'</b><img src="'+flagUrl(T[b][0])+'" alt=""></div>';
+  }).join('')+'</div>';
+}
 function card(letter,teams){
   const rows=teams.map((t,idx)=>{
     const [code,goals,pts]=t, [flag,name]=T[code];
@@ -228,7 +240,8 @@ function card(letter,teams){
     return '<div class="trow'+adv+'"><span class="fl"><img src="'+flagUrl(flag)+'" alt=""></span><span class="nm">'+name+'</span>'+
            chipsFor(letter,code)+'<span class="pts">'+pts+'</span></div>';
   }).join('');
-  return '<div class="gc"><div class="badge">'+letter+'</div><div class="teams">'+rows+'</div></div>';
+  return '<div class="gc"><div class="badge">'+letter+'</div><div class="gbody"><div class="teams">'+rows+'</div>'+
+         matchesFor(letter)+'</div></div>';
 }
 document.getElementById('colL').innerHTML=['A','B','C','D'].map(g=>card(g,GROUPS[g])).join('');
 document.getElementById('colR').innerHTML=['E','F','G','H'].map(g=>card(g,GROUPS[g])).join('');
