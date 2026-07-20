@@ -453,18 +453,66 @@ footer a:hover{color:var(--gold)}
   .stat{border-bottom:1px solid var(--line)}
   .stat:nth-child(3),.stat:nth-child(4){border-bottom:0}
   .stat:nth-child(2n){border-right:0}
+  .stat{padding:34px 14px}
   .days{grid-template-columns:1fr}
   .nations-grid{grid-template-columns:repeat(2,1fr)}
   section{padding:80px 0}
   .food-card{grid-template-columns:1fr}
   .hl-cards{grid-template-columns:1fr}
-  .notice{bottom:92px}
+
+  /* ---- Mobil-nav: en rad, inget spill ---- */
+  .nav-inner{height:62px;gap:10px}
+  .brand{gap:9px}
+  .brand img{height:34px}
+  .brand b{font-size:10.5px;letter-spacing:.03em;white-space:nowrap}
+  .brand b small{display:none}
+  nav.links{gap:0}
+  nav.links:not(.open) .nav-cta{display:none}   /* guldknappen bor i hero + menyn på mobil */
+  nav.links.open .nav-cta{margin-top:14px;align-self:flex-start;display:inline-flex}
+  nav.links.open{top:62px}
+  .lang{padding:2px}
+  .lang .lng{padding:4px 7px;font-size:10px;gap:4px}
+  .burger{font-size:24px;padding:4px 2px}
+
+  /* ---- Mobil-hero: mindre crest, rubrik som aldrig spiller ---- */
+  .hero-inner{padding:88px 18px 48px}
+  .crest-stage{margin-bottom:20px}
+  .hero-crest{height:clamp(130px,20vh,190px)}
+  .hero .badge-chip{font-size:8.5px;letter-spacing:.2em;margin-bottom:16px}
+  .hero p.tagline{font-size:16px}
+  .hero p.lede{font-size:14.5px}
+  .hero-cta{margin-top:24px;gap:10px;width:100%}
+  .hero-cta .btn{flex:1 1 auto;justify-content:center;padding:13px 16px;font-size:12px}
+  .kickoff{max-width:100%;margin-top:26px}
+  .kickoff .bar{font-size:9.5px;letter-spacing:.1em}
+  .kickoff .c b{font-size:26px}
+  .hero .motto{font-size:12.5px}
+
+  /* ---- Notis: kompakt lower third, knappen på egen rad ---- */
+  .notice{display:grid;grid-template-columns:auto 1fr auto;gap:10px 12px;align-items:center;
+    bottom:14px;width:92vw;max-width:92vw;padding:12px 14px}
+  .notice p{font-size:12.5px;line-height:1.4;min-width:0}
+  .notice .tag{font-size:9px;padding:4px 7px}
+  .notice a.go{grid-column:1 / -1;justify-content:center;display:inline-flex;padding:10px}
+  .notice button.x{padding:2px 4px}
+
+  /* ---- Sektioner & kort ---- */
+  .sec-head h2{font-size:clamp(28px,8.5vw,40px)}
+  .reg-form{padding:26px 20px}
+  .edition-inner{padding:22px 14px}
+  .ticker .t{font-size:10px;letter-spacing:.12em}
 }
 @media(max-width:480px){
   .honour-grid{grid-template-columns:1fr}
   .ed-groups,.ed-ko{grid-template-columns:1fr}
-  .hero h1{font-size:clamp(40px,13vw,58px)}
   .foot-grid{grid-template-columns:1fr}
+  .wa{width:52px;height:52px;font-size:23px;right:14px;bottom:14px}
+  .brand b{display:none}   /* småmobil: vapnet räcker i navraden, namnet står stort i heron */
+  .nav-inner{gap:8px}
+}
+/* Rubriken: skalar med skärmbredd på mobil, får aldrig klippas */
+@media(max-width:760px){
+  .hero h1{font-size:clamp(26px,9.6vw,44px);font-stretch:104%;letter-spacing:0;margin-bottom:14px}
 }
 @media(prefers-reduced-motion:reduce){
   .hero-bg{animation:none}
@@ -973,11 +1021,10 @@ function editionHtml(year,l){
       ? '<div class="champ-line">🏆 '+(l==='sv'?'Mästare':'Champion')+': '+natName(d.champ,l)+'</div>' : '';
     return '<div class="round"><h4>'+RT[key][l==='sv'?1:0]+'</h4>'+ms+champLine+'</div>';
   }).join('');
-  const gcols = d.groups.length>4 ? 'style="grid-template-columns:repeat(4,1fr)"' : '';
   return '<div class="edition-inner">'+
     '<div class="edition-title"><b>'+year+' · '+d.venue+'</b><span>'+d.nations+' '+(l==='sv'?'nationer':'nations')+'</span>'+
     '<span>🏆 '+(l==='sv'?'Mästare':'Champion')+': '+natFlag(d.champ)+' '+natName(d.champ,l)+'</span></div>'+
-    '<div class="ed-groups" '+gcols+'>'+groups+'</div>'+
+    '<div class="ed-groups">'+groups+'</div>'+
     '<div class="ed-note">'+note+'</div>'+
     '<div class="ed-ko">'+ko+'</div></div>';
 }
