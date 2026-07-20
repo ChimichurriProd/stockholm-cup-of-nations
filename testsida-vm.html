@@ -91,7 +91,7 @@ nav.links a:hover{color:var(--gold)}
 .burger{display:none;margin-left:auto;font-size:26px;color:var(--text);cursor:pointer;background:none;border:0}
 
 /* ============================== NOTIS (en plats kvar) ============================== */
-.notice{position:fixed;top:92px;left:50%;transform:translateX(-50%) translateY(-16px);opacity:0;
+.notice{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;
   z-index:90;display:flex;align-items:center;gap:14px;max-width:min(92vw,560px);
   background:rgba(7,18,51,.92);backdrop-filter:blur(12px);border:1px solid rgba(244,194,13,.5);
   border-radius:12px;padding:13px 16px;box-shadow:0 24px 60px rgba(0,0,0,.55);
@@ -122,28 +122,33 @@ nav.links a:hover{color:var(--gold)}
 .hero-grain{position:absolute;inset:0;opacity:.5;pointer-events:none;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")}
 .hero-inner{position:relative;z-index:2;flex:1;display:flex;align-items:center;justify-content:center;
-  width:100%;max-width:var(--max);margin:0 auto;padding:120px 26px 44px}
+  width:100%;max-width:var(--max);margin:0 auto;padding:130px 26px 60px}
 /* Allt byggs runt logotypen: centrerad komposition */
 .hero-center{display:flex;flex-direction:column;align-items:center;text-align:center;
   max-width:900px;margin:0 auto;width:100%}
-.hero-crest{height:clamp(110px,17vh,180px);width:auto;
-  filter:drop-shadow(0 14px 44px rgba(0,0,0,.65));margin-bottom:20px}
+/* Stor snurrande crest — myntsnurr med spegelvänd baksida så vapnet alltid läses rätt */
+.crest-stage{perspective:1200px;margin-bottom:28px}
+.crest-spinner{position:relative;transform-style:preserve-3d;animation:crestSpin 10s linear infinite}
+.hero-crest{height:clamp(170px,30vh,300px);width:auto;backface-visibility:hidden;
+  filter:drop-shadow(0 18px 54px rgba(0,0,0,.65))}
+.hero-crest.back{position:absolute;top:0;left:0;transform:rotateY(180deg)}
+@keyframes crestSpin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
 .hero .badge-chip{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.28em;
   text-transform:uppercase;color:var(--gold);border:1px solid rgba(244,194,13,.4);border-radius:6px;
-  padding:6px 12px;background:rgba(4,11,32,.5);margin-bottom:18px}
+  padding:6px 12px;background:rgba(4,11,32,.5);margin-bottom:24px}
 .hero h1{font-family:var(--disp);font-weight:900;font-stretch:118%;text-transform:uppercase;
-  font-size:clamp(38px,5.6vw,80px);line-height:.94;letter-spacing:-.005em;margin:6px 0 18px;
+  font-size:clamp(40px,5.8vw,84px);line-height:.94;letter-spacing:-.005em;margin:8px 0 22px;
   text-shadow:0 3px 30px rgba(0,0,0,.55)}
 .hero h1 .row{display:block}
-.hero p.tagline{font-size:clamp(17px,1.8vw,22px);font-weight:600;color:#fff;
+.hero p.tagline{font-size:clamp(17px,1.9vw,23px);font-weight:600;color:#fff;
   text-shadow:0 2px 18px rgba(0,0,0,.6);text-wrap:balance}
-.hero p.lede{max-width:620px;font-size:16px;color:#ccd6ef;margin-top:10px;text-wrap:balance;
+.hero p.lede{max-width:640px;font-size:16px;color:#ccd6ef;margin-top:14px;text-wrap:balance;
   text-shadow:0 2px 14px rgba(0,0,0,.55)}
-.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px;justify-content:center}
-.hero .motto{margin-top:22px;font-style:italic;color:#aab7da;font-size:13.5px;
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px;justify-content:center}
+.hero .motto{margin-top:28px;font-style:italic;color:#aab7da;font-size:13.5px;
   text-shadow:0 1px 10px rgba(0,0,0,.6)}
 /* Broadcast-modul: nedräkning som sändningsgrafik */
-.kickoff{width:100%;max-width:360px;min-width:0;margin:26px auto 0;border:1px solid var(--line-2);border-radius:12px;
+.kickoff{width:100%;max-width:360px;min-width:0;margin:34px auto 0;border:1px solid var(--line-2);border-radius:12px;
   background:rgba(4,11,32,.62);backdrop-filter:blur(10px);overflow:hidden}
 .kickoff .bar{display:flex;align-items:center;gap:8px;padding:9px 14px;white-space:nowrap;
   background:linear-gradient(90deg,var(--gold),var(--gold-hi));color:#241a00;
@@ -448,7 +453,7 @@ footer a:hover{color:var(--gold)}
   section{padding:80px 0}
   .food-card{grid-template-columns:1fr}
   .hl-cards{grid-template-columns:1fr}
-  .notice{top:auto;bottom:92px}
+  .notice{bottom:92px}
 }
 @media(max-width:480px){
   .honour-grid{grid-template-columns:1fr}
@@ -458,6 +463,7 @@ footer a:hover{color:var(--gold)}
 }
 @media(prefers-reduced-motion:reduce){
   .hero-bg{animation:none}
+  .crest-spinner{animation:none}
   .ticker-track{animation:none;flex-wrap:wrap;width:auto;justify-content:center}
   .rv{opacity:1;transform:none;transition:none}
   .kickoff .bar i,.notice .tag{animation:none}
@@ -506,7 +512,10 @@ footer a:hover{color:var(--gold)}
   <div class="hero-inner">
     <div class="hero-center">
       <span class="badge-chip" data-en="The Original · 5th Edition" data-sv="Originalet · 5:e upplagan">The Original · 5th Edition</span>
-      <img class="hero-crest" src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" />
+      <div class="crest-stage"><div class="crest-spinner">
+        <img class="hero-crest" src="img/cup-of-nations-logo.png" alt="Stockholm Cup of Nations" />
+        <img class="hero-crest back" src="img/cup-of-nations-logo.png" alt="" aria-hidden="true" />
+      </div></div>
       <h1>
         <span class="row">Stockholm</span>
         <span class="row foil">Cup of Nations</span>
