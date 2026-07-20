@@ -121,6 +121,8 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
 .fbtn:hover{color:var(--text);border-color:var(--gold)}
 .fbtn.sel{background:var(--gold);color:#241a00;border-color:var(--gold)}
 .fbtn.day{font-weight:600}
+.fbtn.grp.sel{background:#3d6ae0;color:#fff;border-color:#3d6ae0}
+.filters+.filters{margin-top:-4px}
 .fspacer{flex:1}
 
 .sched{display:flex;flex-direction:column;gap:8px}
@@ -428,7 +430,7 @@ const ROUND_HEAD={ R16:['Round of 16','Åttondelsfinaler'], QF:['Quarter-finals'
 const PREVIEW=/preview|forhandsvisning/i.test(location.search);
 const PUBLISH_EARLIEST=new Date('2026-07-23T00:00:00+02:00');
 
-let TEAMS=[], MATCHES=[], SETTINGS={}, pitchFilter=null, dayFilter=null, timer=null;
+let TEAMS=[], MATCHES=[], SETTINGS={}, pitchFilter=null, groupFilter=null, dayFilter=null, timer=null;
 
 async function sbGet(path){
   const r=await fetch(SB_URL+'/rest/v1/'+path,{headers:{apikey:SB_KEY}});
@@ -533,10 +535,21 @@ function renderSched(){
   ['A','B','C','D'].forEach(p=>{
     html+='<button class="fbtn'+(pitchFilter===p?' sel':'')+'" data-pitch="'+p+'">'+(l==='sv'?'Plan ':'Pitch ')+p+'</button>';
   });
+  html+='</div><div class="filters">';
+  html+='<button class="fbtn grp'+(groupFilter==null?' sel':'')+'" data-group="all">'+(l==='sv'?'Alla grupper':'All groups')+'</button>';
+  ['A','B','C','D','E','F','G','H'].forEach(g=>{
+    html+='<button class="fbtn grp'+(groupFilter===g?' sel':'')+'" data-group="'+g+'">GRP '+g+'</button>';
+  });
   html+='</div><div class="sched">';
   const rows=sched
     .filter(m=>m.sched_date===dayFilter)
     .filter(m=>pitchFilter==null||PITCH_LETTER[m.pitch]===pitchFilter)
+    .filter(m=>{
+      if(groupFilter==null) return true;
+      if(m.stage==='group') return m.group_name===groupFilter;
+      const h=teamById(m.home_id), a=teamById(m.away_id);   // slutspel: visa gruppens lag
+      return (h&&h.group_name===groupFilter)||(a&&a.group_name===groupFilter);
+    })
     .sort((a,b)=> a.sched_time.localeCompare(b.sched_time)||(a.pitch||0)-(b.pitch||0));
   if(!rows.length){
     html+='<div class="empty-note">'+(l==='sv'?'Inga matcher för valet.':'No matches for this filter.')+'</div>';
@@ -567,6 +580,9 @@ function renderSched(){
   host.querySelectorAll('.fbtn[data-day]').forEach(b=>b.addEventListener('click',()=>{ dayFilter=b.dataset.day; renderSched(); }));
   host.querySelectorAll('.fbtn[data-pitch]').forEach(b=>b.addEventListener('click',()=>{
     pitchFilter=b.dataset.pitch==='all'?null:b.dataset.pitch; renderSched(); syncMap();
+  }));
+  host.querySelectorAll('.fbtn[data-group]').forEach(b=>b.addEventListener('click',()=>{
+    groupFilter=b.dataset.group==='all'?null:b.dataset.group; renderSched();
   }));
 }
 function srcText(src,l){
