@@ -80,10 +80,17 @@ section{padding:46px 0 0}
 .mapcol{display:flex;flex-direction:column;gap:14px;align-self:start}
 .pitchmap{border:1px solid var(--line-2);border-radius:16px;overflow:hidden;
   background:linear-gradient(170deg,#0b1740,var(--night-2) 85%)}
-/* Google Maps-kort: mörkfiltrerad embed så kartan smälter in i natt-designen */
+/* Google Maps-kort: mörkfiltrerad embed, hopfälld tills man öppnar den */
 .mapcard{border:1px solid var(--line-2);border-radius:16px;overflow:hidden;
   background:linear-gradient(170deg,#0b1740,var(--night-2) 85%)}
-.mapcard iframe{display:block;width:100%;height:230px;border:0;
+.maptoggle{width:100%;background:none;border:0;cursor:pointer;border-bottom:0}
+.maptoggle .chev{font-style:normal;display:inline-block;color:var(--gold);
+  transition:transform .3s ease;margin-left:4px}
+.mapcard.open .maptoggle{border-bottom:1px solid var(--line)}
+.mapcard.open .maptoggle .chev{transform:rotate(180deg)}
+.mapbody{max-height:0;overflow:hidden;transition:max-height .45s ease}
+.mapcard.open .mapbody{max-height:320px}
+.mapcard iframe{display:block;width:100%;height:230px;border:0;background:#0a1330;
   filter:invert(.92) hue-rotate(180deg) saturate(.65) brightness(.92) contrast(.95)}
 .mapcard .mapfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:11px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim)}
@@ -115,11 +122,13 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
 .sched{display:flex;flex-direction:column;gap:8px}
 .wavehead{margin:14px 0 2px;font-family:var(--mono);font-weight:600;font-size:10.5px;
   letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
-.mrow{display:grid;grid-template-columns:52px 64px minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;
+.mrow{display:grid;grid-template-columns:52px 62px 62px minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;
   border:1px solid var(--line);border-radius:11px;padding:10px 14px;background:rgba(255,255,255,.025)}
 .mrow .t{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--text)}
 .mrow .pl{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.08em;text-align:center;
   color:var(--gold);border:1px solid rgba(244,194,13,.45);border-radius:6px;padding:4px 0;background:rgba(244,194,13,.07)}
+.mrow .gp{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.08em;text-align:center;
+  color:#a8bdf0;border:1px solid rgba(11,70,196,.65);border-radius:6px;padding:4px 0;background:rgba(11,70,196,.16)}
 .mrow .side{display:flex;align-items:center;gap:8px;min-width:0;font-size:13.5px;font-weight:600}
 .mrow .side span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mrow .side.away{justify-content:flex-end}
@@ -207,8 +216,9 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
   .back{padding:8px 10px;font-size:10.5px}
   .lang{padding:2px}
   .lang .lng{padding:4px 7px;font-size:10px;gap:4px}
-  .mrow{grid-template-columns:44px 50px minmax(0,1fr) auto minmax(0,1fr);gap:7px;padding:9px 10px}
-  .mrow .t{font-size:11.5px}
+  .mrow{grid-template-columns:42px 48px 48px minmax(0,1fr) auto minmax(0,1fr);gap:6px;padding:9px 10px}
+  .mrow .t{font-size:11px}
+  .mrow .pl,.mrow .gp{font-size:8.5px;letter-spacing:.04em}
   .mrow .side{font-size:12px;gap:6px}
   .mrow .sc{font-size:12px;min-width:36px}
 }
@@ -266,11 +276,11 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
             <!-- mark -->
             <rect x="-40" y="0" width="340" height="560" fill="#081231"/>
             <!-- läktaren (västra sidan, mittemot löparbanan) -->
-            <rect x="-34" y="14" width="30" height="532" rx="10" fill="#22345e"/>
-            <line x1="-26" y1="24" x2="-26" y2="536" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
-            <line x1="-19" y1="24" x2="-19" y2="536" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
-            <line x1="-12" y1="24" x2="-12" y2="536" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
-            <text x="-19" y="292" fill="rgba(255,255,255,.5)" font-size="9" letter-spacing="3" text-anchor="middle" transform="rotate(-90 -19 292)">LÄKTARE</text>
+            <rect x="-34" y="14" width="30" height="532" rx="10" fill="#2e4472"/>
+            <line x1="-26" y1="24" x2="-26" y2="536" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+            <line x1="-19" y1="24" x2="-19" y2="536" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+            <line x1="-12" y1="24" x2="-12" y2="536" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+            <text x="-19" y="292" fill="rgba(255,255,255,.65)" font-size="9" letter-spacing="3" text-anchor="middle" transform="rotate(-90 -19 292)">LÄKTARE</text>
             <!-- löparbana -->
             <rect x="252" y="14" width="30" height="532" rx="14" fill="var(--track)" opacity=".85"/>
             <line x1="259" y1="24" x2="259" y2="536" stroke="rgba(255,255,255,.25)" stroke-width="1" stroke-dasharray="2 6"/>
@@ -337,14 +347,19 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
           <div class="maplegend" data-en="<b>A</b> &amp; <b>D</b> are the 7v7 pitches at each end — <b>B</b> &amp; <b>C</b> are the split 11v11 in the middle. The grandstand sits along the west side, opposite the running track." data-sv="<b>A</b> &amp; <b>D</b> är 7-mannaplanerna i vardera änden — <b>B</b> &amp; <b>C</b> är den delade 11-mannaplanen i mitten. Läktaren ligger längs västra sidan, mittemot löparbanan."><b>A</b> &amp; <b>D</b> är 7-mannaplanerna i vardera änden — <b>B</b> &amp; <b>C</b> är den delade 11-mannaplanen i mitten. Läktaren ligger längs västra sidan, mittemot löparbanan.</div>
         </div>
 
-        <div class="mapcard">
-          <div class="maphead"><span data-en="Getting here" data-sv="Hitta hit">Hitta hit</span><span>59.348°N 18.096°E</span></div>
-          <iframe src="https://maps.google.com/maps?q=%C3%96stermalms%20IP%2C%20Stockholm&z=15&hl=sv&output=embed"
-            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-            title="Karta till Östermalms IP" allowfullscreen></iframe>
-          <div class="mapfoot">
-            <span data-en="Östermalms IP · Fiskartorpsvägen, Stockholm" data-sv="Östermalms IP · Fiskartorpsvägen, Stockholm">Östermalms IP · Fiskartorpsvägen, Stockholm</span>
-            <a href="https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm" target="_blank" rel="noopener" data-en="Directions ↗" data-sv="Vägbeskrivning ↗">Vägbeskrivning ↗</a>
+        <div class="mapcard" id="mapcard">
+          <button type="button" class="maphead maptoggle" id="mapToggle" aria-expanded="false" aria-controls="mapBody">
+            <span data-en="📍 Getting here" data-sv="📍 Hitta hit">📍 Hitta hit</span>
+            <span><span data-en="Show map" data-sv="Visa karta">Visa karta</span> <i class="chev">▾</i></span>
+          </button>
+          <div class="mapbody" id="mapBody">
+            <iframe data-src="https://maps.google.com/maps?q=%C3%96stermalms%20IP%2C%20Stockholm&z=15&hl=sv&output=embed"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Karta till Östermalms IP" allowfullscreen></iframe>
+            <div class="mapfoot">
+              <span data-en="Östermalms IP · Fiskartorpsvägen, Stockholm" data-sv="Östermalms IP · Fiskartorpsvägen, Stockholm">Östermalms IP · Fiskartorpsvägen, Stockholm</span>
+              <a href="https://www.google.com/maps/search/?api=1&amp;query=%C3%96stermalms+IP%2C+Stockholm" target="_blank" rel="noopener" data-en="Directions ↗" data-sv="Vägbeskrivning ↗">Vägbeskrivning ↗</a>
+            </div>
           </div>
         </div>
         </div>
@@ -502,6 +517,10 @@ function renderSched(){
   if(!rows.length){
     html+='<div class="empty-note">'+(l==='sv'?'Inga matcher för valet.':'No matches for this filter.')+'</div>';
   }
+  const chip=(m)=>{                     // gruppchip / slutspelsrunda i själva raden
+    if(m.stage==='group') return (l==='sv'?'GRP ':'GRP ')+(m.group_name||'?');
+    return {R16:(l==='sv'?'8-DEL':'R16'),QF:(l==='sv'?'KVART':'QF'),SF:'SEMI',F:'FINAL'}[m.stage]||m.stage;
+  };
   let lastTime=null;
   rows.forEach(m=>{
     if(m.sched_time!==lastTime){ html+='<div class="wavehead">'+m.sched_time+'</div>'; lastTime=m.sched_time; }
@@ -509,15 +528,15 @@ function renderSched(){
     const hN=h?tflag(h)+' <span>'+tname(h)+'</span>':'<span style="color:var(--dim)">'+srcText(m.home_src,l)+'</span>';
     const aN=a?'<span>'+tname(a)+'</span> '+tflag(a):'<span style="color:var(--dim)">'+srcText(m.away_src,l)+'</span>';
     const cls=m.status==='finished'?' finished':(m.status==='live'?' live':'');
-    html+='<div class="mrow-wrap"><div class="meta"><span class="mtag">'+stageTag(m,l)+'</span>'+
-      (m.status==='live'?'<span class="livedot"></span><span class="mtag" style="color:#e13b3b">LIVE</span>':'')+'</div>'+
-      '<div class="mrow'+cls+'">'+
+    const live=m.status==='live'?'<span class="livedot"></span> ':'';
+    html+='<div class="mrow'+cls+'">'+
       '<span class="t">'+m.sched_time+'</span>'+
       '<span class="pl">'+(l==='sv'?'PLAN ':'P. ')+(PITCH_LETTER[m.pitch]||'?')+'</span>'+
+      '<span class="gp">'+chip(m)+'</span>'+
       '<span class="side">'+hN+'</span>'+
-      '<span class="sc">'+scoreHtml(m)+'</span>'+
+      '<span class="sc">'+live+scoreHtml(m)+'</span>'+
       '<span class="side away">'+aN+'</span>'+
-      '</div></div>';
+      '</div>';
   });
   html+='</div>';
   host.innerHTML=html;
@@ -537,6 +556,16 @@ function syncMap(){
   document.querySelectorAll('svg .pitchbtn').forEach(g=>
     g.classList.toggle('sel',g.dataset.pitch===pitchFilter));
 }
+/* Hitta hit: hopfälld tills man öppnar — kartan laddas först vid första öppning */
+(function(){
+  const card=document.getElementById('mapcard'), btn=document.getElementById('mapToggle');
+  btn.addEventListener('click',()=>{
+    const open=card.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open);
+    const fr=card.querySelector('iframe');
+    if(open && !fr.src) fr.src=fr.dataset.src;
+  });
+})();
 document.querySelectorAll('svg .pitchbtn').forEach(g=>{
   g.addEventListener('click',()=>{
     pitchFilter=(pitchFilter===g.dataset.pitch)?null:g.dataset.pitch;
