@@ -257,14 +257,20 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
         <div class="pitchmap">
           <div class="maphead"><span>Östermalms IP</span><span data-en="4 × 7v7" data-sv="4 × 7-manna">4 × 7-manna</span></div>
           <!-- Stiliserad flygvy: 7-manna (A) · 11-manna delad i två (B/C) · 7-manna (D) · löparbana till höger -->
-          <svg viewBox="0 0 300 560" role="img" aria-label="Karta över planerna A–D">
+          <svg viewBox="-40 0 340 560" role="img" aria-label="Karta över planerna A–D">
             <defs>
               <linearGradient id="turf" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0" stop-color="#116740"/><stop offset="1" stop-color="#0a4a2d"/>
               </linearGradient>
             </defs>
             <!-- mark -->
-            <rect x="0" y="0" width="300" height="560" fill="#081231"/>
+            <rect x="-40" y="0" width="340" height="560" fill="#081231"/>
+            <!-- läktaren (västra sidan, mittemot löparbanan) -->
+            <rect x="-34" y="14" width="30" height="532" rx="10" fill="#22345e"/>
+            <line x1="-26" y1="24" x2="-26" y2="536" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+            <line x1="-19" y1="24" x2="-19" y2="536" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+            <line x1="-12" y1="24" x2="-12" y2="536" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+            <text x="-19" y="292" fill="rgba(255,255,255,.5)" font-size="9" letter-spacing="3" text-anchor="middle" transform="rotate(-90 -19 292)">LÄKTARE</text>
             <!-- löparbana -->
             <rect x="252" y="14" width="30" height="532" rx="14" fill="var(--track)" opacity=".85"/>
             <line x1="259" y1="24" x2="259" y2="536" stroke="rgba(255,255,255,.25)" stroke-width="1" stroke-dasharray="2 6"/>
@@ -328,7 +334,7 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
               <text x="129" y="462" fill="var(--gold)" font-size="15" font-weight="600" text-anchor="middle">PLAN D</text>
             </g>
           </svg>
-          <div class="maplegend" data-en="<b>A</b> &amp; <b>D</b> are the 7v7 pitches at each end — <b>B</b> &amp; <b>C</b> are the split 11v11 in the middle. The running track runs along the east side." data-sv="<b>A</b> &amp; <b>D</b> är 7-mannaplanerna i vardera änden — <b>B</b> &amp; <b>C</b> är den delade 11-mannaplanen i mitten. Löparbanan ligger längs östra sidan."><b>A</b> &amp; <b>D</b> är 7-mannaplanerna i vardera änden — <b>B</b> &amp; <b>C</b> är den delade 11-mannaplanen i mitten. Löparbanan ligger längs östra sidan.</div>
+          <div class="maplegend" data-en="<b>A</b> &amp; <b>D</b> are the 7v7 pitches at each end — <b>B</b> &amp; <b>C</b> are the split 11v11 in the middle. The grandstand sits along the west side, opposite the running track." data-sv="<b>A</b> &amp; <b>D</b> är 7-mannaplanerna i vardera änden — <b>B</b> &amp; <b>C</b> är den delade 11-mannaplanen i mitten. Läktaren ligger längs västra sidan, mittemot löparbanan."><b>A</b> &amp; <b>D</b> är 7-mannaplanerna i vardera änden — <b>B</b> &amp; <b>C</b> är den delade 11-mannaplanen i mitten. Läktaren ligger längs västra sidan, mittemot löparbanan.</div>
         </div>
 
         <div class="mapcard">
