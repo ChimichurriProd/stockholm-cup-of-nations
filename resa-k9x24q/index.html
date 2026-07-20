@@ -120,7 +120,10 @@ body.is-static .lbl{position:static}
 .wheel3d{position:absolute;inset:0;z-index:3;perspective:1100px;perspective-origin:50% 50%}
 .layer{position:absolute;left:50%;top:50%;width:var(--wheelW);height:var(--wheelW);
   margin-left:calc(var(--wheelW)/-2);margin-top:calc(var(--wheelW)/-2);
-  will-change:transform,opacity,filter}
+  }
+/* OBS: inga statiska will-change på lagren/korten — 25+ permanenta
+   composite-lager spränger GPU-texturbudgeten (halvmålade "knas"-bilder).
+   GSAP skapar och släpper lager själv under aktiva tweens. */
 .layer svg{width:100%;height:100%;display:block;overflow:visible}
 .layer.dust{pointer-events:none!important}
 .ringname{opacity:0}
@@ -135,9 +138,9 @@ body.is-static .ringname{opacity:1}
 
 /* ---------- gruppkort ---------- */
 .groups-detail{position:absolute;inset:0;z-index:6;pointer-events:none}
-.groups-detail .gc{position:absolute;top:0;left:0;pointer-events:auto;will-change:transform,opacity}
+.groups-detail .gc{position:absolute;top:0;left:0;pointer-events:auto}
 .groups-layer{position:absolute;inset:0;z-index:5;pointer-events:none}
-.groups-layer .gc{position:absolute;top:0;left:0;pointer-events:auto;will-change:transform,opacity}
+.groups-layer .gc{position:absolute;top:0;left:0;pointer-events:auto}
 .gc{width:260px;display:flex;align-items:stretch;gap:9px;background:linear-gradient(180deg,#ffffff,#f6f8fc);color:var(--ink);
   border-radius:15px;padding:8px;box-shadow:0 5px 14px rgba(0,0,0,.22),0 22px 46px rgba(0,0,0,.26);cursor:pointer;
   transition:box-shadow .25s;border:1px solid rgba(255,255,255,.5)}
@@ -773,8 +776,8 @@ if(reduce || typeof gsap==='undefined'){
       for(let k=0;k<L.length;k++){
         tl.to(L[k],{...layerState(s,k),duration:.8,ease:'power2.inOut'},at);
         const d=s-k;
-        if(d===1)      tl.set(L[k],{filter:'blur(5px)'},at+'+=0.45');   // passerar kameran → suddig
-        else if(d===0) tl.set(L[k],{filter:'blur(0px)'},at+'+=0.1');    // åter i fokus vid backscroll
+        if(d===1)      tl.set(L[k],{filter:'blur(5px)'},at+'+=0.9');    // suddig EFTER att kameran stannat (re-rastrering i stillhet)
+        else if(d===0) tl.set(L[k],{filter:'blur(0px)'},at+'+=0.05');   // skarp direkt vid återkomst
       }
       DUST.forEach(d=>tl.to(d.el,{...dustState(s,d.k),duration:.8,ease:'power2.inOut'},at));
     };
