@@ -793,7 +793,7 @@ footer a:hover{color:var(--gold)}
       <p data-en="Since its inception, the Stockholm Cup of Nations has grown into a celebration of football, diversity and cultural integration. A grand total of 46 unique nations have stepped onto our pitches — here they all are, with their number of appearances and the years they played." data-sv="Sedan starten har Stockholm Cup of Nations vuxit till en fest för fotboll, mångfald och integration. Totalt 46 unika nationer har spelat på våra planer — här är alla, med antal deltaganden och åren de var med.">Sedan starten har Stockholm Cup of Nations vuxit till en fest för fotboll, mångfald och integration. Totalt 46 unika nationer har spelat på våra planer — här är alla, med antal deltaganden och åren de var med.</p>
     </div>
     <div class="nat-grid" id="natGrid"></div>
-    <div class="everpresent rv" data-en="Ever-present since day one: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sweden · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brazil · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakhstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kyrgyzstan" data-sv="Med sedan start: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sverige · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brasilien · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kirgizistan">Med sedan start: 🇸🇪 🇧🇷 🇳🇬 🇰🇿 🇰🇬</div>
+    <div class="everpresent rv" data-en="Ever-present since day one: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sweden · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brazil · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakhstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kyrgyzstan" data-sv="Med sedan start: <img class='flagimg' src='img/flags/svg/se.svg' alt=''> Sverige · <img class='flagimg' src='img/flags/svg/br.svg' alt=''> Brasilien · <img class='flagimg' src='img/flags/svg/ng.svg' alt=''> Nigeria · <img class='flagimg' src='img/flags/svg/kz.svg' alt=''> Kazakstan · <img class='flagimg' src='img/flags/svg/kg.svg' alt=''> Kirgizistan">Med sedan start: <img class="flagimg" src="img/flags/svg/se.svg" alt=""> Sverige · <img class="flagimg" src="img/flags/svg/br.svg" alt=""> Brasilien · <img class="flagimg" src="img/flags/svg/ng.svg" alt=""> Nigeria · <img class="flagimg" src="img/flags/svg/kz.svg" alt=""> Kazakstan · <img class="flagimg" src="img/flags/svg/kg.svg" alt=""> Kirgizistan</div>
   </div>
 </section>
 
@@ -896,7 +896,7 @@ footer a:hover{color:var(--gold)}
     </div>
     <div class="foot-bottom">
       <span>© 2026 Stockholm Cup of Nations · Stockholm United Sport Academy</span>
-      <span data-en="Test design · not public" data-sv="Testdesign · ej publik">Test design · not public</span>
+      <span data-en="25–26 July 2026 · Östermalms IP" data-sv="25–26 juli 2026 · Östermalms IP">25–26 juli 2026 · Östermalms IP</span>
     </div>
   </div>
 </footer>
@@ -1097,7 +1097,7 @@ const natFlag=code=>{ const t=NAT3[code]; return t?fimg(t[0]):''; };
 let openYear=null;
 function editionHtml(year,l){
   const d=YEARS[year]; if(!d) return '';
-  const hdr=(l==='sv')?['#','Lag','Mål','P']:['#','Team','Goals','Pts'];
+  const hdr=(l==='sv')?['Lag','Mål','P']:['Team','Goals','Pts'];
   const groups=d.groups.map(([g,rows])=>
     '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
     '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
