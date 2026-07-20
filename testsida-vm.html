@@ -953,9 +953,9 @@ navLinks.addEventListener('click',e=>{ if(e.target.tagName==='A') navLinks.class
 (function(){
   const n=document.getElementById('notice');
   let dismissed=false;
-  try{ dismissed=sessionStorage.getItem('scon_notice')==='x'; }catch(e){}
+  try{ dismissed=sessionStorage.getItem('scon_notice_fullbokad')==='x'; }catch(e){}
   if(!dismissed) setTimeout(()=>n.classList.add('show'),1400);
-  const hide=()=>{ n.classList.remove('show'); try{ sessionStorage.setItem('scon_notice','x'); }catch(e){} };
+  const hide=()=>{ n.classList.remove('show'); try{ sessionStorage.setItem('scon_notice_fullbokad','x'); }catch(e){} };
   document.getElementById('noticeX').addEventListener('click',hide);
   n.querySelectorAll('.go').forEach(a=>a.addEventListener('click',hide));
 })();
