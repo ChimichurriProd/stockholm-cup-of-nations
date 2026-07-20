@@ -34,6 +34,8 @@
 html{scroll-behavior:auto}
 body{margin:0;background:var(--bg-edge);color:#fff;font-family:var(--font-body);
   line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+/* app-läge: sidan scrollar inte — stegmotorn driver upplevelsen */
+body.is-app{overflow:hidden;height:100svh;overscroll-behavior:none;touch-action:pan-y}
 img{-webkit-user-drag:none}
 button{touch-action:manipulation}
 
@@ -238,8 +240,12 @@ body.is-static .champ-banner{position:static;transform:none;opacity:1;visibility
 
 /* mobil */
 @media(max-width:899.98px){
-  .groups-flow{display:block}
-  .groups-layer,.groups-detail,.rail{display:none}
+  .groups-layer,.rail{display:none}
+  /* scen 0 på mobil: grupperna som scrollbar lista inne i scenen */
+  .groups-detail{position:absolute;left:0;right:0;top:118px;bottom:0;z-index:6;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:4px 16px calc(130px + env(safe-area-inset-bottom,0px))}
+  .groups-detail .gc{position:static;width:min(100%,340px);margin:0 auto 12px}
   :root{--wheelW:min(92vw,74svh)}
   .lbl .m{font-size:clamp(18px,5.4vw,24px)}
   .brand span{display:none}
@@ -283,7 +289,7 @@ body.is-static .champ-banner{position:static;transform:none;opacity:1;visibility
 
   <div class="scrollcue" id="scrollcue">
     <div class="mouse"></div>
-    <div class="txt">Scrolla för att resa</div>
+    <div class="txt">Scrolla eller svep för att resa</div>
   </div>
   <div class="stagenav" id="stagenav">
     <button id="navPrev" class="off"><span class="aw">‹</span><span id="navPrevT"></span></button>
@@ -297,7 +303,6 @@ body.is-static .champ-banner{position:static;transform:none;opacity:1;visibility
 <aside class="panel" id="panel" role="dialog" aria-modal="true" aria-hidden="true"></aside>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
 /* ================= DATA — Stockholm Cup of Nations 2025 ================= */
 const N = {
@@ -701,12 +706,10 @@ function showAllStatic(){
   railEl.remove();
 }
 
-if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
+if(reduce || typeof gsap==='undefined'){
   showAllStatic();
 }else{
-  gsap.registerPlugin(ScrollTrigger);
-  ScrollTrigger.config({ignoreMobileResize:true});   // iOS: adressfältets kollaps ska inte trigga refresh
-  const mm=gsap.matchMedia();
+  document.body.classList.add('is-app');   // låser sidscroll: stegmotorn styr allt
   const stage=document.getElementById('stage');
   const progressBar=document.getElementById('progressBar');
 
@@ -839,146 +842,155 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
       progressEl.appendChild(t);
     });
   }
-  // hybrid-snap: närmaste etapp som standard; kliv vidare först när gesten
-  // fört en tydligt (>28%) in i nästa segment. Förhindrar att små mushjuls-
-  // ticks kedjar helsteg ("hoppar direkt till mästaren") och lugnar scrollen.
-  function snapToRest(v,self){
-    if(!RESTS.length)return v;
-    let a=RESTS[0], b=RESTS[RESTS.length-1];
-    for(let i=0;i<RESTS.length-1;i++){ if(v>=RESTS[i]&&v<=RESTS[i+1]){a=RESTS[i];b=RESTS[i+1];break;} }
-    if(b<=a)return a;
-    const f=(v-a)/(b-a), dir=self&&self.direction||0, TH=.28;
-    if(dir>0) return f>TH ? b : a;
-    if(dir<0) return (1-f)>TH ? a : b;
-    return f<.5 ? a : b;
-  }
-  /* egen snap-motor: GSAP:s inbyggda snap triggar inte pålitligt med
-     funktions-snapTo + scrub, så vi sköter den själva. Idle 170 ms efter
-     riktig användargest → tween till vald etappvila; ny gest dödar tweenen. */
-  let snapTween=null, idleT=null;
-  function killSnap(){ if(snapTween){snapTween.kill();snapTween=null;} }
-  function scheduleSnap(){
-    if(!mainSt) return;
-    clearTimeout(idleT);
-    idleT=setTimeout(()=>{
-      if(!mainSt||panel.classList.contains('open')) return;
-      const v=mainSt.progress;
-      if(v<=0.0005||v>=0.9995) return;
-      const target=snapToRest(v,{direction:mainSt.direction});
-      if(Math.abs(target-v)<0.002) return;
-      const y1=mainSt.start+target*(mainSt.end-mainSt.start);
-      killSnap();
-      const proxy={y:window.scrollY};
-      snapTween=gsap.to(proxy,{y:y1,duration:Math.min(.95,.3+Math.abs(target-v)*2.4),ease:'power2.inOut',
-        onUpdate:()=>window.scrollTo(0,proxy.y),onComplete:()=>{snapTween=null;}});
-    },170);
-  }
-  // 'scroll' är primär trigger (täcker mushjul, scrollbar, tangentbord, touch);
-  // egna snap-tweenens scrollar ignoreras. Nya gester avbryter pågående snap.
-  addEventListener('wheel',killSnap,{passive:true});
-  addEventListener('touchstart',killSnap,{passive:true});
-  addEventListener('scroll',()=>{ if(!snapTween) scheduleSnap(); },{passive:true});
-  addEventListener('touchend',scheduleSnap,{passive:true});
-
+  /* ================= STEG-MOTORN =================
+     Ingen scroll-scrub: en gest (hjul/svep/klick/tangent) = EN övergång som
+     spelas i sitt eget tempo. Input är låst tills animationen är klar, sedan
+     kan man agera igen. Deterministiskt = inga glitchar, exakta knappar. */
+  let driver=null, animating=false, cooldownUntil=0, animStarted=0;
   function updateNav(){
     if(!mainTl) return;
     const prog=mainTl.progress();
     progressBar.style.transform='scaleX('+prog+')';
     [...progressEl.querySelectorAll('s')].forEach((t,i)=>t.classList.toggle('done',RESTS[i]!==undefined&&prog>=RESTS[i]-.005));
-    const p=prog*mainTl.duration(), Lb=mainTl.labels;
-    let act=0;
-    RAIL.forEach((r,i)=>{ if(Lb[r[1]]!==undefined && p>=Lb[r[1]]-.01) act=i; });
-    curStage=act;
-    railBtns.forEach((b,i)=>b.classList.toggle('active',i===act));
-    prevBtn.classList.toggle('off',act<=0);
-    nextBtn.classList.toggle('off',act>=RAIL.length-1);
-    if(act>0)prevT.textContent=NAVNAME[act-1];
-    if(act<RAIL.length-1)nextT.textContent=NAVNAME[act+1];
+    railBtns.forEach((b,i)=>b.classList.toggle('active',i===curStage));
+    prevBtn.classList.toggle('off',curStage<=0);
+    nextBtn.classList.toggle('off',curStage>=RAIL.length-1);
+    if(curStage>0)prevT.textContent=NAVNAME[curStage-1];
+    if(curStage<RAIL.length-1)nextT.textContent=NAVNAME[curStage+1];
   }
-  function gotoStage(i){
-    if(!mainTl||!mainSt) return;
-    killSnap(); clearTimeout(idleT);
+  function goto(i,fast){
+    if(!mainTl) return;
+    // självläkning: om en övergång "fastnat" (t.ex. flikbyte frös tickern)
+    // längre än rimlig speltid, slutför den direkt och gå vidare
+    if(animating){
+      if(performance.now()-animStarted>3800){
+        if(driver)driver.kill(); driver=null;
+        mainTl.progress(RESTS[curStage]||0); animating=false;
+      }else return;
+    }
     i=Math.max(0,Math.min(RAIL.length-1,i));
-    // direkt hopp till etappens viloläge — scrub gör själva övergången mjuk
-    window.scrollTo(0,Math.round(mainSt.start+RESTS[i]*(mainSt.end-mainSt.start)));
-    ScrollTrigger.update();
+    if(i===curStage) return;
+    const steps=Math.abs(i-curStage);
+    curStage=i; animating=true; animStarted=performance.now();
+    if(driver)driver.kill();
+    driver=gsap.to(mainTl,{progress:RESTS[i],
+      duration: fast?0.8 : Math.min(2.4, 1.0+0.55*steps),
+      ease:'power2.inOut',
+      onUpdate:updateNav,
+      onComplete:()=>{animating=false;driver=null;cooldownUntil=performance.now()+380;updateNav();}});
+    updateNav();
   }
-  railBtns.forEach((b,i)=>b.addEventListener('click',()=>gotoStage(i)));
-  prevBtn.addEventListener('click',()=>gotoStage(curStage-1));
-  nextBtn.addEventListener('click',()=>gotoStage(curStage+1));
+  const stepNext=()=>goto(curStage+1), stepPrev=()=>goto(curStage-1);
+
+  /* gester: mushjul/trackpad — ett steg per gest, sedan tystnad tills klart */
+  let wheelAcc=0, wheelReset=null;
+  addEventListener('wheel',e=>{
+    if(!mainTl||panel.classList.contains('open')) return;
+    if(animating||performance.now()<cooldownUntil){wheelAcc=0;return;}
+    if(mobileGroupsScrolling(e)) return;      // mobil scen 0: inre lista scrollar
+    wheelAcc+=e.deltaY;
+    clearTimeout(wheelReset); wheelReset=setTimeout(()=>wheelAcc=0,300);
+    if(wheelAcc>70){wheelAcc=0;stepNext();}
+    else if(wheelAcc<-70){wheelAcc=0;stepPrev();}
+  },{passive:true});
+
+  /* touch-svep */
+  let tY=null;
+  addEventListener('touchstart',e=>{tY=e.touches[0].clientY;},{passive:true});
+  addEventListener('touchend',e=>{
+    if(tY===null||!mainTl||panel.classList.contains('open')) return;
+    if(animating||performance.now()<cooldownUntil){tY=null;return;}
+    const dy=tY-e.changedTouches[0].clientY; tY=null;
+    if(curStage===0&&groupsScrollEl&&groupsScrollEl.scrollTop+groupsScrollEl.clientHeight<groupsScrollEl.scrollHeight-8&&dy>0) return;
+    if(dy>55)stepNext(); else if(dy<-55)stepPrev();
+  },{passive:true});
+
+  /* mobil scen 0: låt den inre grupplistan scrolla klart innan svep stegar */
+  const groupsScrollEl=document.getElementById('groupsDetail');
+  function mobileGroupsScrolling(e){
+    if(innerWidth>=900||curStage!==0) return false;
+    const el=groupsScrollEl;
+    if(!el||el.scrollHeight<=el.clientHeight) return false;
+    const down=e.deltaY>0, atEnd=el.scrollTop+el.clientHeight>=el.scrollHeight-8, atTop=el.scrollTop<=2;
+    return (down&&!atEnd)||(!down&&!atTop);
+  }
+
+  /* tangentbord + knappar + rail */
   document.addEventListener('keydown',e=>{
     if(panel.classList.contains('open'))return;
-    if(e.key==='ArrowRight'){e.preventDefault();gotoStage(curStage+1);}
-    if(e.key==='ArrowLeft'){e.preventDefault();gotoStage(curStage-1);}
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();stepNext();}
+    if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();stepPrev();}
+    if(e.key==='Home'){e.preventDefault();goto(0);}
+    if(e.key==='End'){e.preventDefault();goto(RAIL.length-1);}
   });
+  railBtns.forEach((b,i)=>b.addEventListener('click',()=>{ if(!animating)goto(i); }));
+  prevBtn.addEventListener('click',stepPrev);
+  nextBtn.addEventListener('click',stepNext);
 
-  /* ---- DESKTOP ---- */
-  mm.add('(min-width:900px)',()=>{
-    const applyLayout=()=>{layoutPositions();computeRowOffsets();computeSources(true);
-      detailCards.forEach((c,i)=>gsap.set(c,{x:P.grid[i].x,y:P.grid[i].y,scale:P.grid[i].s,autoAlpha:1,transformOrigin:'0 0'}));
-      dockCards.forEach((c,i)=>gsap.set(c,{x:P.grid[i].x,y:P.grid[i].y,scale:P.grid[i].s,autoAlpha:0,transformOrigin:'0 0'}));};
+  /* ---- bygg upplevelsen (desktop/mobil delar timeline-koreografin) ---- */
+  const isDesktop=()=>innerWidth>=900;
+  function applyLayout(){
+    if(isDesktop()){
+      layoutPositions();computeRowOffsets();computeSources(true);
+      detailCards.forEach((c,i)=>gsap.set(c,{x:P.grid[i].x,y:P.grid[i].y,scale:P.grid[i].s,transformOrigin:'0 0'}));
+      dockCards.forEach((c,i)=>gsap.set(c,{x:P.grid[i].x,y:P.grid[i].y,scale:P.grid[i].s,autoAlpha:0,transformOrigin:'0 0'}));
+    }else{
+      computeSources(false);
+    }
+  }
+  function build(){
+    const desktop=isDesktop();
     applyLayout();
     gsap.set(wheel3d,{autoAlpha:0});
     gsap.set(lblEls[0],{autoAlpha:1,y:0});
     railEl.classList.add('on');
 
-    const tl=gsap.timeline({defaults:{ease:'power2.out'},scrollTrigger:{
-      trigger:'#stage',start:'top top',end:()=>'+='+Math.round(window.innerHeight*7),
-      pin:true,scrub:1,invalidateOnRefresh:true,
-      onUpdate:updateNav
-    }});
+    const tl=gsap.timeline({paused:true,defaults:{ease:'power2.out'}});
     mainTl=tl;
-    ScrollTrigger.addEventListener('refreshInit',applyLayout);
 
     tl.addLabel('intro')
       .to({},{duration:.5})
       .addLabel('dock');
     tl.to(lblEls[0],{autoAlpha:0,y:-12,duration:.22},'dock')
-      .fromTo(lblEls[1],{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.28,immediateRender:false},'dock+=0.06');
-    // mjuk morf: BÅDA kortuppsättningarna flyger till flanken tillsammans,
-    // matchdelen tonar bort mitt i flykten
-    detailCards.forEach((c,i)=>{
-      tl.to(c,{x:()=>P.flank[i].x,y:()=>P.flank[i].y,scale:()=>P.flank[i].s,duration:.85,ease:'power3.inOut'},'dock+='+(0.08+i*.04))
-        .to(c,{autoAlpha:0,duration:.3},'dock+='+(0.3+i*.04));
-    });
-    dockCards.forEach((c,i)=>{
-      tl.to(c,{x:()=>P.flank[i].x,y:()=>P.flank[i].y,scale:()=>P.flank[i].s,duration:.85,ease:'power3.inOut'},'dock+='+(0.08+i*.04))
-        .to(c,{autoAlpha:1,duration:.3},'dock+='+(0.32+i*.04));
-    });
+      .fromTo(lblEls[1],{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.28,immediateRender:false},'dock+=0.06')
+      .to('#scrollcue',{autoAlpha:0,duration:.15},'dock');
+    if(desktop){
+      // mjuk morf: båda kortuppsättningarna flyger ihop, matchdelen löses upp
+      detailCards.forEach((c,i)=>{
+        tl.to(c,{x:()=>P.flank[i].x,y:()=>P.flank[i].y,scale:()=>P.flank[i].s,duration:.85,ease:'power3.inOut'},'dock+='+(0.08+i*.04))
+          .to(c,{autoAlpha:0,duration:.3},'dock+='+(0.3+i*.04));
+      });
+      dockCards.forEach((c,i)=>{
+        tl.to(c,{x:()=>P.flank[i].x,y:()=>P.flank[i].y,scale:()=>P.flank[i].s,duration:.85,ease:'power3.inOut'},'dock+='+(0.08+i*.04))
+          .to(c,{autoAlpha:1,duration:.3},'dock+='+(0.32+i*.04));
+      });
+    }else{
+      tl.to('#groupsDetail',{autoAlpha:0,duration:.4},'dock+=0.05');
+    }
     tl.to(wheel3d,{autoAlpha:1,duration:.7},'dock+=0.4')
       .to('#glowBlue',{opacity:1,duration:.6},'dock+=0.4')
-      .to('#scrollcue',{autoAlpha:0,duration:.15},'dock')
       .to({},{duration:.25});
 
     buildScenes(tl);
     computeRests(tl);
-    mainSt=tl.scrollTrigger;
+    curStage=0; animating=false;
+    tl.progress(0);
     updateNav();
-    return ()=>{closePanel();ScrollTrigger.removeEventListener('refreshInit',applyLayout);mainTl=null;mainSt=null;RESTS=[];railEl.classList.remove('on');};
-  });
+  }
+  build();
 
-  /* ---- MOBIL (uttömmande komplement till desktop-frågan: ingen död zon) ---- */
-  mm.add('not all and (min-width: 900px)',()=>{
-    const applySrc=()=>computeSources(false);
-    applySrc();
-    gsap.set(wheel3d,{autoAlpha:1});
-    gsap.set(lblEls[1],{autoAlpha:1,y:0});
-    gsap.set('#glowBlue',{opacity:1});
-
-    const tl=gsap.timeline({defaults:{ease:'power2.out'},scrollTrigger:{
-      trigger:'#stage',start:'top top',end:()=>'+='+Math.round(window.innerHeight*5.6),
-      pin:true,scrub:1,invalidateOnRefresh:true,
-      onUpdate:updateNav
-    }});
-    mainTl=tl;
-    ScrollTrigger.addEventListener('refreshInit',applySrc);
-    tl.addLabel('intro').to({},{duration:.2});
-    buildScenes(tl);
-    tl.to('#scrollcue',{autoAlpha:0,duration:.15},'r16');
-    computeRests(tl);
-    mainSt=tl.scrollTrigger;
-    updateNav();
-    return ()=>{closePanel();ScrollTrigger.removeEventListener('refreshInit',applySrc);mainTl=null;mainSt=null;RESTS=[];};
+  /* resize: uppdatera layout och rendera om aktuell etapp exakt.
+     Brytpunktskorsning (desktop↔mobil) kräver annan scenstruktur → ren omstart. */
+  let rzT=null, wasDesktop=isDesktop();
+  addEventListener('resize',()=>{
+    clearTimeout(rzT);
+    rzT=setTimeout(()=>{
+      if(isDesktop()!==wasDesktop){location.reload();return;}
+      if(!mainTl||animating) return;
+      applyLayout();
+      mainTl.progress(RESTS[curStage]||0);
+      updateNav();
+    },160);
   });
 }
 </script>
