@@ -75,8 +75,12 @@ section{padding:46px 0 0}
   font-size:clamp(22px,3vw,32px);line-height:1}
 .sec-h .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
 
-/* ---------- Arenagrafik + schema ---------- */
+/* ---------- Arenagrafik + grupper ---------- */
 .venue-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:26px;align-items:start}
+.side-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.side-head h3{font-family:var(--disp);font-weight:900;font-stretch:114%;text-transform:uppercase;font-size:22px}
+.side-head span{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#sideArea .groups-grid{grid-template-columns:repeat(2,1fr)}
 .mapcol{display:flex;flex-direction:column;gap:14px;align-self:start}
 .pitchmap{border:1px solid var(--line-2);border-radius:16px;overflow:hidden;
   background:linear-gradient(170deg,#0b1740,var(--night-2) 85%)}
@@ -364,22 +368,22 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
         </div>
         </div>
 
-        <div id="schedArea">
-          <!-- fylls av JS: lås eller filter + schema -->
+        <div id="sideArea">
+          <!-- fylls av JS: grupptabellerna (eller låsruta före publicering) -->
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ GRUPPTABELLER ============ -->
-  <section id="groupsSec" hidden>
+  <!-- ============ SPELSCHEMA ============ -->
+  <section id="schedSec" hidden>
     <div class="wrap">
       <div class="sec-h">
-        <span class="kicker" data-en="Group stage · Saturday 25 July" data-sv="Gruppspel · Lördag 25 juli">Gruppspel · Lördag 25 juli</span>
-        <h2 data-en="The <span class='foil'>groups.</span>" data-sv="<span class='foil'>Grupperna.</span>">The <span class="foil">groups.</span></h2>
-        <span class="sub" data-en="Top 2 advance to the knockout" data-sv="Topp 2 vidare till slutspel">Topp 2 vidare till slutspel</span>
+        <span class="kicker" data-en="Fixtures &amp; results" data-sv="Matcher &amp; resultat">Matcher &amp; resultat</span>
+        <h2 data-en="The <span class='foil'>schedule.</span>" data-sv="<span class='foil'>Spelschemat.</span>">The <span class="foil">schedule.</span></h2>
+        <span class="sub" data-en="Times, pitches and live scores" data-sv="Tider, planer och liveresultat">Tider, planer och liveresultat</span>
       </div>
-      <div class="groups-grid" id="groupsGrid"></div>
+      <div id="schedArea"></div>
     </div>
   </section>
 
@@ -474,8 +478,9 @@ function scoreHtml(m){
     ? '<span class="pens">('+m.home_pens+'–'+m.away_pens+')</span>' : '';
   return s+pens;
 }
-function renderSched(){
-  const host=document.getElementById('schedArea');
+/* Kolumnen bredvid kartan: grupptabellerna (eller låsrutan före publicering) */
+function renderSide(){
+  const host=document.getElementById('sideArea');
   const l=curLang;
   if(!isLive()){
     host.innerHTML='<div class="lockbox">'+
@@ -493,6 +498,25 @@ function renderSched(){
     startCountdown();
     return;
   }
+  const groups=[...new Set(TEAMS.map(t=>t.group_name).filter(Boolean))].sort();
+  const hdr=(l==='sv')?['Lag','S','MÅL','P']:['Team','P','Goals','Pts'];
+  host.innerHTML='<div class="side-head"><h3>'+(l==='sv'?'Grupperna':'The groups')+'</h3>'+
+    '<span>'+(l==='sv'?'Topp 2 vidare · räknas live':'Top 2 advance · live standings')+'</span></div>'+
+    '<div class="groups-grid">'+groups.map(g=>{
+      const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
+      return '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
+        '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
+        rows.map((r,i)=>'<tr'+(i<2?' class="q"':'')+'><td>'+tflag(r.team)+' '+tname(r.team)+'</td>'+
+          '<td>'+r.P+'</td><td>'+r.GF+'–'+r.GA+'</td><td>'+r.Pts+'</td></tr>').join('')+
+        '</tbody></table></div>';
+    }).join('')+'</div>';
+}
+function renderSched(){
+  const sec=document.getElementById('schedSec');
+  if(!isLive()){ sec.hidden=true; return; }
+  sec.hidden=false;
+  const host=document.getElementById('schedArea');
+  const l=curLang;
   const sched=MATCHES.filter(m=>m.sched_date&&m.sched_time);
   if(!sched.length){
     host.innerHTML='<div class="empty-note">'+(l==='sv'?'Inget spelschema ännu.':'No schedule yet.')+'</div>';
@@ -570,7 +594,8 @@ document.querySelectorAll('svg .pitchbtn').forEach(g=>{
   g.addEventListener('click',()=>{
     pitchFilter=(pitchFilter===g.dataset.pitch)?null:g.dataset.pitch;
     syncMap(); renderSched();
-    if(window.innerWidth<980) document.getElementById('schedArea').scrollIntoView({behavior:'smooth',block:'start'});
+    const sec=document.getElementById('schedSec');
+    if(!sec.hidden) sec.scrollIntoView({behavior:'smooth',block:'start'});
   });
 });
 
@@ -587,22 +612,6 @@ function computeStandings(list){
       else {h.D++;a.D++;h.Pts++;a.Pts++;}
     });
   return Object.values(tbl).sort((x,y)=> y.Pts-x.Pts||(y.GF-y.GA)-(x.GF-x.GA)||y.GF-x.GF||x.team.name.localeCompare(y.team.name));
-}
-function renderGroups(){
-  const sec=document.getElementById('groupsSec');
-  if(!isLive()){ sec.hidden=true; return; }
-  const groups=[...new Set(TEAMS.map(t=>t.group_name).filter(Boolean))].sort();
-  if(!groups.length){ sec.hidden=true; return; }
-  sec.hidden=false;
-  const l=curLang, hdr=(l==='sv')?['Lag','S','MÅL','P']:['Team','P','Goals','Pts'];
-  document.getElementById('groupsGrid').innerHTML=groups.map(g=>{
-    const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
-    return '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
-      '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
-      rows.map((r,i)=>'<tr'+(i<2?' class="q"':'')+'><td>'+tflag(r.team)+' '+tname(r.team)+'</td>'+
-        '<td>'+r.P+'</td><td>'+r.GF+'–'+r.GA+'</td><td>'+r.Pts+'</td></tr>').join('')+
-      '</tbody></table></div>';
-  }).join('');
 }
 /* ---------- Slutspelsträd ---------- */
 function renderKO(){
@@ -657,7 +666,7 @@ function startCountdown(){
 }
 function renderAll(){
   applyStatic(curLang);
-  renderSched(); syncMap(); renderGroups(); renderKO();
+  renderSide(); renderSched(); syncMap(); renderKO();
   const u=document.getElementById('updated');
   if(isLive()){
     u.textContent=(curLang==='sv'?'Uppdaterad ':'Updated ')+new Date().toLocaleTimeString(curLang==='sv'?'sv-SE':'en-GB',{hour:'2-digit',minute:'2-digit'})+(PREVIEW?' · FÖRHANDSVISNING':'');
