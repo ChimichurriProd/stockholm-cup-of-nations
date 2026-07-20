@@ -852,7 +852,7 @@ if(reduce || typeof gsap==='undefined'){
      Ingen scroll-scrub: en gest (hjul/svep/klick/tangent) = EN övergång som
      spelas i sitt eget tempo. Input är låst tills animationen är klar, sedan
      kan man agera igen. Deterministiskt = inga glitchar, exakta knappar. */
-  let driver=null, animating=false, cooldownUntil=0, animStarted=0;
+  let driver=null, animating=false, cooldownUntil=0, animStarted=0, pendingStage=null;
   function updateNav(){
     if(!mainTl) return;
     const prog=mainTl.progress();
@@ -868,19 +868,30 @@ if(reduce || typeof gsap==='undefined'){
     if(!mainTl) return;
     // självläkning: om en övergång "fastnat" (t.ex. flikbyte frös tickern)
     // längre än rimlig speltid, slutför den direkt och gå vidare
+    i=Math.max(0,Math.min(RAIL.length-1,i));
     if(animating){
       if(performance.now()-animStarted>3800){
         if(driver)driver.kill(); driver=null;
         gsap.set('#jumpCover',{autoAlpha:0});
         mainTl.progress(RESTS[curStage]||0); animating=false;
-      }else return;
+      }else{ pendingStage=i; return; }   // klick under animation: köa, kör när klar
     }
-    i=Math.max(0,Math.min(RAIL.length-1,i));
-    if(i===curStage) return;
+    if(i===curStage){
+      pendingStage=null;
+      // reparera: om bilden inte står exakt på etappens tillstånd, ställ den rätt
+      if(Math.abs(mainTl.progress()-(RESTS[i]||0))>0.001){mainTl.progress(RESTS[i]||0);updateNav();}
+      return;
+    }
     const steps=Math.abs(i-curStage);
     curStage=i; animating=true; animStarted=performance.now();
     if(driver)driver.kill();
-    const done=()=>{animating=false;driver=null;cooldownUntil=performance.now()+380;updateNav();};
+    const done=()=>{
+      animating=false;driver=null;cooldownUntil=performance.now()+380;
+      mainTl.progress(RESTS[curStage]||0);   // hårdlanda EXAKT — inget mellanläge kan bestå
+      gsap.set('#jumpCover',{autoAlpha:0});
+      updateNav();
+      if(pendingStage!==null){const n=pendingStage;pendingStage=null;
+        if(n!==curStage)gsap.delayedCall(0.07,()=>goto(n));}};
     if(steps>=2){
       // långt menyhopp: scenväxling genom ridån i stället för att spela
       // hela resans koreografi i högt tempo (tungt och hackigt)
@@ -940,7 +951,7 @@ if(reduce || typeof gsap==='undefined'){
     if(e.key==='Home'){e.preventDefault();goto(0);}
     if(e.key==='End'){e.preventDefault();goto(RAIL.length-1);}
   });
-  railBtns.forEach((b,i)=>b.addEventListener('click',()=>{ if(!animating)goto(i); }));
+  railBtns.forEach((b,i)=>b.addEventListener('click',()=>goto(i)));
   prevBtn.addEventListener('click',stepPrev);
   nextBtn.addEventListener('click',stepNext);
 
