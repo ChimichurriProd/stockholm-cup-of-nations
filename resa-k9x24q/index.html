@@ -37,13 +37,27 @@ body{margin:0;background:var(--bg-edge);color:#fff;font-family:var(--font-body);
 img{-webkit-user-drag:none}
 button{touch-action:manipulation}
 
-/* ---------- progressbar ---------- */
-.progress{position:fixed;left:0;right:0;bottom:0;height:5px;z-index:66;
-  background:rgba(255,255,255,.08);pointer-events:none;
-  padding-bottom:env(safe-area-inset-bottom,0px);background-clip:content-box}
+/* ---------- progressbar med etapp-punkter ---------- */
+.progress{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);height:5px;z-index:66;
+  background:rgba(255,255,255,.08);pointer-events:none}
 .progress i{display:block;height:5px;transform-origin:0 50%;transform:scaleX(0);will-change:transform;
   background:linear-gradient(90deg,var(--gold),var(--gold-2));box-shadow:0 0 14px rgba(244,194,13,.65)}
+.progress s{position:absolute;top:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
+  transform:translateY(-50%);background:rgba(255,255,255,.35);transition:background .3s,box-shadow .3s}
+.progress s.done{background:var(--gold-2);box-shadow:0 0 8px rgba(244,194,13,.8)}
 body.is-static .progress{display:none}
+
+/* ---------- scrollindikator ---------- */
+.scrollcue{position:absolute;left:50%;transform:translateX(-50%);
+  bottom:calc(3.2svh + 62px + env(safe-area-inset-bottom,0px));z-index:41;
+  display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}
+.scrollcue .mouse{width:21px;height:33px;border:2px solid rgba(244,194,13,.75);border-radius:11px;position:relative}
+.scrollcue .mouse::before{content:"";position:absolute;left:50%;top:6px;width:3.5px;height:7px;margin-left:-1.75px;
+  border-radius:3px;background:var(--gold-2);animation:mwheel 1.7s ease-in-out infinite}
+.scrollcue .txt{font-size:9.5px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:rgba(244,194,13,.85)}
+@keyframes mwheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(11px);opacity:0}100%{transform:translateY(0);opacity:0}}
+@media(prefers-reduced-motion:reduce){.scrollcue .mouse::before{animation:none}}
+body.is-static .scrollcue{display:none}
 
 /* ---------- grupper i flöde (mobil + statiskt läge) ---------- */
 .groups-flow{display:none;padding:26px 16px 30px;max-width:820px;margin:0 auto}
@@ -61,6 +75,13 @@ body.is-static .progress{display:none}
 .glow{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:2}
 .glow.blue{background:radial-gradient(48% 42% at 50% 52%, rgba(60,120,255,.24), transparent 70%)}
 .glow.goldg{background:radial-gradient(44% 38% at 50% 52%, rgba(244,194,13,.22), transparent 70%)}
+/* stadionljus: två mjuka ljuskäglor uppifrån + stjärnfält + vinjett */
+.beam{position:absolute;top:-12%;width:52%;height:120%;pointer-events:none;z-index:1;opacity:.5}
+.beam.l{left:-6%;background:linear-gradient(115deg,rgba(120,170,255,.10) 0%,transparent 55%)}
+.beam.r{right:-6%;background:linear-gradient(245deg,rgba(120,170,255,.09) 0%,transparent 55%)}
+.stars{position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.65}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(120% 100% at 50% 46%, transparent 58%, rgba(2,8,24,.5) 100%)}
 
 .brand{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:20px;z-index:40;display:flex;align-items:center;gap:10px;opacity:.9}
 .brand img{height:40px;width:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
@@ -69,17 +90,19 @@ body.is-static .progress{display:none}
 
 /* poster-knapp */
 .posterbtn{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:62;
-  display:inline-flex;align-items:center;gap:7px;background:rgba(4,18,47,.55);
+  display:inline-flex;align-items:center;gap:7px;background:linear-gradient(180deg,rgba(14,38,92,.85),rgba(6,20,52,.85));box-shadow:0 6px 18px rgba(0,0,0,.35);
   border:1px solid rgba(244,194,13,.45);color:#fff;border-radius:999px;padding:10px 15px;
   font-family:var(--font-body);font-weight:700;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-  text-decoration:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color .25s}
+  text-decoration:none;transition:border-color .25s}
 .posterbtn:hover{border-color:var(--gold-2)}
 .posterbtn .tr{font-size:13px}
 
 /* etikettstack */
 .labels{position:absolute;top:calc(3.4svh + env(safe-area-inset-top,0px));left:0;right:0;text-align:center;pointer-events:none;z-index:38;height:86px}
 .lbl{position:absolute;left:0;right:0;opacity:0;visibility:hidden}
-.lbl .k{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
+.lbl .k{display:inline-flex;align-items:center;gap:12px;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
+.lbl .k::before,.lbl .k::after{content:"";width:30px;height:1px;background:linear-gradient(90deg,transparent,rgba(244,194,13,.6));flex:0 0 auto}
+.lbl .k::after{background:linear-gradient(270deg,transparent,rgba(244,194,13,.6))}
 .lbl .m{font-family:var(--font-head);font-weight:800;font-size:clamp(20px,3vw,30px);letter-spacing:.02em;color:#fff;margin-top:2px}
 .lbl .m.gold{background:linear-gradient(100deg,var(--gold),var(--gold-2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .lbl .s{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:3px}
@@ -109,14 +132,15 @@ body.is-static .ringname{opacity:1}
 .groups-detail .gc{position:absolute;top:0;left:0;pointer-events:auto;will-change:transform,opacity}
 .groups-layer{position:absolute;inset:0;z-index:5;pointer-events:none}
 .groups-layer .gc{position:absolute;top:0;left:0;pointer-events:auto;will-change:transform,opacity}
-.gc{width:260px;display:flex;align-items:stretch;gap:9px;background:rgba(255,255,255,.96);color:var(--ink);
-  border-radius:13px;padding:8px;box-shadow:0 12px 30px rgba(0,0,0,.32);cursor:pointer;
-  transition:box-shadow .25s;border:1px solid transparent}
-.gc:hover{box-shadow:0 12px 34px rgba(244,194,13,.35);border-color:rgba(244,194,13,.55)}
+.gc{width:260px;display:flex;align-items:stretch;gap:9px;background:linear-gradient(180deg,#ffffff,#f6f8fc);color:var(--ink);
+  border-radius:15px;padding:8px;box-shadow:0 5px 14px rgba(0,0,0,.22),0 22px 46px rgba(0,0,0,.26);cursor:pointer;
+  transition:box-shadow .25s;border:1px solid rgba(255,255,255,.5)}
+.gc:hover{box-shadow:0 5px 14px rgba(0,0,0,.2),0 22px 48px rgba(244,194,13,.32);border-color:rgba(244,194,13,.6)}
 .gc:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.gc .badge{flex:0 0 32px;display:grid;place-items:center;border-radius:9px;align-self:stretch;
-  background:linear-gradient(160deg,var(--gold-2),var(--gold));color:var(--navy);
-  font-family:var(--font-head);font-weight:800;font-size:20px}
+.gc .badge{flex:0 0 32px;display:grid;place-items:center;border-radius:10px;align-self:stretch;
+  background:linear-gradient(165deg,#ffe98f 0%,var(--gold) 45%,#e0af08 100%);color:var(--navy);
+  font-family:var(--font-head);font-weight:800;font-size:20px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -1px 2px rgba(140,100,0,.3)}
 .gc .body{flex:1;min-width:0;display:flex;flex-direction:column}
 .gc .teams{display:flex;flex-direction:column;gap:3px}
 .trow{display:flex;align-items:center;gap:7px;padding:3px 5px;border-radius:7px;min-width:0}
@@ -134,7 +158,7 @@ body.is-static .ringname{opacity:1}
 
 /* progress-rail — alltid synlig under resan */
 .rail{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:12px;
-  background:rgba(4,18,47,.45);padding:13px 14px;border-radius:15px;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  background:rgba(6,20,52,.82);border:1px solid rgba(255,255,255,.09);padding:13px 14px;border-radius:15px;
   opacity:0;pointer-events:none;transition:opacity .35s}
 .rail.on{opacity:1;pointer-events:auto}
 .rail button{display:flex;align-items:center;gap:9px;background:none;border:none;cursor:pointer;padding:3px 2px;
@@ -146,10 +170,10 @@ body.is-static .ringname{opacity:1}
 
 /* fram/tillbaka */
 .stagenav{position:absolute;bottom:calc(3.2svh + env(safe-area-inset-bottom,0px));left:0;right:0;display:flex;justify-content:center;gap:12px;z-index:41}
-.stagenav button{display:inline-flex;align-items:center;gap:8px;background:rgba(4,18,47,.55);
+.stagenav button{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(180deg,rgba(14,38,92,.85),rgba(6,20,52,.85));box-shadow:0 6px 18px rgba(0,0,0,.35);
   border:1px solid rgba(244,194,13,.4);color:#fff;border-radius:999px;padding:10px 18px;cursor:pointer;
   font-family:var(--font-body);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color .25s,opacity .3s,transform .2s}
+  transition:border-color .25s,opacity .3s,transform .2s}
 .stagenav button:hover{border-color:var(--gold-2);transform:translateY(-1px)}
 .stagenav button .aw{color:var(--gold);font-size:14px}
 .stagenav button.off{opacity:0;pointer-events:none}
@@ -236,6 +260,8 @@ body.is-static .champ-banner{position:static;transform:none;opacity:1;visibility
 
 <!-- ============ PINNAD SCEN — resan slutar hos mästaren ============ -->
 <section class="stage" id="stage" aria-label="Slutspel">
+  <div class="beam l"></div><div class="beam r"></div>
+  <svg class="stars" id="stars" aria-hidden="true" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1000 620"></svg>
   <div class="glow blue" id="glowBlue"></div>
   <div class="glow goldg" id="glowGold"></div>
 
@@ -255,6 +281,10 @@ body.is-static .champ-banner{position:static;transform:none;opacity:1;visibility
     Uruguay <span aria-hidden="true">🏆</span>
   </div>
 
+  <div class="scrollcue" id="scrollcue">
+    <div class="mouse"></div>
+    <div class="txt">Scrolla för att resa</div>
+  </div>
   <div class="stagenav" id="stagenav">
     <button id="navPrev" class="off"><span class="aw">‹</span><span id="navPrevT"></span></button>
     <button id="navNext"><span id="navNextT">Åttondelsfinal</span><span class="aw">›</span></button>
@@ -405,11 +435,33 @@ KO.forEach((ko,ri)=>{
   const wrap=document.createElement('div'); wrap.className='layer'; wheel3d.appendChild(wrap); L.push(wrap);
   const svg=el('svg',{viewBox:'0 0 660 660',role:'group','aria-label':ko.name}); wrap.appendChild(svg);
   const n=ko.teams.length, seg=360/n;
+  // djupskuggade kilar: radiell gradient (ljusare inåt) i två alternerande styrkor
+  const rdefs=el('defs'); svg.appendChild(rdefs);
+  [0,1].forEach(v=>{
+    const gr=el('radialGradient',{id:'rg'+ri+v,gradientUnits:'userSpaceOnUse',cx,cy,r:R1});
+    const a=RING_OP[ri][v];
+    gr.appendChild(el('stop',{offset:(R0/R1*100).toFixed(1)+'%','stop-color':'rgba(255,255,255,'+(a*1.5).toFixed(3)+')'}));
+    gr.appendChild(el('stop',{offset:'100%','stop-color':'rgba(255,255,255,'+(a*.55).toFixed(3)+')'}));
+    rdefs.appendChild(gr);
+  });
+  const cg=el('linearGradient',{id:'cg'+ri,x1:0,y1:0,x2:0,y2:1});
+  cg.appendChild(el('stop',{offset:'0%','stop-color':'#123f9e'}));
+  cg.appendChild(el('stop',{offset:'100%','stop-color':'#071d5a'}));
+  rdefs.appendChild(cg);
   const bg=el('g'); svg.appendChild(bg);
   for(let i=0;i<n;i++){const a0=START+i*seg;
     bg.appendChild(el('path',{d:annular(R0,R1,a0,a0+seg),
-      fill:`rgba(255,255,255,${i%2?RING_OP[ri][1]:RING_OP[ri][0]})`,
-      stroke:'#061a4f','stroke-width':2.6,'stroke-linejoin':'round'}));}
+      fill:'url(#rg'+ri+(i%2)+')',
+      stroke:'rgba(4,16,44,.6)','stroke-width':2.2,'stroke-linejoin':'round'}));}
+  // fälgar: tunn ljus ytterkant + inre kantlinje ger ringen stadga
+  bg.appendChild(el('circle',{cx,cy,r:R1+1.2,fill:'none',stroke:'rgba(255,255,255,.22)','stroke-width':1.1}));
+  bg.appendChild(el('circle',{cx,cy,r:R0-1.2,fill:'none',stroke:'rgba(255,255,255,.12)','stroke-width':1}));
+  if(ri===0){ // gradmarkeringar runt yttersta ringen (bara sikt-detalj)
+    const tk=el('g',{opacity:.5}); bg.appendChild(tk);
+    for(let i=0;i<64;i++){const a=i*(360/64);
+      const [x1,y1]=polar(R1+7,a),[x2,y2]=polar(R1+(i%4===0?14:10),a);
+      tk.appendChild(el('line',{x1,y1,x2,y2,stroke:i%4===0?'rgba(244,194,13,.55)':'rgba(255,255,255,.22)','stroke-width':i%4===0?1.6:1}));}
+  }
   if(ri===3) svg.appendChild(el('circle',{cx,cy,r:R1+6,fill:'none',stroke:'var(--gold)','stroke-width':1.6,opacity:.4}));
   const rn=el('text',{class:'ringname',x:cx,y:cy,'text-anchor':'middle','dominant-baseline':'central',
     'font-size':22,'font-weight':800,fill:'rgba(255,255,255,.85)','font-family':'Sora,sans-serif'});
@@ -436,7 +488,7 @@ KO.forEach((ko,ri)=>{
     const a=ko.teams[2*k], b=ko.teams[2*k+1];
     const chip=el('g',{class:'matchchip',transform:`translate(${px},${py})`,role:'button',tabindex:0,
       'aria-label':ko.name+': '+N[a][1]+' '+ko.sc[k]+' '+N[b][1]+(pen?', straffar '+pen:'')+'. Visa detaljer.'});
-    chip.appendChild(el('rect',{class:'chipbg',x:-w/2,y:-h/2,width:w,height:h,rx:5,fill:'#08236b',stroke:'var(--gold)','stroke-width':1.2}));
+    chip.appendChild(el('rect',{class:'chipbg',x:-w/2,y:-h/2,width:w,height:h,rx:h/2,fill:'url(#cg'+ri+')',stroke:'var(--gold)','stroke-width':1.1}));
     const t=el('text',{x:0,y:pen?-3.5:0,'text-anchor':'middle','dominant-baseline':'central','font-size':11,'font-weight':800,fill:'#fff','font-family':'Inter,sans-serif'});
     t.textContent=ko.sc[k]; chip.appendChild(t);
     if(pen){const p=el('text',{x:0,y:7,'text-anchor':'middle','dominant-baseline':'central','font-size':8,'font-weight':700,fill:'var(--gold)'});
@@ -463,6 +515,10 @@ grad.appendChild(el('stop',{offset:'100%','stop-color':'#f4c20d'}));
 defs.appendChild(grad); hubSvg.appendChild(defs);
 hubSvg.appendChild(el('circle',{cx,cy,r:150,fill:'rgba(244,194,13,.1)',stroke:'rgba(244,194,13,.35)','stroke-width':1.5,'stroke-dasharray':'3 8'}));
 hubSvg.appendChild(el('circle',{cx,cy,r:118,fill:'url(#goldgrad)',stroke:'#fff','stroke-width':4}));
+// glans + graverad innerring ger navet metallkänsla
+hubSvg.appendChild(el('path',{d:`M ${cx-82} ${cy-58} A 100 100 0 0 1 ${cx+20} ${cy-98}`,
+  fill:'none',stroke:'rgba(255,255,255,.5)','stroke-width':7,'stroke-linecap':'round',opacity:.55}));
+hubSvg.appendChild(el('circle',{cx,cy,r:105,fill:'none',stroke:'rgba(140,100,0,.22)','stroke-width':1.4}));
 // VM-bucklan: silhuett med glob, uppsträckta armar, midja och sockel — centrerad
 const trophyG=el('g',{transform:`translate(${cx},${cy-2})`});
 const TCOL='#0b2c73';
@@ -503,6 +559,16 @@ const DUST=[];
 });
 L.forEach((l,k)=>l.style.zIndex=50-10*k);
 DUST.forEach(d=>d.el.style.zIndex=String(50-10*d.k));
+
+/* --- stjärnfält (deterministiskt, ritas en gång) --- */
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<72;i++){
+    const x=((i*137.5)%100)*10, y=((i*79.3)%100)*6.2, r=.6+(i%4)*.35;
+    s.appendChild(el('circle',{cx:x,cy:y,r,fill:i%9===0?'rgba(244,194,13,.5)':'rgba(255,255,255,.38)',
+      opacity:(.25+(i%5)*.12).toFixed(2)}));
+  }
+})();
 
 /* ================= DIALOGRUTA ================= */
 const panel=document.getElementById('panel'), overlay=document.getElementById('overlay');
@@ -611,10 +677,12 @@ function openJourney(code){
 
 /* ================= KAMERA ================= */
 const STEP=560;
+/* obs: blur animeras INTE kontinuerligt (repaint varje frame = hackig scroll);
+   den sätts som reversibel .set mitt i kamerafärden i camera() nedan */
 function layerState(s,k){
   const d=s-k;
   return { z:d*STEP, autoAlpha: d>=2?0 : d===1?.28 : 1,
-           filter: d===1?'blur(5px)':'blur(0px)', pointerEvents: d===0?'auto':'none' };
+           pointerEvents: d===0?'auto':'none' };
 }
 function dustState(s,k){
   const d=s-k;
@@ -696,7 +764,12 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
     const swap=(a,b,at)=>{ tl.to(lblEls[a],{autoAlpha:0,y:-12,duration:.22},at)
       .fromTo(lblEls[b],{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.28,immediateRender:false},at+'+=0.06'); };
     const camera=(s,at)=>{
-      for(let k=0;k<L.length;k++) tl.to(L[k],{...layerState(s,k),duration:.8,ease:'power2.inOut'},at);
+      for(let k=0;k<L.length;k++){
+        tl.to(L[k],{...layerState(s,k),duration:.8,ease:'power2.inOut'},at);
+        const d=s-k;
+        if(d===1)      tl.set(L[k],{filter:'blur(5px)'},at+'+=0.45');   // passerar kameran → suddig
+        else if(d===0) tl.set(L[k],{filter:'blur(0px)'},at+'+=0.1');    // åter i fokus vid backscroll
+      }
       DUST.forEach(d=>tl.to(d.el,{...dustState(s,d.k),duration:.8,ease:'power2.inOut'},at));
     };
 
@@ -752,21 +825,66 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
       return Math.min(1,(next-0.05)/dur);
     });
     RESTS[RESTS.length-1]=1;
+    buildTicks();
   }
-  // riktningsstyrd snap: varje gest stannar vid nästa etapps viloläge
-  // (toleransen härleds från pin-spannet så pixelavrundade hopp inte kliver fel)
+  // etapp-punkter på progressbaren
+  const progressEl=document.querySelector('.progress');
+  function buildTicks(){
+    progressEl.querySelectorAll('s').forEach(e=>e.remove());
+    RESTS.forEach(rp=>{
+      const t=document.createElement('s');
+      t.style.left=(rp*100)+'%';
+      if(rp===0)t.style.marginLeft='0';
+      if(rp===1)t.style.marginLeft='-7px';
+      progressEl.appendChild(t);
+    });
+  }
+  // hybrid-snap: närmaste etapp som standard; kliv vidare först när gesten
+  // fört en tydligt (>28%) in i nästa segment. Förhindrar att små mushjuls-
+  // ticks kedjar helsteg ("hoppar direkt till mästaren") och lugnar scrollen.
   function snapToRest(v,self){
     if(!RESTS.length)return v;
-    const eps=mainSt?2/(mainSt.end-mainSt.start):1e-3;
-    const dir=self&&self.direction||0;
-    if(dir>0){ for(const s of RESTS){ if(s>=v-eps)return s; } return 1; }
-    if(dir<0){ for(let i=RESTS.length-1;i>=0;i--){ if(RESTS[i]<=v+eps)return RESTS[i]; } return 0; }
-    let b=RESTS[0]; for(const s of RESTS){ if(Math.abs(s-v)<Math.abs(b-v))b=s; } return b;
+    let a=RESTS[0], b=RESTS[RESTS.length-1];
+    for(let i=0;i<RESTS.length-1;i++){ if(v>=RESTS[i]&&v<=RESTS[i+1]){a=RESTS[i];b=RESTS[i+1];break;} }
+    if(b<=a)return a;
+    const f=(v-a)/(b-a), dir=self&&self.direction||0, TH=.28;
+    if(dir>0) return f>TH ? b : a;
+    if(dir<0) return (1-f)>TH ? a : b;
+    return f<.5 ? a : b;
   }
+  /* egen snap-motor: GSAP:s inbyggda snap triggar inte pålitligt med
+     funktions-snapTo + scrub, så vi sköter den själva. Idle 170 ms efter
+     riktig användargest → tween till vald etappvila; ny gest dödar tweenen. */
+  let snapTween=null, idleT=null;
+  function killSnap(){ if(snapTween){snapTween.kill();snapTween=null;} }
+  function scheduleSnap(){
+    if(!mainSt) return;
+    clearTimeout(idleT);
+    idleT=setTimeout(()=>{
+      if(!mainSt||panel.classList.contains('open')) return;
+      const v=mainSt.progress;
+      if(v<=0.0005||v>=0.9995) return;
+      const target=snapToRest(v,{direction:mainSt.direction});
+      if(Math.abs(target-v)<0.002) return;
+      const y1=mainSt.start+target*(mainSt.end-mainSt.start);
+      killSnap();
+      const proxy={y:window.scrollY};
+      snapTween=gsap.to(proxy,{y:y1,duration:Math.min(.95,.3+Math.abs(target-v)*2.4),ease:'power2.inOut',
+        onUpdate:()=>window.scrollTo(0,proxy.y),onComplete:()=>{snapTween=null;}});
+    },170);
+  }
+  // 'scroll' är primär trigger (täcker mushjul, scrollbar, tangentbord, touch);
+  // egna snap-tweenens scrollar ignoreras. Nya gester avbryter pågående snap.
+  addEventListener('wheel',killSnap,{passive:true});
+  addEventListener('touchstart',killSnap,{passive:true});
+  addEventListener('scroll',()=>{ if(!snapTween) scheduleSnap(); },{passive:true});
+  addEventListener('touchend',scheduleSnap,{passive:true});
+
   function updateNav(){
     if(!mainTl) return;
     const prog=mainTl.progress();
     progressBar.style.transform='scaleX('+prog+')';
+    [...progressEl.querySelectorAll('s')].forEach((t,i)=>t.classList.toggle('done',RESTS[i]!==undefined&&prog>=RESTS[i]-.005));
     const p=prog*mainTl.duration(), Lb=mainTl.labels;
     let act=0;
     RAIL.forEach((r,i)=>{ if(Lb[r[1]]!==undefined && p>=Lb[r[1]]-.01) act=i; });
@@ -779,9 +897,9 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
   }
   function gotoStage(i){
     if(!mainTl||!mainSt) return;
+    killSnap(); clearTimeout(idleT);
     i=Math.max(0,Math.min(RAIL.length-1,i));
-    // direkt hopp till etappens VILOLÄGE — scrub gör övergången mjuk,
-    // snap bekämpar mjuk programmatisk scroll så hoppet måste vara omedelbart
+    // direkt hopp till etappens viloläge — scrub gör själva övergången mjuk
     window.scrollTo(0,Math.round(mainSt.start+RESTS[i]*(mainSt.end-mainSt.start)));
     ScrollTrigger.update();
   }
@@ -804,10 +922,9 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
     gsap.set(lblEls[0],{autoAlpha:1,y:0});
     railEl.classList.add('on');
 
-    const tl=gsap.timeline({defaults:{ease:'power2.out',force3D:true},scrollTrigger:{
+    const tl=gsap.timeline({defaults:{ease:'power2.out'},scrollTrigger:{
       trigger:'#stage',start:'top top',end:()=>'+='+Math.round(window.innerHeight*7),
       pin:true,scrub:1,invalidateOnRefresh:true,
-      snap:{snapTo:snapToRest,duration:{min:.25,max:.85},delay:.06,ease:'power2.inOut'},
       onUpdate:updateNav
     }});
     mainTl=tl;
@@ -830,6 +947,7 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
     });
     tl.to(wheel3d,{autoAlpha:1,duration:.7},'dock+=0.4')
       .to('#glowBlue',{opacity:1,duration:.6},'dock+=0.4')
+      .to('#scrollcue',{autoAlpha:0,duration:.15},'dock')
       .to({},{duration:.25});
 
     buildScenes(tl);
@@ -847,16 +965,16 @@ if(reduce || typeof gsap==='undefined' || typeof ScrollTrigger==='undefined'){
     gsap.set(lblEls[1],{autoAlpha:1,y:0});
     gsap.set('#glowBlue',{opacity:1});
 
-    const tl=gsap.timeline({defaults:{ease:'power2.out',force3D:true},scrollTrigger:{
+    const tl=gsap.timeline({defaults:{ease:'power2.out'},scrollTrigger:{
       trigger:'#stage',start:'top top',end:()=>'+='+Math.round(window.innerHeight*5.6),
       pin:true,scrub:1,invalidateOnRefresh:true,
-      snap:{snapTo:snapToRest,duration:{min:.25,max:.8},delay:.06,ease:'power2.inOut'},
       onUpdate:updateNav
     }});
     mainTl=tl;
     ScrollTrigger.addEventListener('refreshInit',applySrc);
     tl.addLabel('intro').to({},{duration:.2});
     buildScenes(tl);
+    tl.to('#scrollcue',{autoAlpha:0,duration:.15},'r16');
     computeRests(tl);
     mainSt=tl.scrollTrigger;
     updateNav();
