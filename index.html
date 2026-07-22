@@ -601,17 +601,6 @@ footer a:hover{color:var(--gold)}
   </div>
 </header>
 
-<!-- Notis: turneringen är fullbokad -->
-<div class="notice" id="notice" role="status">
-  <span class="tag" data-en="Fully booked" data-sv="Fullbokad">Fullbokad</span>
-  <p data-en="<b>The 2026 tournament is fully booked</b> — all 32 spots are taken. Questions or waiting list? Get in touch." data-sv="<b>Turneringen 2026 är fullbokad</b> — alla 32 platser är tagna. Frågor eller väntelista? Hör av dig."><b>Turneringen 2026 är fullbokad</b> — alla 32 platser är tagna. Frågor eller väntelista? Hör av dig.</p>
-  <span class="actions">
-    <a class="go" href="mailto:info@stockholmcupofnations.eu" data-en="✉ Email" data-sv="✉ E-post">✉ E-post</a>
-    <a class="go wa-go" href="https://api.whatsapp.com/send?phone=46722012733" target="_blank" rel="noopener">💬 WhatsApp</a>
-  </span>
-  <button class="x" id="noticeX" aria-label="Close">✕</button>
-</div>
-
 <!-- ============================== HERO ============================== -->
 <div class="hero" id="top">
   <div class="hero-bg"></div>
@@ -983,17 +972,6 @@ navLinks.addEventListener('click',e=>{ if(e.target.tagName==='A') navLinks.class
     el.m.textContent=pad(m); el.s.textContent=pad(Math.floor(ms/1e3));
   }
   tick(); setInterval(tick,1000);
-})();
-
-/* ================= NOTIS: en plats kvar ================= */
-(function(){
-  const n=document.getElementById('notice');
-  let dismissed=false;
-  try{ dismissed=sessionStorage.getItem('scon_notice_fullbokad')==='x'; }catch(e){}
-  if(!dismissed) setTimeout(()=>n.classList.add('show'),1400);
-  const hide=()=>{ n.classList.remove('show'); try{ sessionStorage.setItem('scon_notice_fullbokad','x'); }catch(e){} };
-  document.getElementById('noticeX').addEventListener('click',hide);
-  n.querySelectorAll('.go').forEach(a=>a.addEventListener('click',hide));
 })();
 
 /* ================= DE 32 — preliminär laguppställning 2026 ================= */
