@@ -141,6 +141,16 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .schedfilters .filters{margin-bottom:8px}
 .schedfilters .filters:last-child{margin-bottom:0}
+/* minimerbar filter-rad */
+.filtoggle{width:100%;display:flex;align-items:center;gap:10px;cursor:pointer;border:0;background:none;
+  padding:2px 2px 9px;color:var(--gold-hi);font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.filtoggle .fttl{color:var(--gold)}
+.filtoggle .ftsum{display:none;color:var(--dim);font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:none}
+.filtoggle .chev{margin-left:auto;font-style:normal;color:var(--gold);transition:transform .3s}
+.schedfilters.min .filtoggle{padding-bottom:2px}
+.schedfilters.min .filtoggle .ftsum{display:inline}
+.schedfilters.min .filtoggle .chev{transform:rotate(-90deg)}
+.schedfilters.min .filterbody{display:none}
 
 /* ── Kollapsbara timgrupper (12:00, 12:30 …) ── */
 .timegroup{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.015)}
@@ -512,6 +522,7 @@ const PUBLISH_EARLIEST=new Date('2026-07-23T00:00:00+02:00');
 
 let TEAMS=[], MATCHES=[], SETTINGS={}, pitchFilter=null, groupFilter=null, dayFilter=null, timer=null;
 const collapsedTimes=new Set();   // ihågkomna kollapsade timgrupper (nyckel: dag|tid)
+let filtersMin=true;              // filter-raden minimerad som standard (spar plats)
 
 async function sbGet(path){
   const r=await fetch(SB_URL+'/rest/v1/'+path,{headers:{apikey:SB_KEY}});
@@ -609,7 +620,14 @@ function renderSched(){
   }
   const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
   if(!dayFilter||!dates.includes(dayFilter)) dayFilter=dates[0];
-  let html='<div class="schedfilters"><div class="filters">';
+  const _pl=pitchFilter==null?(l==='sv'?'Alla planer':'All pitches'):(l==='sv'?'Plan ':'Pitch ')+pitchFilter;
+  const _gr=groupFilter==null?(l==='sv'?'Alla grupper':'All groups'):'GRP '+groupFilter;
+  let html='<div class="schedfilters'+(filtersMin?' min':'')+'">'+
+    '<button type="button" class="filtoggle" aria-expanded="'+(!filtersMin)+'">'+
+      '<span class="fttl">'+(l==='sv'?'Filter':'Filters')+'</span>'+
+      '<span class="ftsum">'+fmtDay(dayFilter,l)+' · '+_pl+' · '+_gr+'</span>'+
+      '<i class="chev">▾</i>'+
+    '</button><div class="filterbody"><div class="filters">';
   dates.forEach(d=>{
     html+='<button class="fbtn day'+(dayFilter===d?' sel':'')+'" data-day="'+d+'">'+fmtDay(d,l)+'</button>';
   });
@@ -626,7 +644,7 @@ function renderSched(){
   html+='</div><div class="schedtools">'+
     '<button type="button" class="ftiny" data-all="open">'+(l==='sv'?'Öppna alla':'Expand all')+'</button>'+
     '<button type="button" class="ftiny" data-all="close">'+(l==='sv'?'Stäng alla':'Collapse all')+'</button>'+
-    '</div></div><div class="sched">';
+    '</div></div></div><div class="sched">';
   const rows=sched
     .filter(m=>m.sched_date===dayFilter)
     .filter(m=>pitchFilter==null||PITCH_LETTER[m.pitch]===pitchFilter)
@@ -678,6 +696,11 @@ function renderSched(){
   });
   html+='</div>';
   host.innerHTML=html;
+  const ftg=host.querySelector('.filtoggle');
+  if(ftg) ftg.addEventListener('click',()=>{
+    filtersMin=host.querySelector('.schedfilters').classList.toggle('min');
+    ftg.setAttribute('aria-expanded', !filtersMin);
+  });
   host.querySelectorAll('.timehead').forEach(b=>b.addEventListener('click',()=>{
     const g=b.closest('.timegroup'), open=g.classList.toggle('open');
     b.setAttribute('aria-expanded',open);
