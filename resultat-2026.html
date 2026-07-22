@@ -125,6 +125,36 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
 .filters+.filters{margin-top:-4px}
 .fspacer{flex:1}
 
+/* ── Kollapsruta: Planerna + Grupperna tillsammans ── */
+.combobox{border:1px solid var(--line-2);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.02)}
+.combohead{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px 16px;cursor:pointer}
+.combohead .sec-h{margin-bottom:0;flex:1}
+.combohead .chev{font-style:normal;display:inline-block;color:var(--gold);font-size:15px;transition:transform .3s;flex:none}
+.combobox.open .combohead .chev{transform:rotate(180deg)}
+.venuebody{padding:0 22px 22px}
+.combobox:not(.open) .venuebody{display:none}
+.combobox:not(.open) .combohead{padding-bottom:18px}
+
+/* ── Sticky filter-rad i schemat ── */
+.schedfilters{position:sticky;top:6px;z-index:20;border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px 7px;margin-bottom:12px;background:rgba(4,11,32,.92);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.schedfilters .filters{margin-bottom:8px}
+.schedfilters .filters:last-child{margin-bottom:0}
+
+/* ── Kollapsbara timgrupper (12:00, 12:30 …) ── */
+.timegroup{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.015)}
+.timehead{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;
+  border:0;background:rgba(255,255,255,.03);padding:12px 16px;text-align:left;color:var(--text)}
+.timehead:hover{background:rgba(255,255,255,.06)}
+.timehead .tt{font-family:var(--mono);font-weight:600;font-size:14px;letter-spacing:.06em;color:var(--gold-hi)}
+.timehead .tc{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-weight:600;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.timehead .chev{font-style:normal;display:inline-block;color:var(--gold);transition:transform .3s}
+.timegroup.open .timehead .chev{transform:rotate(180deg)}
+.timebody{display:flex;flex-direction:column;gap:8px;padding:12px}
+.timegroup:not(.open) .timebody{display:none}
+
 .sched{display:flex;flex-direction:column;gap:8px}
 .wavehead{margin:16px 0 3px;font-family:var(--mono);font-weight:600;font-size:12.5px;
   letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
@@ -206,25 +236,6 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
   font-family:var(--disp);font-stretch:110%;font-weight:900;text-transform:uppercase;letter-spacing:.04em;
   border-radius:10px;padding:12px;text-align:center;font-size:13px}
 
-/* ── FAN-OMRÖSTNING (flaggstyrd, additiv modul — 0 avtryck när POLLS är av) ── */
-.fanvote{margin:-3px 0 5px;padding:10px 14px 11px;border:1px solid var(--line);border-radius:11px;
-  background:rgba(255,255,255,.02)}
-.fanvote .q{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--dim);margin-bottom:9px}
-.fanvote .vbtns{display:flex;gap:10px}
-.fanvote .vbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
-  border:1px solid var(--line-2);border-radius:9px;padding:9px 10px;background:rgba(255,255,255,.03);
-  font-family:var(--mono);font-weight:600;font-size:12.5px;color:var(--text);transition:.15s}
-.fanvote .vbtn:hover{border-color:var(--gold);color:var(--gold-hi)}
-.fanvote .vbtn .flagimg{width:1.5em;height:1.12em}
-.fanvote .bar{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line-2)}
-.fanvote .seg{display:flex;align-items:center;gap:7px;padding:0 11px;min-width:0;overflow:hidden;
-  font-family:var(--mono);font-weight:600;font-size:12px;white-space:nowrap;transition:flex-basis .45s ease}
-.fanvote .seg.h{background:linear-gradient(90deg,rgba(11,70,196,.55),rgba(11,70,196,.30));color:#eaf0ff;justify-content:flex-start}
-.fanvote .seg.a{background:linear-gradient(90deg,rgba(244,194,13,.28),rgba(244,194,13,.52));color:#241a00;justify-content:flex-end}
-.fanvote .voted{margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
-.fanvote .tot{margin-top:6px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#5b6a92;text-align:right}
-
 footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;margin-top:56px;
   font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:#5b6a92;text-transform:uppercase}
 
@@ -293,11 +304,16 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
   <!-- ============ ARENAN & SPELSCHEMAT ============ -->
   <section>
     <div class="wrap">
+      <div class="combobox open" id="venueBox">
+      <div class="combohead" id="venueToggle" role="button" tabindex="0" aria-expanded="true" aria-controls="venueBody">
       <div class="sec-h">
         <span class="kicker">Östermalms IP</span>
         <h2 data-en="The <span class='foil'>pitches.</span>" data-sv="<span class='foil'>Planerna.</span>">The <span class="foil">pitches.</span></h2>
         <span class="sub" data-en="Tap a pitch to filter the schedule" data-sv="Tryck på en plan för att filtrera schemat">Tryck på en plan för att filtrera schemat</span>
       </div>
+      <i class="chev" aria-hidden="true">▾</i>
+      </div>
+      <div class="venuebody" id="venueBody">
 
       <div class="venue-grid">
         <div class="mapcol">
@@ -405,6 +421,8 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
           <!-- fylls av JS: grupptabellerna (eller låsruta före publicering) -->
         </div>
       </div>
+      </div>
+      </div>
     </div>
   </section>
 
@@ -461,17 +479,8 @@ const ROUND_HEAD={ R16:['Round of 16','Åttondelsfinaler'], QF:['Quarter-finals'
 const PREVIEW=/preview|forhandsvisning/i.test(location.search);
 const PUBLISH_EARLIEST=new Date('2026-07-23T00:00:00+02:00');
 
-// ── Fan-omröstning (av som standard): slås på via ?polls i URL:en, eller settings.polls_enabled=true
-const POLLS_URL=/[?&]polls\b/i.test(location.search);
-function pollsOn(){ return POLLS_URL || SETTINGS.polls_enabled===true; }
-let VOTES={};                                     // {match_id:{home,away}} aggregat
-let VOTED={};                                     // {match_id:'home'|'away'} från denna enhet
-const VOTER=(function(){ try{ let v=localStorage.getItem('scon_voter');
-  if(!v){ v=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'v'+Date.now()+Math.random().toString(36).slice(2);
-    localStorage.setItem('scon_voter',v);} return v; }catch(e){ return 'anon'; } })();
-try{ VOTED=JSON.parse(localStorage.getItem('scon_voted')||'{}')||{}; }catch(e){ VOTED={}; }
-
 let TEAMS=[], MATCHES=[], SETTINGS={}, pitchFilter=null, groupFilter=null, dayFilter=null, timer=null;
+const collapsedTimes=new Set();   // ihågkomna kollapsade timgrupper (nyckel: dag|tid)
 
 async function sbGet(path){
   const r=await fetch(SB_URL+'/rest/v1/'+path,{headers:{apikey:SB_KEY}});
@@ -496,56 +505,12 @@ async function loadAll(first){
   ]);
   SETTINGS=(s[0]&&s[0].data)||{};
   TEAMS=t; MATCHES=m;
-  if(pollsOn()){
-    try{
-      const v=await sbGet('votes?year=eq.'+YEAR+'&select=match_id,pick');
-      VOTES={}; v.forEach(x=>{ const a=(VOTES[x.match_id]=VOTES[x.match_id]||{home:0,away:0});
-        if(x.pick==='home'||x.pick==='away') a[x.pick]++; });
-    }catch(e){ /* votes-tabellen finns ev. inte än → ignorera, sidan opåverkad */ }
-  }
   renderAll();
   const showing=isLive();
   if(showing && !timer){ timer=setInterval(()=>loadAll(false).catch(()=>{}),60000); }
 }
 function isLive(){
   return PREVIEW || (SETTINGS.published && new Date()>=PUBLISH_EARLIEST);
-}
-
-/* ── Fan-omröstning: skriv röst + rendera block (allt inaktivt när pollsOn()===false) ── */
-async function castVote(matchId, pick){
-  if(VOTED[matchId] || (pick!=='home'&&pick!=='away')) return;
-  VOTED[matchId]=pick;
-  try{ localStorage.setItem('scon_voted',JSON.stringify(VOTED)); }catch(e){}
-  const a=(VOTES[matchId]=VOTES[matchId]||{home:0,away:0}); a[pick]++;   // optimistiskt
-  renderSched();
-  try{
-    await fetch(SB_URL+'/rest/v1/votes',{ method:'POST',
-      headers:{ apikey:SB_KEY, 'Content-Type':'application/json', Prefer:'return=minimal' },
-      body:JSON.stringify({ year:YEAR, match_id:matchId, pick:pick, voter:VOTER }) });
-  }catch(e){ /* dubbelröst (409) eller nätfel → UI visar redan resultatet */ }
-}
-function fanVoteHtml(m,h,a,l){
-  if(!pollsOn() || !isLive() || !h || !a) return '';
-  const agg=VOTES[m.id]||{home:0,away:0}, mine=VOTED[m.id];
-  const open=((m.status==='scheduled')||!m.status) && !mine;   // öppen bara före avspark & ej röstad
-  if(open){
-    return '<div class="fanvote" data-mid="'+m.id+'">'+
-      '<div class="q">'+(l==='sv'?'Vem tror du vinner?':'Who do you think wins?')+'</div>'+
-      '<div class="vbtns">'+
-        '<button class="vbtn" data-pick="home">'+tflag(h)+'<span>'+tname(h)+'</span></button>'+
-        '<button class="vbtn" data-pick="away">'+tflag(a)+'<span>'+tname(a)+'</span></button>'+
-      '</div></div>';
-  }
-  const tot=agg.home+agg.away, ph=tot?Math.round(agg.home/tot*100):50, pa=tot?100-ph:50;
-  const voted = mine ? '<div class="voted">'+(l==='sv'?'✓ Du röstade på ':'✓ You voted for ')+(mine==='home'?tname(h):tname(a))+'</div>' : '';
-  return '<div class="fanvote">'+
-    '<div class="q">'+(l==='sv'?'Fansens favorit inför match':'Fan favourite before kickoff')+'</div>'+
-    '<div class="bar">'+
-      '<div class="seg h" style="flex-basis:'+ph+'%">'+tflag(h)+'<span>'+ph+'%</span></div>'+
-      '<div class="seg a" style="flex-basis:'+pa+'%"><span>'+pa+'%</span>'+tflag(a)+'</div>'+
-    '</div>'+voted+
-    '<div class="tot">'+tot+(l==='sv'?' röster':' votes')+'</div>'+
-  '</div>';
 }
 
 /* ================= RENDERING ================= */
@@ -611,7 +576,7 @@ function renderSched(){
   }
   const dates=[...new Set(sched.map(m=>m.sched_date))].sort();
   if(!dayFilter||!dates.includes(dayFilter)) dayFilter=dates[0];
-  let html='<div class="filters">';
+  let html='<div class="schedfilters"><div class="filters">';
   dates.forEach(d=>{
     html+='<button class="fbtn day'+(dayFilter===d?' sel':'')+'" data-day="'+d+'">'+fmtDay(d,l)+'</button>';
   });
@@ -625,7 +590,7 @@ function renderSched(){
   ['A','B','C','D','E','F','G','H'].forEach(g=>{
     html+='<button class="fbtn grp'+(groupFilter===g?' sel':'')+'" data-group="'+g+'">GRP '+g+'</button>';
   });
-  html+='</div><div class="sched">';
+  html+='</div></div><div class="sched">';
   const rows=sched
     .filter(m=>m.sched_date===dayFilter)
     .filter(m=>pitchFilter==null||PITCH_LETTER[m.pitch]===pitchFilter)
@@ -643,27 +608,39 @@ function renderSched(){
     if(m.stage==='group') return (l==='sv'?'GRP ':'GRP ')+(m.group_name||'?');
     return {R16:(l==='sv'?'8-DEL':'R16'),QF:(l==='sv'?'KVART':'QF'),SF:'SEMI',F:'FINAL'}[m.stage]||m.stage;
   };
-  let lastTime=null;
-  rows.forEach(m=>{
-    if(m.sched_time!==lastTime){ html+='<div class="wavehead">'+m.sched_time+'</div>'; lastTime=m.sched_time; }
-    const h=teamById(m.home_id), a=teamById(m.away_id);
-    const hN=h?tflag(h)+' <span>'+tname(h)+'</span>':'<span style="color:var(--dim)">'+srcText(m.home_src,l)+'</span>';
-    const aN=a?'<span>'+tname(a)+'</span> '+tflag(a):'<span style="color:var(--dim)">'+srcText(m.away_src,l)+'</span>';
-    const cls=m.status==='finished'?' finished':(m.status==='live'?' live':'');
-    const live=m.status==='live'?'<span class="livedot"></span> ':'';
-    html+='<div class="mrow'+cls+'">'+
-      '<span class="t">'+m.sched_time+'</span>'+
-      '<span class="pl">'+(l==='sv'?'PLAN ':'P. ')+(PITCH_LETTER[m.pitch]||'?')+'</span>'+
-      '<span class="gp">'+chip(m)+'</span>'+
-      '<span class="side">'+hN+'</span>'+
-      '<span class="sc">'+live+scoreHtml(m)+'</span>'+
-      '<span class="side away">'+aN+'</span>'+
-      '</div>'+fanVoteHtml(m,h,a,l);
+  // gruppera per avsparkstid → kollapsbara timgrupper (12:00, 12:30 …)
+  const byTime={}, order=[];
+  rows.forEach(m=>{ if(!byTime[m.sched_time]){ byTime[m.sched_time]=[]; order.push(m.sched_time); } byTime[m.sched_time].push(m); });
+  order.forEach(tm=>{
+    const grp=byTime[tm], key=dayFilter+'|'+tm, isOpen=!collapsedTimes.has(key);
+    html+='<div class="timegroup'+(isOpen?' open':'')+'" data-tkey="'+key+'">'+
+      '<button type="button" class="timehead" aria-expanded="'+isOpen+'">'+
+        '<span class="tt">'+tm+'</span>'+
+        '<span class="tc">'+grp.length+' '+(l==='sv'?'matcher':'matches')+'<i class="chev">▾</i></span>'+
+      '</button><div class="timebody">';
+    grp.forEach(m=>{
+      const h=teamById(m.home_id), a=teamById(m.away_id);
+      const hN=h?tflag(h)+' <span>'+tname(h)+'</span>':'<span style="color:var(--dim)">'+srcText(m.home_src,l)+'</span>';
+      const aN=a?'<span>'+tname(a)+'</span> '+tflag(a):'<span style="color:var(--dim)">'+srcText(m.away_src,l)+'</span>';
+      const cls=m.status==='finished'?' finished':(m.status==='live'?' live':'');
+      const live=m.status==='live'?'<span class="livedot"></span> ':'';
+      html+='<div class="mrow'+cls+'">'+
+        '<span class="t">'+m.sched_time+'</span>'+
+        '<span class="pl">'+(l==='sv'?'PLAN ':'P. ')+(PITCH_LETTER[m.pitch]||'?')+'</span>'+
+        '<span class="gp">'+chip(m)+'</span>'+
+        '<span class="side">'+hN+'</span>'+
+        '<span class="sc">'+live+scoreHtml(m)+'</span>'+
+        '<span class="side away">'+aN+'</span>'+
+        '</div>';
+    });
+    html+='</div></div>';
   });
   html+='</div>';
   host.innerHTML=html;
-  host.querySelectorAll('.fanvote .vbtn').forEach(b=>b.addEventListener('click',()=>{
-    const box=b.closest('.fanvote'); if(box) castVote(box.dataset.mid, b.dataset.pick);
+  host.querySelectorAll('.timehead').forEach(b=>b.addEventListener('click',()=>{
+    const g=b.closest('.timegroup'), open=g.classList.toggle('open');
+    b.setAttribute('aria-expanded',open);
+    if(open) collapsedTimes.delete(g.dataset.tkey); else collapsedTimes.add(g.dataset.tkey);
   }));
   host.querySelectorAll('.fbtn[data-day]').forEach(b=>b.addEventListener('click',()=>{ dayFilter=b.dataset.day; renderSched(); }));
   host.querySelectorAll('.fbtn[data-pitch]').forEach(b=>b.addEventListener('click',()=>{
@@ -684,6 +661,15 @@ function syncMap(){
   document.querySelectorAll('svg .pitchbtn').forEach(g=>
     g.classList.toggle('sel',g.dataset.pitch===pitchFilter));
 }
+/* Planerna + Grupperna: hela rutan kan fällas ihop */
+(function(){
+  const box=document.getElementById('venueBox'), head=document.getElementById('venueToggle');
+  if(!box||!head) return;
+  const toggle=()=>{ head.setAttribute('aria-expanded', box.classList.toggle('open')); };
+  head.addEventListener('click',toggle);
+  head.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+})();
+
 /* Hitta hit: hopfälld tills man öppnar — kartan laddas först vid första öppning */
 (function(){
   const card=document.getElementById('mapcard'), btn=document.getElementById('mapToggle');
