@@ -154,6 +154,25 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
 .timegroup.open .timehead .chev{transform:rotate(180deg)}
 .timebody{display:flex;flex-direction:column;gap:8px;padding:12px}
 .timegroup:not(.open) .timebody{display:none}
+/* mini-flaggor (förhandsvisning av matcherna även i kollapsat läge) */
+.timehead .tpreview{flex:1;display:flex;flex-wrap:wrap;gap:5px 12px;justify-content:center;align-items:center;min-width:0;padding:0 8px}
+.timehead .tpreview .pair{display:inline-flex;align-items:center;gap:3px}
+.timehead .tpreview .flagimg{width:1.18em;height:.88em}
+.timehead .tpreview i{font-style:normal;color:var(--dim);font-size:9px}
+.timehead .tpreview .q{color:var(--dim);font-size:11px}
+/* färgskift varannan tim-sektion */
+.timegroup.alt{background:rgba(11,70,196,.06)}
+.timegroup.alt .timehead{background:rgba(11,70,196,.11)}
+.timegroup.alt .timehead:hover{background:rgba(11,70,196,.17)}
+/* öppna alla / stäng alla */
+.schedtools{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.ftiny{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);border:1px solid var(--line-2);border-radius:7px;background:none;padding:6px 11px;cursor:pointer;transition:.15s}
+.ftiny:hover{color:var(--gold);border-color:var(--gold)}
+/* vilka planer gruppen spelar på (fot i grupptabellen) */
+.gcard .gfoot{padding:8px 12px;border-top:1px solid var(--line);font-family:var(--mono);font-weight:600;
+  font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.gcard .gfoot b{color:var(--gold)}
 
 .sched{display:flex;flex-direction:column;gap:8px}
 .wavehead{margin:16px 0 3px;font-family:var(--mono);font-weight:600;font-size:12.5px;
@@ -556,11 +575,13 @@ function renderSide(){
     '<span>'+(l==='sv'?'Topp 2 vidare · räknas live':'Top 2 advance · live standings')+'</span></div>'+
     '<div class="groups-grid">'+groups.map(g=>{
       const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
+      const pitches=[...new Set(MATCHES.filter(m=>m.stage==='group'&&m.group_name===g&&m.pitch).map(m=>PITCH_LETTER[m.pitch]).filter(Boolean))].sort();
+      const foot=pitches.length?'<div class="gfoot">'+(l==='sv'?'Plan ':'Pitch ')+'<b>'+pitches.join('</b> · <b>')+'</b></div>':'';
       return '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
         '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
         rows.map((r,i)=>'<tr'+(i<2?' class="q"':'')+'><td>'+tflag(r.team)+' '+tname(r.team)+'</td>'+
           '<td>'+r.P+'</td><td>'+r.GF+'–'+r.GA+'</td><td>'+r.Pts+'</td></tr>').join('')+
-        '</tbody></table></div>';
+        '</tbody></table>'+foot+'</div>';
     }).join('')+'</div>';
 }
 function renderSched(){
@@ -590,7 +611,10 @@ function renderSched(){
   ['A','B','C','D','E','F','G','H'].forEach(g=>{
     html+='<button class="fbtn grp'+(groupFilter===g?' sel':'')+'" data-group="'+g+'">GRP '+g+'</button>';
   });
-  html+='</div></div><div class="sched">';
+  html+='</div><div class="schedtools">'+
+    '<button type="button" class="ftiny" data-all="open">'+(l==='sv'?'Öppna alla':'Expand all')+'</button>'+
+    '<button type="button" class="ftiny" data-all="close">'+(l==='sv'?'Stäng alla':'Collapse all')+'</button>'+
+    '</div></div><div class="sched">';
   const rows=sched
     .filter(m=>m.sched_date===dayFilter)
     .filter(m=>pitchFilter==null||PITCH_LETTER[m.pitch]===pitchFilter)
@@ -611,11 +635,16 @@ function renderSched(){
   // gruppera per avsparkstid → kollapsbara timgrupper (12:00, 12:30 …)
   const byTime={}, order=[];
   rows.forEach(m=>{ if(!byTime[m.sched_time]){ byTime[m.sched_time]=[]; order.push(m.sched_time); } byTime[m.sched_time].push(m); });
-  order.forEach(tm=>{
+  order.forEach((tm,idx)=>{
     const grp=byTime[tm], key=dayFilter+'|'+tm, isOpen=!collapsedTimes.has(key);
-    html+='<div class="timegroup'+(isOpen?' open':'')+'" data-tkey="'+key+'">'+
+    const preview=grp.map(m=>{
+      const h=teamById(m.home_id), a=teamById(m.away_id);
+      return '<span class="pair">'+(h?tflag(h):'<i class="q">?</i>')+'<i>v</i>'+(a?tflag(a):'<i class="q">?</i>')+'</span>';
+    }).join('');
+    html+='<div class="timegroup'+(isOpen?' open':'')+(idx%2?' alt':'')+'" data-tkey="'+key+'">'+
       '<button type="button" class="timehead" aria-expanded="'+isOpen+'">'+
         '<span class="tt">'+tm+'</span>'+
+        '<span class="tpreview">'+preview+'</span>'+
         '<span class="tc">'+grp.length+' '+(l==='sv'?'matcher':'matches')+'<i class="chev">▾</i></span>'+
       '</button><div class="timebody">';
     grp.forEach(m=>{
@@ -641,6 +670,11 @@ function renderSched(){
     const g=b.closest('.timegroup'), open=g.classList.toggle('open');
     b.setAttribute('aria-expanded',open);
     if(open) collapsedTimes.delete(g.dataset.tkey); else collapsedTimes.add(g.dataset.tkey);
+  }));
+  host.querySelectorAll('.ftiny[data-all]').forEach(b=>b.addEventListener('click',()=>{
+    const keys=order.map(tm=>dayFilter+'|'+tm);
+    if(b.dataset.all==='close') keys.forEach(k=>collapsedTimes.add(k)); else keys.forEach(k=>collapsedTimes.delete(k));
+    renderSched();
   }));
   host.querySelectorAll('.fbtn[data-day]').forEach(b=>b.addEventListener('click',()=>{ dayFilter=b.dataset.day; renderSched(); }));
   host.querySelectorAll('.fbtn[data-pitch]').forEach(b=>b.addEventListener('click',()=>{
@@ -673,12 +707,14 @@ function syncMap(){
 /* Hitta hit: hopfälld tills man öppnar — kartan laddas först vid första öppning */
 (function(){
   const card=document.getElementById('mapcard'), btn=document.getElementById('mapToggle');
-  btn.addEventListener('click',()=>{
-    const open=card.classList.toggle('open');
+  const setOpen=open=>{
+    card.classList.toggle('open',open);
     btn.setAttribute('aria-expanded',open);
     const fr=card.querySelector('iframe');
     if(open && !fr.src) fr.src=fr.dataset.src;
-  });
+  };
+  btn.addEventListener('click',()=>setOpen(!card.classList.contains('open')));
+  setOpen(true);   // öppen som standard → tajt box utan tomrum
 })();
 document.querySelectorAll('svg .pitchbtn').forEach(g=>{
   g.addEventListener('click',()=>{
