@@ -155,7 +155,7 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
 .timebody{display:flex;flex-direction:column;gap:8px;padding:12px}
 .timegroup:not(.open) .timebody{display:none}
 /* mini-flaggor (förhandsvisning av matcherna även i kollapsat läge) */
-.timehead .tpreview{flex:1;display:flex;flex-wrap:wrap;gap:5px 12px;justify-content:center;align-items:center;min-width:0;padding:0 8px}
+.timehead .tpreview{flex:1;display:flex;flex-wrap:wrap;gap:6px 28px;justify-content:center;align-items:center;min-width:0;padding:0 10px}
 .timehead .tpreview .pair{display:inline-flex;align-items:center;gap:3px}
 .timehead .tpreview .flagimg{width:1.18em;height:.88em}
 .timehead .tpreview i{font-style:normal;color:var(--dim);font-size:9px}
@@ -225,8 +225,13 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
 /* ---------- Grupptabeller ---------- */
 .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .gcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(7,18,51,.5)}
-.gcard .gtop{padding:9px 14px;background:rgba(11,70,196,.25);border-bottom:1px solid var(--line);
+.gcard .gtop{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 14px;background:rgba(11,70,196,.25);border-bottom:1px solid var(--line);
   font-family:var(--mono);font-weight:600;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hi)}
+.gcard .gtop .gpitch{letter-spacing:.14em;color:var(--dim)}
+.gcard .gtop .gpitch b{color:var(--gold);margin-left:1px}
+/* schema-rutan får inte klippa (annars slutar sticky-filtren fungera) */
+#schedBox{overflow:visible}
 .gcard table{width:100%;border-collapse:collapse;font-size:13.5px}
 .gcard th{font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--dim);padding:7px 6px;border-bottom:1px solid var(--line);text-align:center}
@@ -448,12 +453,19 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
   <!-- ============ SPELSCHEMA ============ -->
   <section id="schedSec" hidden>
     <div class="wrap">
+      <div class="combobox open" id="schedBox">
+      <div class="combohead" id="schedToggle" role="button" tabindex="0" aria-expanded="true" aria-controls="schedBody">
       <div class="sec-h">
         <span class="kicker" data-en="Fixtures &amp; results" data-sv="Matcher &amp; resultat">Matcher &amp; resultat</span>
         <h2 data-en="The <span class='foil'>schedule.</span>" data-sv="<span class='foil'>Spelschemat.</span>">The <span class="foil">schedule.</span></h2>
         <span class="sub" data-en="Times, pitches and live scores" data-sv="Tider, planer och liveresultat">Tider, planer och liveresultat</span>
       </div>
+      <i class="chev" aria-hidden="true">▾</i>
+      </div>
+      <div class="venuebody" id="schedBody">
       <div id="schedArea"></div>
+      </div>
+      </div>
     </div>
   </section>
 
@@ -576,12 +588,12 @@ function renderSide(){
     '<div class="groups-grid">'+groups.map(g=>{
       const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
       const pitches=[...new Set(MATCHES.filter(m=>m.stage==='group'&&m.group_name===g&&m.pitch).map(m=>PITCH_LETTER[m.pitch]).filter(Boolean))].sort();
-      const foot=pitches.length?'<div class="gfoot">'+(l==='sv'?'Plan ':'Pitch ')+'<b>'+pitches.join('</b> · <b>')+'</b></div>':'';
-      return '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
+      const pj=pitches.length?'<span class="gpitch">'+(l==='sv'?'Plan ':'Pitch ')+'<b>'+pitches.join('</b> <b>')+'</b></span>':'';
+      return '<div class="gcard"><div class="gtop"><span>'+(l==='sv'?'Grupp ':'Group ')+g+'</span>'+pj+'</div>'+
         '<table><thead><tr>'+hdr.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+
         rows.map((r,i)=>'<tr'+(i<2?' class="q"':'')+'><td>'+tflag(r.team)+' '+tname(r.team)+'</td>'+
           '<td>'+r.P+'</td><td>'+r.GF+'–'+r.GA+'</td><td>'+r.Pts+'</td></tr>').join('')+
-        '</tbody></table>'+foot+'</div>';
+        '</tbody></table></div>';
     }).join('')+'</div>';
 }
 function renderSched(){
@@ -695,14 +707,14 @@ function syncMap(){
   document.querySelectorAll('svg .pitchbtn').forEach(g=>
     g.classList.toggle('sel',g.dataset.pitch===pitchFilter));
 }
-/* Planerna + Grupperna: hela rutan kan fällas ihop */
-(function(){
-  const box=document.getElementById('venueBox'), head=document.getElementById('venueToggle');
+/* Kollapsbara rutor: Planerna+Grupperna resp. Spelschemat */
+[['venueBox','venueToggle'],['schedBox','schedToggle']].forEach(function(pair){
+  const box=document.getElementById(pair[0]), head=document.getElementById(pair[1]);
   if(!box||!head) return;
   const toggle=()=>{ head.setAttribute('aria-expanded', box.classList.toggle('open')); };
   head.addEventListener('click',toggle);
   head.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
-})();
+});
 
 /* Hitta hit: hopfälld tills man öppnar — kartan laddas först vid första öppning */
 (function(){
