@@ -362,6 +362,12 @@ section[id]{scroll-margin-top:90px}
 .gcard td:first-child{font-weight:600;color:var(--text);white-space:nowrap}
 .gcard td:last-child{font-family:var(--mono);font-weight:600;color:var(--gold)}
 .gcard tbody tr.q{background:rgba(244,194,13,.07)}
+/* lag-lista för gruppdragningen på startsidan */
+.gcard .glist{list-style:none;margin:0;padding:6px 2px}
+.gcard .glist li{display:flex;align-items:center;gap:9px;padding:7px 12px;font-size:13px;color:var(--text)}
+.gcard .glist li .flagimg{flex:none}
+.gcard .glist li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#groups .n32-note a{color:var(--gold);border-bottom:1px solid rgba(244,194,13,.4)}
 .ed-note{margin:16px 0 26px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--dim)}
 .ed-ko{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
@@ -701,6 +707,19 @@ footer a:hover{color:var(--gold)}
     </div>
     <div class="nations-grid" id="nationsGrid"></div>
     <div class="n32-note rv" data-en="All 32 nations confirmed — the official group draw takes place 23 July." data-sv="Alla 32 nationer klara — den officiella gruppdragningen sker 23 juli.">All 32 nations confirmed — the official group draw takes place 23 July.</div>
+  </div>
+</section>
+
+<!-- ============================== GRUPPERNA (live från Supabase, syns kl 00:00 den 23 juli) ============================== -->
+<section class="the32" id="groups" hidden>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kicker" data-en="Group draw 2026" data-sv="Gruppdragningen 2026">Group draw 2026</span>
+      <h2 data-en="The <span class='foil'>groups</span>" data-sv="<span class='foil'>Grupperna</span>">The <span class="foil">groups</span></h2>
+      <p data-en="32 nations in eight groups of four — the top two in each group advance to Sunday's knockout." data-sv="32 nationer i åtta grupper om fyra — de två bästa i varje grupp går vidare till söndagens slutspel.">32 nations in eight groups of four — the top two in each group advance to Sunday's knockout.</p>
+    </div>
+    <div class="ed-groups" id="homeGroups"></div>
+    <div class="n32-note rv"><a href="resultat-2026.html" data-en="Full standings &amp; schedule — Results 2026 →" data-sv="Full tabell &amp; spelschema — Resultat 2026 →">Full standings &amp; schedule — Results 2026 →</a></div>
   </div>
 </section>
 
@@ -1230,6 +1249,46 @@ function showMiniToast(msg){
   t.textContent=msg; t.classList.add('show');
   clearTimeout(mtT); mtT=setTimeout(()=>t.classList.remove('show'),3400);
 }
+
+/* ===== Grupperna på startsidan: live från Supabase, syns kl 00:00 den 23 juli ===== */
+(function(){
+  const OPEN=new Date('2026-07-23T00:00:00+02:00').getTime();
+  const SB_URL='https://mwempjsaylynnyzqdtno.supabase.co';
+  const SB_KEY='sb_publishable_D9RvjAByxZUld9C4WwfqVA_zTQzx4Kc';
+  const sec=document.getElementById('groups'), host=document.getElementById('homeGroups');
+  if(!sec||!host) return;
+  const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const flag=x=>{ const c=(x.code||'').toLowerCase().replace(/[^a-z-]/g,''); return c?'<img class="flagimg" src="img/flags/svg/'+c+'.svg" alt="" onerror="this.remove()">':(x.flag?esc(x.flag):''); };
+  const lang=()=>{ try{ return localStorage.getItem('scon_lang')==='en'?'en':'sv'; }catch(e){ return 'sv'; } };
+  let TEAMS=null;
+  function render(){
+    if(!TEAMS) return;
+    const l=lang();
+    const groups=[...new Set(TEAMS.map(x=>x.group_name).filter(Boolean))].sort();
+    if(!groups.length) return;
+    host.innerHTML=groups.map(g=>{
+      const rows=TEAMS.filter(x=>x.group_name===g).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+      return '<div class="gcard"><div class="gtop">'+(l==='sv'?'Grupp ':'Group ')+g+'</div>'+
+        '<ul class="glist">'+rows.map(x=>'<li>'+flag(x)+'<span>'+esc(x.name)+'</span></li>').join('')+'</ul></div>';
+    }).join('');
+    sec.hidden=false;
+    sec.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));   // säkerställ att sektionen syns
+  }
+  async function load(){
+    if(Date.now()<OPEN) return;   // före 23 juli 00:00 → sektionen förblir dold
+    try{
+      const [s,t]=await Promise.all([
+        fetch(SB_URL+'/rest/v1/settings?year=eq.2026&select=data',{headers:{apikey:SB_KEY}}).then(r=>r.json()),
+        fetch(SB_URL+'/rest/v1/teams?year=eq.2026&select=code,name,flag,group_name,sort_order&order=group_name&order=sort_order',{headers:{apikey:SB_KEY}}).then(r=>r.json())
+      ]);
+      const published=!!(s&&s[0]&&s[0].data&&s[0].data.published);
+      if(!published || !Array.isArray(t) || !t.length) return;
+      TEAMS=t; render();
+    }catch(e){ /* dold vid fel */ }
+  }
+  load();
+  document.querySelectorAll('#langBtn .lng').forEach(el=>el.addEventListener('click',()=>{ if(TEAMS) render(); }));
+})();
 
 /* ================= REVEAL ON SCROLL ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{
