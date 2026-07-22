@@ -342,8 +342,8 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
       <div class="combohead" id="venueToggle" role="button" tabindex="0" aria-expanded="true" aria-controls="venueBody">
       <div class="sec-h">
         <span class="kicker">Östermalms IP</span>
-        <h2 data-en="The <span class='foil'>pitches.</span>" data-sv="<span class='foil'>Planerna.</span>">The <span class="foil">pitches.</span></h2>
-        <span class="sub" data-en="Tap a pitch to filter the schedule" data-sv="Tryck på en plan för att filtrera schemat">Tryck på en plan för att filtrera schemat</span>
+        <h2 data-en="The <span class='foil'>groups.</span>" data-sv="<span class='foil'>Grupperna.</span>">The <span class="foil">groups.</span></h2>
+        <span class="sub" data-en="Top 2 advance · live standings" data-sv="Topp 2 vidare · räknas live">Topp 2 vidare · räknas live</span>
       </div>
       <i class="chev" aria-hidden="true">▾</i>
       </div>
@@ -594,9 +594,7 @@ function renderSide(){
   }
   const groups=[...new Set(TEAMS.map(t=>t.group_name).filter(Boolean))].sort();
   const hdr=(l==='sv')?['Lag','S','MÅL','P']:['Team','P','Goals','Pts'];
-  host.innerHTML='<div class="side-head"><h3>'+(l==='sv'?'Grupperna':'The groups')+'</h3>'+
-    '<span>'+(l==='sv'?'Topp 2 vidare · räknas live':'Top 2 advance · live standings')+'</span></div>'+
-    '<div class="groups-grid">'+groups.map(g=>{
+  host.innerHTML='<div class="groups-grid">'+groups.map(g=>{
       const rows=computeStandings(TEAMS.filter(t=>t.group_name===g));
       const pitches=[...new Set(MATCHES.filter(m=>m.stage==='group'&&m.group_name===g&&m.pitch).map(m=>PITCH_LETTER[m.pitch]).filter(Boolean))].sort();
       const pj=pitches.length?'<span class="gpitch">'+(l==='sv'?'Plan ':'Pitch ')+'<b>'+pitches.join('</b> <b>')+'</b></span>':'';
