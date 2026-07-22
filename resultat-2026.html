@@ -228,6 +228,18 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
   .mrow .side{font-size:14px;gap:7px}
   .mrow .sc{font-size:15px;min-width:42px}
 }
+@media(max-width:640px){
+  /* Schemarad: stapla meta (tid/plan/grupp) på egen rad och matchen på egen rad,
+     så lagnamnen får full bredd och slutar kapas på telefon. */
+  .mrow{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px 8px;padding:12px 13px}
+  .mrow .t{grid-column:1;grid-row:1;justify-self:start}
+  .mrow .pl{grid-column:2;grid-row:1;justify-self:center;padding:4px 10px}
+  .mrow .gp{grid-column:3;grid-row:1;justify-self:end;padding:4px 10px}
+  .mrow .side{grid-column:1;grid-row:2;justify-self:start;font-size:15px}
+  .mrow .sc{grid-column:2;grid-row:2;justify-self:center}
+  .mrow .side.away{grid-column:3;grid-row:2;justify-self:end;justify-content:flex-end;text-align:right}
+  .mrow .side span{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2}
+}
 @media(max-width:520px){
   .groups-grid,#sideArea .groups-grid{grid-template-columns:1fr}
   .ko-grid{grid-template-columns:1fr}
