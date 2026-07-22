@@ -368,6 +368,7 @@ section[id]{scroll-margin-top:90px}
 .gcard .glist li .flagimg{flex:none}
 .gcard .glist li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #groups .n32-note a{color:var(--gold);border-bottom:1px solid rgba(244,194,13,.4)}
+.js-groups-link[hidden]{display:none!important}   /* Grupper-länk gömd tills midnatt (även i mobilmenyn) */
 .ed-note{margin:16px 0 26px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--dim)}
 .ed-ko{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
@@ -584,6 +585,7 @@ footer a:hover{color:var(--gold)}
     <nav class="links" id="navLinks">
       <a href="#format" data-en="Format" data-sv="Format">Format</a>
       <a href="#nations" data-en="The 32" data-sv="De 32">The 32</a>
+      <a href="#groups" class="js-groups-link" data-en="Groups" data-sv="Grupper" hidden>Groups</a>
       <a href="resultat-2026.html" data-en="Results" data-sv="Resultat">Results</a>
       <a href="regler/" data-en="Rules" data-sv="Regler">Rules</a>
       <a href="#register" data-en="Register" data-sv="Anmälan">Register</a>
@@ -897,6 +899,7 @@ footer a:hover{color:var(--gold)}
         <h4 data-en="Explore" data-sv="Utforska">Explore</h4>
         <a href="#format" data-en="Format" data-sv="Format">Format</a>
         <a href="#nations" data-en="The 32" data-sv="De 32">The 32</a>
+        <a href="#groups" class="js-groups-link" data-en="Groups" data-sv="Grupper" hidden>Groups</a>
         <a href="resultat-2026.html" data-en="Results 2026" data-sv="Resultat 2026">Results 2026</a>
         <a href="regler/" data-en="Rules" data-sv="Regler">Rules</a>
         <a href="#register" data-en="Register 2026" data-sv="Anmälan 2026">Register 2026</a>
@@ -1273,6 +1276,7 @@ function showMiniToast(msg){
     }).join('');
     sec.hidden=false;
     sec.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));   // säkerställ att sektionen syns
+    document.querySelectorAll('.js-groups-link').forEach(a=>{ a.hidden=false; });   // visa meny-länken samtidigt
   }
   async function load(){
     if(Date.now()<OPEN) return;   // före 23 juli 00:00 → sektionen förblir dold
