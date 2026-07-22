@@ -206,6 +206,25 @@ svg text{font-family:"IBM Plex Mono",monospace;text-transform:uppercase}
   font-family:var(--disp);font-stretch:110%;font-weight:900;text-transform:uppercase;letter-spacing:.04em;
   border-radius:10px;padding:12px;text-align:center;font-size:13px}
 
+/* ── FAN-OMRÖSTNING (flaggstyrd, additiv modul — 0 avtryck när POLLS är av) ── */
+.fanvote{margin:-3px 0 5px;padding:10px 14px 11px;border:1px solid var(--line);border-radius:11px;
+  background:rgba(255,255,255,.02)}
+.fanvote .q{font-family:var(--mono);font-weight:600;font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.fanvote .vbtns{display:flex;gap:10px}
+.fanvote .vbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+  border:1px solid var(--line-2);border-radius:9px;padding:9px 10px;background:rgba(255,255,255,.03);
+  font-family:var(--mono);font-weight:600;font-size:12.5px;color:var(--text);transition:.15s}
+.fanvote .vbtn:hover{border-color:var(--gold);color:var(--gold-hi)}
+.fanvote .vbtn .flagimg{width:1.5em;height:1.12em}
+.fanvote .bar{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line-2)}
+.fanvote .seg{display:flex;align-items:center;gap:7px;padding:0 11px;min-width:0;overflow:hidden;
+  font-family:var(--mono);font-weight:600;font-size:12px;white-space:nowrap;transition:flex-basis .45s ease}
+.fanvote .seg.h{background:linear-gradient(90deg,rgba(11,70,196,.55),rgba(11,70,196,.30));color:#eaf0ff;justify-content:flex-start}
+.fanvote .seg.a{background:linear-gradient(90deg,rgba(244,194,13,.28),rgba(244,194,13,.52));color:#241a00;justify-content:flex-end}
+.fanvote .voted{margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.fanvote .tot{margin-top:6px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#5b6a92;text-align:right}
+
 footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;margin-top:56px;
   font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:#5b6a92;text-transform:uppercase}
 
@@ -442,6 +461,16 @@ const ROUND_HEAD={ R16:['Round of 16','Åttondelsfinaler'], QF:['Quarter-finals'
 const PREVIEW=/preview|forhandsvisning/i.test(location.search);
 const PUBLISH_EARLIEST=new Date('2026-07-23T00:00:00+02:00');
 
+// ── Fan-omröstning (av som standard): slås på via ?polls i URL:en, eller settings.polls_enabled=true
+const POLLS_URL=/[?&]polls\b/i.test(location.search);
+function pollsOn(){ return POLLS_URL || SETTINGS.polls_enabled===true; }
+let VOTES={};                                     // {match_id:{home,away}} aggregat
+let VOTED={};                                     // {match_id:'home'|'away'} från denna enhet
+const VOTER=(function(){ try{ let v=localStorage.getItem('scon_voter');
+  if(!v){ v=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'v'+Date.now()+Math.random().toString(36).slice(2);
+    localStorage.setItem('scon_voter',v);} return v; }catch(e){ return 'anon'; } })();
+try{ VOTED=JSON.parse(localStorage.getItem('scon_voted')||'{}')||{}; }catch(e){ VOTED={}; }
+
 let TEAMS=[], MATCHES=[], SETTINGS={}, pitchFilter=null, groupFilter=null, dayFilter=null, timer=null;
 
 async function sbGet(path){
@@ -467,12 +496,56 @@ async function loadAll(first){
   ]);
   SETTINGS=(s[0]&&s[0].data)||{};
   TEAMS=t; MATCHES=m;
+  if(pollsOn()){
+    try{
+      const v=await sbGet('votes?year=eq.'+YEAR+'&select=match_id,pick');
+      VOTES={}; v.forEach(x=>{ const a=(VOTES[x.match_id]=VOTES[x.match_id]||{home:0,away:0});
+        if(x.pick==='home'||x.pick==='away') a[x.pick]++; });
+    }catch(e){ /* votes-tabellen finns ev. inte än → ignorera, sidan opåverkad */ }
+  }
   renderAll();
   const showing=isLive();
   if(showing && !timer){ timer=setInterval(()=>loadAll(false).catch(()=>{}),60000); }
 }
 function isLive(){
   return PREVIEW || (SETTINGS.published && new Date()>=PUBLISH_EARLIEST);
+}
+
+/* ── Fan-omröstning: skriv röst + rendera block (allt inaktivt när pollsOn()===false) ── */
+async function castVote(matchId, pick){
+  if(VOTED[matchId] || (pick!=='home'&&pick!=='away')) return;
+  VOTED[matchId]=pick;
+  try{ localStorage.setItem('scon_voted',JSON.stringify(VOTED)); }catch(e){}
+  const a=(VOTES[matchId]=VOTES[matchId]||{home:0,away:0}); a[pick]++;   // optimistiskt
+  renderSched();
+  try{
+    await fetch(SB_URL+'/rest/v1/votes',{ method:'POST',
+      headers:{ apikey:SB_KEY, 'Content-Type':'application/json', Prefer:'return=minimal' },
+      body:JSON.stringify({ year:YEAR, match_id:matchId, pick:pick, voter:VOTER }) });
+  }catch(e){ /* dubbelröst (409) eller nätfel → UI visar redan resultatet */ }
+}
+function fanVoteHtml(m,h,a,l){
+  if(!pollsOn() || !isLive() || !h || !a) return '';
+  const agg=VOTES[m.id]||{home:0,away:0}, mine=VOTED[m.id];
+  const open=((m.status==='scheduled')||!m.status) && !mine;   // öppen bara före avspark & ej röstad
+  if(open){
+    return '<div class="fanvote" data-mid="'+m.id+'">'+
+      '<div class="q">'+(l==='sv'?'Vem tror du vinner?':'Who do you think wins?')+'</div>'+
+      '<div class="vbtns">'+
+        '<button class="vbtn" data-pick="home">'+tflag(h)+'<span>'+tname(h)+'</span></button>'+
+        '<button class="vbtn" data-pick="away">'+tflag(a)+'<span>'+tname(a)+'</span></button>'+
+      '</div></div>';
+  }
+  const tot=agg.home+agg.away, ph=tot?Math.round(agg.home/tot*100):50, pa=tot?100-ph:50;
+  const voted = mine ? '<div class="voted">'+(l==='sv'?'✓ Du röstade på ':'✓ You voted for ')+(mine==='home'?tname(h):tname(a))+'</div>' : '';
+  return '<div class="fanvote">'+
+    '<div class="q">'+(l==='sv'?'Fansens favorit inför match':'Fan favourite before kickoff')+'</div>'+
+    '<div class="bar">'+
+      '<div class="seg h" style="flex-basis:'+ph+'%">'+tflag(h)+'<span>'+ph+'%</span></div>'+
+      '<div class="seg a" style="flex-basis:'+pa+'%"><span>'+pa+'%</span>'+tflag(a)+'</div>'+
+    '</div>'+voted+
+    '<div class="tot">'+tot+(l==='sv'?' röster':' votes')+'</div>'+
+  '</div>';
 }
 
 /* ================= RENDERING ================= */
@@ -585,10 +658,13 @@ function renderSched(){
       '<span class="side">'+hN+'</span>'+
       '<span class="sc">'+live+scoreHtml(m)+'</span>'+
       '<span class="side away">'+aN+'</span>'+
-      '</div>';
+      '</div>'+fanVoteHtml(m,h,a,l);
   });
   html+='</div>';
   host.innerHTML=html;
+  host.querySelectorAll('.fanvote .vbtn').forEach(b=>b.addEventListener('click',()=>{
+    const box=b.closest('.fanvote'); if(box) castVote(box.dataset.mid, b.dataset.pick);
+  }));
   host.querySelectorAll('.fbtn[data-day]').forEach(b=>b.addEventListener('click',()=>{ dayFilter=b.dataset.day; renderSched(); }));
   host.querySelectorAll('.fbtn[data-pitch]').forEach(b=>b.addEventListener('click',()=>{
     pitchFilter=b.dataset.pitch==='all'?null:b.dataset.pitch; renderSched(); syncMap();
