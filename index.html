@@ -1279,7 +1279,7 @@ function showMiniToast(msg){
     document.querySelectorAll('.js-groups-link').forEach(a=>{ a.hidden=false; });   // visa meny-länken samtidigt
   }
   async function load(){
-    if(Date.now()<OPEN) return;   // före 23 juli 00:00 → sektionen förblir dold
+    if(Date.now()<OPEN && !/[?&](preview|forhandsvisning)\b/i.test(location.search)) return;   // före 23 juli 00:00 dold; ?preview visar den ändå
     try{
       const [s,t]=await Promise.all([
         fetch(SB_URL+'/rest/v1/settings?year=eq.2026&select=data',{headers:{apikey:SB_KEY}}).then(r=>r.json()),
