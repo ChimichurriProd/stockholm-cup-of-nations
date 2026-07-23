@@ -68,12 +68,12 @@ header.nav.solid{background:rgba(4,11,32,.92);backdrop-filter:blur(14px);border-
 .brand b{font-family:var(--disp);font-stretch:115%;font-weight:900;font-size:15px;letter-spacing:.04em}
 .brand b small{display:block;font-family:var(--mono);font-weight:500;font-size:9px;
   letter-spacing:.3em;color:var(--gold)}
-nav.links{margin-left:auto;display:flex;gap:24px;font-family:var(--mono);font-size:12.5px;
-  letter-spacing:.1em;text-transform:uppercase;align-items:center}
+nav.links{margin-left:auto;display:flex;gap:18px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;align-items:center}
 nav.links a{color:#e4eafb;text-shadow:0 1px 10px rgba(0,0,0,.65);transition:color .2s;white-space:nowrap}
 nav.links a:hover{color:var(--gold)}
-.lang{display:inline-flex;gap:2px;border:1px solid var(--line-2);border-radius:8px;padding:3px;cursor:pointer}
-.lang .lng{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;
+.lang{display:inline-flex;gap:2px;border:1px solid var(--line-2);border-radius:8px;padding:3px;cursor:pointer;flex:none}
+.lang .lng{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;flex:none;
   font-family:var(--mono);font-weight:600;font-size:11px;color:#d6ddf2;transition:.15s;white-space:nowrap}
 .lang .lng.active{background:var(--gold);color:#241a00}
 .lang .lng:not(.active):hover{color:var(--text)}
@@ -242,6 +242,9 @@ section[id]{scroll-margin-top:90px}
   border-radius:12px;padding:16px 20px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--gold)}
 .draw-note b{font-weight:600;color:var(--gold-hi)}
+.regfull{display:block;margin:4px 0 22px;padding:14px 18px;border:1px solid rgba(240,72,77,.5);
+  border-radius:12px;background:rgba(240,72,77,.09);color:#ffd7d9;font-size:15px;max-width:470px;line-height:1.5}
+.regfull b{color:#ff5c61;font-weight:700}
 
 /* Flaggväggen — The 32 */
 .the32{background:radial-gradient(900px 500px at 85% 0%,rgba(11,70,196,.14),transparent 65%)}
@@ -585,9 +588,9 @@ footer a:hover{color:var(--gold)}
       <b>STOCKHOLM CUP OF NATIONS<small>2026 · ÖSTERMALMS IP</small></b>
     </a>
     <nav class="links" id="navLinks">
+      <a href="#groups" class="js-groups-link" data-en="Groups" data-sv="Grupper" hidden>Groups</a>
       <a href="#format" data-en="Format" data-sv="Format">Format</a>
       <a href="#nations" data-en="The 32" data-sv="De 32">The 32</a>
-      <a href="#groups" class="js-groups-link" data-en="Groups" data-sv="Grupper" hidden>Groups</a>
       <a href="resultat-2026.html" data-en="Results" data-sv="Resultat">Results</a>
       <a href="regler/" data-en="Rules" data-sv="Regler">Rules</a>
       <a href="#register" data-en="Register" data-sv="Anmälan">Register</a>
@@ -635,7 +638,7 @@ footer a:hover{color:var(--gold)}
           <div class="c"><b id="cd-m">–</b><span>Min</span></div>
           <div class="c"><b id="cd-s">–</b><span data-en="Sec" data-sv="Sek">Sec</span></div>
         </div>
-        <div class="meta" data-en="Official group draw — <b>23 July 2026</b>" data-sv="Officiell gruppdragning — <b>23 juli 2026</b>">Official group draw — <b>23 July 2026</b></div>
+        <div class="meta"><a href="resultat-2026.html" style="color:inherit;text-decoration:none" data-en="Groups drawn — <b style='color:var(--gold-hi)'>results &amp; schedule →</b>" data-sv="Grupperna lottade — <b style='color:var(--gold-hi)'>resultat &amp; spelschema →</b>">Groups drawn — <b style="color:var(--gold-hi)">results &amp; schedule →</b></a></div>
       </div>
       <p class="motto">"Only Football. No Politics. Respect the Game."</p>
     </div>
@@ -652,7 +655,7 @@ footer a:hover{color:var(--gold)}
       <p data-en="32 nations in eight groups of four — the top two in each group advance to Sunday's knockout." data-sv="32 nationer i åtta grupper om fyra — de två bästa i varje grupp går vidare till söndagens slutspel.">32 nations in eight groups of four — the top two in each group advance to Sunday's knockout.</p>
     </div>
     <div class="ed-groups" id="homeGroups"></div>
-    <div class="n32-note rv"><a href="resultat-2026.html" data-en="Full standings &amp; schedule — Results 2026 →" data-sv="Full tabell &amp; spelschema — Resultat 2026 →">Full standings &amp; schedule — Results 2026 →</a></div>
+    <div class="rv" style="text-align:center;margin-top:30px"><a class="btn btn-gold" href="resultat-2026.html" style="font-size:15px;padding:15px 30px" data-en="Full standings &amp; schedule →" data-sv="Full tabell &amp; spelschema →">Full standings &amp; schedule →</a></div>
   </div>
 </section>
 
@@ -699,7 +702,10 @@ footer a:hover{color:var(--gold)}
         <div class="num">02</div>
       </article>
     </div>
-    <div class="draw-note rv">⚽ <span data-en="Official group draw — <b>Thursday 23 July 2026</b>. Groups &amp; schedule published here." data-sv="Officiell gruppdragning — <b>torsdag 23 juli 2026</b>. Grupper &amp; spelschema publiceras här.">Official group draw — <b>Thursday 23 July 2026</b>. Groups &amp; schedule published here.</span></div>
+    <div class="rv" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:30px">
+      <a class="btn btn-line" href="regler/" data-en="📋 Rules" data-sv="📋 Regler">📋 Rules</a>
+      <a class="btn btn-line" href="resultat-2026.html" data-en="Results &amp; schedule →" data-sv="Resultat &amp; spelschema →">Results &amp; schedule →</a>
+    </div>
   </div>
 </section>
 
@@ -722,7 +728,7 @@ footer a:hover{color:var(--gold)}
     <div class="rv">
       <span class="kicker" data-en="Registration 2026" data-sv="Anmälan 2026">Registration 2026</span>
       <h2 style="font-family:var(--disp);font-weight:900;font-stretch:116%;text-transform:uppercase;font-size:clamp(30px,3.8vw,48px);line-height:.98;margin:16px 0 12px" data-en="Register<br><span class='foil'>your nation.</span>" data-sv="Anmäl<br><span class='foil'>din nation.</span>">Register<br><span class="foil">your nation.</span></h2>
-      <p style="color:var(--dim);max-width:460px" data-en="Gather your crew, represent your flag, and play for the cup. Limited spots — secure your nation's place before the tournament fills up." data-sv="Samla ditt gäng, representera din flagga och spela om bucklan. Begränsat antal platser — säkra din nations plats innan turneringen är full.">Gather your crew, represent your flag, and play for the cup. Limited spots — secure your nation's place before the tournament fills up.</p>
+      <div class="regfull" data-en="🔴 <b>Fully booked</b> — all 32 spots for 2026 are taken. Thanks for the huge interest — see you at Östermalms IP!" data-sv="🔴 <b>Fullbokat</b> — alla 32 platser för 2026 är tagna. Tack för det enorma intresset — vi ses på Östermalms IP!">🔴 <b>Fully booked</b> — all 32 spots for 2026 are taken.</div>
       <ul>
         <li><span class="tick">✓</span><div data-en="<b>7 v 7 format</b> — max 16 players per squad" data-sv="<b>7 mot 7</b> — max 16 spelare per lag"><b>7 v 7 format</b> — max 16 players per squad</div></li>
         <li><span class="tick">✓</span><div data-en="<b>Group stage + knockout</b> — 8 groups of 4, then Round of 16 to the Final" data-sv="<b>Gruppspel + slutspel</b> — 8 grupper om 4, sedan åttondelsfinal till final"><b>Group stage + knockout</b> — 8 groups of 4, then Round of 16 to the Final</div></li>
@@ -735,7 +741,7 @@ footer a:hover{color:var(--gold)}
     <form class="reg-form rv d1" id="regForm">
       <span class="pricetag" data-en="Entry fee · TBC / confirmed by email" data-sv="Anmälningsavgift · TBC / bekräftas via e-post">Entry fee · TBC / confirmed by email</span>
       <h3 data-en="Team registration" data-sv="Laganmälan">Team registration</h3>
-      <p class="sub" data-en="Registration open · limited spots" data-sv="Anmälan öppen · begränsat antal platser">Registration open · limited spots</p>
+      <p class="sub" data-en="Registration closed · tournament full" data-sv="Anmälan stängd · turneringen fullbokad">Registration closed · tournament full</p>
       <label data-en="Team / Nation" data-sv="Lag / Nation">Team / Nation</label>
       <input type="text" name="team" data-en-ph="e.g. Team Brazil" data-sv-ph="t.ex. Lag Brasilien" placeholder="e.g. Team Brazil" required />
       <label data-en="Contact person" data-sv="Kontaktperson">Contact person</label>
@@ -915,10 +921,14 @@ footer a:hover{color:var(--gold)}
       <span class="madeby">Made by <a href="https://sriracha.churri.se" target="_blank" rel="noopener">Sriracha</a></span>
       <span data-en="25–26 July 2026 · Östermalms IP" data-sv="25–26 juli 2026 · Östermalms IP">25–26 juli 2026 · Östermalms IP</span>
     </div>
+    <div style="text-align:center;margin-top:28px">
+      <a class="btn btn-line" href="#top" data-en="↑ Back to top" data-sv="↑ Till toppen">↑ Back to top</a>
+    </div>
   </div>
 </footer>
 
 <a class="wa" href="https://api.whatsapp.com/send?phone=46722012733" title="WhatsApp" target="_blank" rel="noopener noreferrer">💬</a>
+<div id="scrollprog" aria-hidden="true" style="position:fixed;left:0;bottom:0;height:4px;width:0;background:var(--gold);z-index:95;transition:width .08s linear;box-shadow:0 0 12px rgba(244,194,13,.55)"></div>
 
 <script>
 /* ================= SPRÅK (EN/SV) ================= */
@@ -1273,6 +1283,15 @@ function showMiniToast(msg){
   }
   load();
   document.querySelectorAll('#langBtn .lng').forEach(el=>el.addEventListener('click',()=>{ if(TEAMS) render(); }));
+})();
+
+/* ================= SCROLL-PROGRESSBAR (gul, botten) ================= */
+(function(){
+  const bar=document.getElementById('scrollprog'); if(!bar) return;
+  const upd=()=>{ const h=document.documentElement, max=h.scrollHeight-h.clientHeight;
+    bar.style.width=(max>0?Math.min(100,h.scrollTop/max*100):0)+'%'; };
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd); upd();
 })();
 
 /* ================= REVEAL ON SCROLL ================= */

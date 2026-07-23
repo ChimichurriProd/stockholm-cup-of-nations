@@ -65,7 +65,7 @@ main{flex:1;padding-bottom:40px}
 .pagehead .chip i{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.8s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(244,194,13,.15)}}
 .pagehead h1{font-family:var(--disp);font-weight:900;font-stretch:118%;text-transform:uppercase;
-  font-size:clamp(30px,5vw,54px);line-height:.96;margin-bottom:12px}
+  font-size:clamp(25px,5.6vw,54px);line-height:.96;margin-bottom:12px;white-space:nowrap}
 .pagehead p{color:var(--dim);font-size:15.5px;max-width:560px;margin:0 auto}
 .updated{margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#5b6a92}
 
@@ -484,11 +484,18 @@ footer{border-top:1px solid var(--line);padding:20px 26px;text-align:center;marg
   <!-- ============ SLUTSPEL ============ -->
   <section id="koSec" hidden>
     <div class="wrap">
+      <div class="combobox open" id="koBox">
+      <div class="combohead" id="koToggle" role="button" tabindex="0" aria-expanded="true" aria-controls="koBody">
       <div class="sec-h">
         <span class="kicker" data-en="Knockout · Sunday 26 July" data-sv="Slutspel · Söndag 26 juli">Slutspel · Söndag 26 juli</span>
         <h2 data-en="Road to the <span class='foil'>final.</span>" data-sv="Vägen till <span class='foil'>finalen.</span>">Road to the <span class="foil">final.</span></h2>
       </div>
+      <i class="chev" aria-hidden="true">▾</i>
+      </div>
+      <div class="venuebody" id="koBody">
       <div class="ko-grid" id="koGrid"></div>
+      </div>
+      </div>
     </div>
   </section>
 </main>
@@ -731,7 +738,7 @@ function syncMap(){
     g.classList.toggle('sel',g.dataset.pitch===pitchFilter));
 }
 /* Kollapsbara rutor: Planerna+Grupperna resp. Spelschemat */
-[['venueBox','venueToggle'],['schedBox','schedToggle']].forEach(function(pair){
+[['venueBox','venueToggle'],['schedBox','schedToggle'],['koBox','koToggle']].forEach(function(pair){
   const box=document.getElementById(pair[0]), head=document.getElementById(pair[1]);
   if(!box||!head) return;
   const toggle=()=>{ head.setAttribute('aria-expanded', box.classList.toggle('open')); };
